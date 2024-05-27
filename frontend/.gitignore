@@ -890,3 +890,4 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.toptal.com/developers/gitignore/api/intellij,vs,react,reactnative,java,macos,windows,linux,node
+.env

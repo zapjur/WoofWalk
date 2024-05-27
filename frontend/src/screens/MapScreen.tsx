@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import apiClient from "../../axiosConfig";
+import { GOOGLE_MAPS_API_KEY } from '@env';
 
 interface Location {
     id: number;
