@@ -1,21 +1,34 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
-import AddPlaceButton from "../components/AddPlaceButton";
+import apiClient from "../../axiosConfig";
 
-interface Place {
+interface Location {
     id: number;
     latitude: number;
     longitude: number;
-    title: string;
+    name: string;
     description: string;
+    rating: number;
 }
 
 const MapScreen: React.FC = () => {
-    const places: Place[] = [
-        { id: 1, latitude: 50.0614300, longitude: 19.9365800, title: "Dog Park 1", description: "A nice place to walk your dog" },
-        { id: 2, latitude: 50.0514300, longitude: 19.9465800, title: "Dog Park 2", description: "Another great place for dogs" },
-    ];
+    const [locations, setLocations] = useState<Location[]>([]);
+
+    useEffect(() => {
+        apiClient.get('/locations')
+            .then(response => {
+                console.log('Response data:', response.data);
+                if (Array.isArray(response.data)) {
+                    setLocations(response.data);
+                } else {
+                    console.error('Invalid data format:', response.data);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }, []);
 
     return (
         <MapView
@@ -27,16 +40,16 @@ const MapScreen: React.FC = () => {
                 longitudeDelta: 0.0421,
             }}
         >
-            {places.map(place => (
+            {locations.map(location => (
                 <Marker
-                    key={place.id}
-                    coordinate={{ latitude: place.latitude, longitude: place.longitude }}
-                    title={place.title}
-                    description={place.description}
+                    key={location.id}
+                    coordinate={{ latitude: location.latitude, longitude: location.longitude }}
+                    title={location.name}
+                    description={location.description}
                 />
             ))}
         </MapView>
-);
+    );
 };
 
 const styles = StyleSheet.create({

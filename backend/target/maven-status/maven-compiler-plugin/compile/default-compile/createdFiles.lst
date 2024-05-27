@@ -1,4 +1,5 @@
 com/WoofWalk/backend/services/LocationService.class
+com/WoofWalk/backend/config/SecurityConfig.class
 com/WoofWalk/backend/config/LoadSeedData.class
 com/WoofWalk/backend/BackendApplication.class
 com/WoofWalk/backend/controllers/LocationController.class
