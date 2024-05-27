@@ -1,13 +1,10 @@
 import axios, { AxiosInstance } from 'axios';
+import {Platform} from "react-native";
 
-let baseURL;
-
-if (typeof navigator !== 'undefined' && navigator.userAgent) {
-    const isMacOS = navigator.userAgent.indexOf('Mac OS') !== -1;
-    baseURL = isMacOS ? 'http://localhost:8080' : 'http://10.0.2.2:8080';
-} else {
-    baseURL = 'http://10.0.2.2:8080';
-}
+const baseURL = Platform.select({
+    ios: 'http://localhost:8080', // URL dla iOS
+    android: 'http://10.0.2.2:8080', // URL dla Android Emulator
+});
 const apiClient: AxiosInstance = axios.create({
     baseURL: baseURL,
     timeout: 10000,
