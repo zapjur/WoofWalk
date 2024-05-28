@@ -6,7 +6,8 @@ export default ({ config }) => {
         ios: {
             ...config.ios,
             config: {
-                googleMapsApiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY
+                googleMapsApiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY,
+                bundleIdentifier: "com.anonymous.frontend",
             },
             infoPlist: {
                 NSLocationWhenInUseUsageDescription: "This app uses your location to show your position on the map."
@@ -23,8 +24,9 @@ export default ({ config }) => {
         extra: {
             googleMapsApiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY,
             eas: {
-                projectId: "134f1c30-c6b1-47ff-a0db-e4cb41ef9255"
+                projectId: "bbfed984-781e-4a20-8565-4ff4b6ee249e"
             }
         }
-    };
+
+    }
 };

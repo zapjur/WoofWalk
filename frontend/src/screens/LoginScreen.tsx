@@ -16,7 +16,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
         console.log("login button clicked");
         try {
             const authResult = await authorize();
-            console.log("Auth result: " + authResult);
+            console.log("Auth result: " + authResult?.idToken);
             if (authResult && authResult.accessToken) {
                 navigation.navigate('Map');
             }else{
