@@ -2,7 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import apiClient from "../../axiosConfig";
-import { GOOGLE_MAPS_API_KEY } from '@env';
+import {useAuth0} from "react-native-auth0";
+import BottomBar from "../components/BottomBar";
+import AddPlaceButton from "../components/AddPlaceButton";
+import RootStackParamList from "../../RootStackParamList";
+import {StackNavigationProp} from "@react-navigation/stack";
 
 interface Location {
     id: number;
@@ -12,10 +16,15 @@ interface Location {
     description: string;
     rating: number;
 }
+type MapScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Map'>;
 
-const MapScreen: React.FC = () => {
+interface MapScreenProps {
+    navigation: MapScreenNavigationProp;
+}
+const MapScreen: React.FC<MapScreenProps> = ({navigation}) => {
     const [locations, setLocations] = useState<Location[]>([]);
-
+    const {user, error} = useAuth0();
+    console.log(user?.name);
     useEffect(() => {
         apiClient.get('/locations')
             .then(response => {
@@ -32,24 +41,28 @@ const MapScreen: React.FC = () => {
     }, []);
 
     return (
-        <MapView
-            style={styles.map}
-            initialRegion={{
-                latitude: 50.0614300,
-                longitude: 19.9365800,
-                latitudeDelta: 0.0922,
-                longitudeDelta: 0.0421,
-            }}
-        >
-            {locations.map(location => (
-                <Marker
-                    key={location.id}
-                    coordinate={{ latitude: location.latitude, longitude: location.longitude }}
-                    title={location.name}
-                    description={location.description}
-                />
-            ))}
-        </MapView>
+       <View style={styles.container}>
+            <MapView
+                style={styles.map}
+                initialRegion={{
+                    latitude: 50.0614300,
+                    longitude: 19.9365800,
+                    latitudeDelta: 0.0922,
+                    longitudeDelta: 0.0421,
+                }}
+            >
+                {locations.map(location => (
+                    <Marker
+                        key={location.id}
+                        coordinate={{ latitude: location.latitude, longitude: location.longitude }}
+                        title={location.name}
+                        description={location.description}
+                    />
+                ))}
+            </MapView>
+            <AddPlaceButton/>
+            <BottomBar navigation={navigation}/>
+       </View>
     );
 };
 
@@ -59,6 +72,9 @@ const styles = StyleSheet.create({
         width: '100%',
         height: '100%',
     },
+    container: {
+        flex: 1
+    }
 });
 
 export default MapScreen;

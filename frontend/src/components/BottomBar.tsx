@@ -2,10 +2,34 @@ import React from 'react';
 import { View, TouchableOpacity, StyleSheet, Text } from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
+import {useAuth0} from "react-native-auth0";
+import RootStackParamList from "../../RootStackParamList";
+import {StackNavigationProp} from "@react-navigation/stack";
 
-const BottomBar: React.FC = () => {
+type MapScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Map'>;
+
+interface BottomBarProps {
+    navigation: MapScreenNavigationProp;
+}
+
+const BottomBar: React.FC<BottomBarProps> = ({navigation}) => {
+    const {clearSession} = useAuth0();
+    const handleLogoutButtonPress = async () => {
+        try {
+            await clearSession();
+            console.log("User's session cleared")
+            navigation.navigate('Login');
+        } catch (e) {
+            console.log(e);
+        }
+
+    }
     return (
         <View style={styles.container}>
+            <TouchableOpacity style={styles.button} onPress={handleLogoutButtonPress}>
+                <MaterialIcon name="logout" size={30} color="#007bff"/>
+                <Text style={styles.buttonText}>LogOut</Text>
+            </TouchableOpacity>
             <TouchableOpacity style={styles.button}>
                 <MaterialIcon name="map" size={30} color="#007bff" />
                 <Text style={styles.buttonText}>Map</Text>

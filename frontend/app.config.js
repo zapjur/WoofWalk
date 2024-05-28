@@ -1,7 +1,6 @@
 import 'dotenv/config';
 
 export default ({ config }) => {
-   console.log("google maps api key nasze:" + process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY)
     return {
         ...config,
         ios: {
