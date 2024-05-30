@@ -17,9 +17,9 @@ interface Location {
     rating: number;
 }
 type MapScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Map'>;
-
+type UserScreenNavigationProp = StackNavigationProp<RootStackParamList, 'User'>
 interface MapScreenProps {
-    navigation: MapScreenNavigationProp;
+    navigation: MapScreenNavigationProp & UserScreenNavigationProp;
 }
 const MapScreen: React.FC<MapScreenProps> = ({navigation}) => {
     const [locations, setLocations] = useState<Location[]>([]);

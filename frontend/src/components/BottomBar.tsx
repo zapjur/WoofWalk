@@ -7,30 +7,23 @@ import RootStackParamList from "../../RootStackParamList";
 import {StackNavigationProp} from "@react-navigation/stack";
 
 type MapScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Map'>;
-
+type UserScreenNavigationProp = StackNavigationProp<RootStackParamList, 'User'>
 interface BottomBarProps {
-    navigation: MapScreenNavigationProp;
+    navigation: MapScreenNavigationProp & UserScreenNavigationProp;
 }
 
 const BottomBar: React.FC<BottomBarProps> = ({navigation}) => {
-    const {clearSession} = useAuth0();
-    const handleLogoutButtonPress = async () => {
-        try {
-            await clearSession();
-            console.log("User's session cleared")
-            navigation.navigate('Login');
-        } catch (e) {
-            console.log(e);
-        }
 
+    const handleUserProfileButtonPress = () =>{
+        navigation.navigate('User');
+    }
+    const handleMapButtonPress = () =>{
+        navigation.navigate('Map');
     }
     return (
         <View style={styles.container}>
-            <TouchableOpacity style={styles.button} onPress={handleLogoutButtonPress}>
-                <MaterialIcon name="logout" size={30} color="#007bff"/>
-                <Text style={styles.buttonText}>LogOut</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.button}>
+
+            <TouchableOpacity style={styles.button} onPress={handleMapButtonPress}>
                 <MaterialIcon name="map" size={30} color="#007bff" />
                 <Text style={styles.buttonText}>Map</Text>
             </TouchableOpacity>
@@ -42,7 +35,7 @@ const BottomBar: React.FC<BottomBarProps> = ({navigation}) => {
                 <MaterialIcon name="chat" size={30} color="#007bff" />
                 <Text style={styles.buttonText}>Chat</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.button}>
+            <TouchableOpacity style={styles.button} onPress={handleUserProfileButtonPress}>
                 <MaterialIcon name="person" size={30} color="#007bff" />
                 <Text style={styles.buttonText}>Profile</Text>
             </TouchableOpacity>
