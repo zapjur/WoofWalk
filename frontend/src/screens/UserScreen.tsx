@@ -24,6 +24,7 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
             await clearSession();
             console.log("User's session cleared")
             navigation.navigate('Login');
+
         } catch (e) {
             console.log(e);
         }
@@ -113,7 +114,7 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
             >
                 <View style={styles.modalContainer}>
                     <View style={styles.modalContent}>
-                        <Text style={styles.modalTitle}>Names</Text>
+                        <Text style={styles.modalTitle}>Creators of WoofWalk</Text>
                         <FlatList
                             data={authors}
                             renderItem={({ item }) => (
@@ -141,14 +142,17 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
                 <View style={styles.modalContainer}>
                     <View style={styles.modalContent}>
                         <Text style={styles.modalTitle}>Change Profile Picture</Text>
-                        <TouchableOpacity style={styles.modalItem}>
-                            <MaterialIcon name="photo-camera" size={24} color="#000" />
-                            <Text style={styles.modalText}>Take a Photo</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.modalItem}>
-                            <MaterialIcon name="photo-library" size={24} color="#000" />
-                            <Text style={styles.modalText}>Choose from Gallery</Text>
-                        </TouchableOpacity>
+                        <View style={styles.modalItems}>
+                            <TouchableOpacity style={styles.modalProfilePictureItem}>
+                                <MaterialIcon name="photo-camera" size={45} color="#000" />
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.modalProfilePictureItem}>
+                                <MaterialIcon name="photo-library" size={45} color="#000" />
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.modalProfilePictureItem}>
+                                <MaterialIcon name="delete" size={45} color="#000" />
+                            </TouchableOpacity>
+                        </View>
                         <TouchableOpacity style={styles.closeButton} onPress={handleClosePhotoModal}>
                             <Text style={styles.closeButtonText}>Close</Text>
                         </TouchableOpacity>
@@ -211,6 +215,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         marginBottom: 30,
+        marginLeft: 10,
     },
     infoText: {
         fontSize: 16,
@@ -218,6 +223,7 @@ const styles = StyleSheet.create({
     },
     menuSection: {
         marginTop: 0,
+        marginLeft: 10,
     },
     menuItem: {
         flexDirection: 'row',
@@ -244,12 +250,22 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         alignItems: 'center',
     },
+    modalItems:{
+        flexDirection: 'row',
+        alignItems: 'center',
+        width: '100%',
+        justifyContent: "space-evenly",
+    },
     modalItem: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
         marginBottom: 10,
         width: '100%',
+    },
+    modalProfilePictureItem: {
+        marginBottom: 0,
+        marginTop: 5,
     },
     modalTitle: {
         fontSize: 20,
