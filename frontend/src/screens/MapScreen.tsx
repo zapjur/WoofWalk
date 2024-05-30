@@ -41,7 +41,7 @@ const MapScreen: React.FC<MapScreenProps> = ({navigation}) => {
     }, []);
 
     return (
-       <View style={styles.container}>
+        <View style={styles.container}>
             <MapView
                 style={styles.map}
                 initialRegion={{
@@ -62,7 +62,7 @@ const MapScreen: React.FC<MapScreenProps> = ({navigation}) => {
             </MapView>
             <AddPlaceButton/>
             <BottomBar navigation={navigation}/>
-       </View>
+        </View>
     );
 };
 
