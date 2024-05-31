@@ -17,11 +17,14 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
     const {user} = useAuth0();
     const [namesModalVisible, setNamesModalVisible] = useState(false);
     const [photoModalVisible, setPhotoModalVisible] = useState(false);
+
     const {clearSession} = useAuth0();
 
     const handleLogoutButtonPress = async () => {
         try {
-            await clearSession();
+            await clearSession({
+                federated: true
+            });
             console.log("User's session cleared")
             navigation.navigate('Login');
 
