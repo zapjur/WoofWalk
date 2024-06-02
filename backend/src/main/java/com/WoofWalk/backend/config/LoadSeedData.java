@@ -22,6 +22,7 @@ public class LoadSeedData {
                 location.setDescription("Fajne duze pole");
                 location.setLatitude(50.0595);
                 location.setLongitude(19.910139);
+                location.setRating(4.5);
                 locationRepository.save(location);
             }
         };

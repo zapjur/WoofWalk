@@ -1,5 +1,6 @@
 import axios, { AxiosInstance } from 'axios';
 import {Platform} from "react-native";
+import * as SecureStore from 'expo-secure-store';
 
 const baseURL = Platform.select({
     ios: 'http://localhost:8080', // URL dla iOS
@@ -14,15 +15,22 @@ const apiClient: AxiosInstance = axios.create({
 });
 
 apiClient.interceptors.request.use(
-    config => {
-        // token tu
-        // config.headers.Authorization = `Bearer ${token}`;
+    async config => {
+        try {
+            const token = await SecureStore.getItemAsync('authToken');
+            if (token) {
+                config.headers.Authorization = `Bearer ${token}`;
+            }
+        } catch (error) {
+            console.error('Error fetching the token', error);
+        }
         return config;
     },
     error => {
         return Promise.reject(error);
     }
 );
+
 
 apiClient.interceptors.response.use(
     response => {

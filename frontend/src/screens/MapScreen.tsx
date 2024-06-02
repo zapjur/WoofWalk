@@ -38,10 +38,28 @@ const MapScreen: React.FC<MapScreenProps> = ({navigation}) => {
             .catch(error => {
                 console.error('Error:', error);
             });
+        createUser();
     }, []);
 
+    const createUser = async () => {
+        try {
+            console.log("User:", user);
+            if(user) {
+                const userData = {
+                    email: user.email,
+                    nickname: user.nickname
+                };
+                const response = await apiClient.post("/user/createUser", userData);
+                console.log("Response:", response.data);
+            }
+        }
+        catch (e){
+            console.log(e);
+        }
+    };
+
     return (
-       <View style={styles.container}>
+        <View style={styles.container}>
             <MapView
                 style={styles.map}
                 initialRegion={{
@@ -62,7 +80,7 @@ const MapScreen: React.FC<MapScreenProps> = ({navigation}) => {
             </MapView>
             <AddPlaceButton/>
             <BottomBar navigation={navigation}/>
-       </View>
+        </View>
     );
 };
 
