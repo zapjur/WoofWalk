@@ -26,7 +26,9 @@ export default ({ config }) => {
             eas: {
                 projectId: "bbfed984-781e-4a20-8565-4ff4b6ee249e"
             }
-        }
-
+        },
+        plugins: [
+            "expo-secure-store"
+        ]
     }
 };

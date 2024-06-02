@@ -3,6 +3,7 @@ import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import RootStackParamList from '../../RootStackParamList';
 import {useAuth0} from "react-native-auth0";
+import * as SecureStore from 'expo-secure-store';
 
 type LoginScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Login'>;
 
@@ -12,12 +13,15 @@ interface LoginScreenProps {
 
 const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
     const {authorize} = useAuth0();
+    const {user, error} = useAuth0();
     const handleLoginPress = async () => {
-        console.log("login button clicked");
         try {
-            const authResult = await authorize();
-            console.log("Auth result: " + authResult?.idToken);
+            const authResult = await authorize({
+                audience: 'https://dev-h5zqtrdr8n7sgz84.us.auth0.com/api/v2/',
+            });
+            console.log("Auth result: " + authResult?.accessToken);
             if (authResult && authResult.accessToken) {
+                await SecureStore.setItemAsync('authToken', authResult.accessToken);
                 navigation.navigate('Map');
             }else{
                 console.log('Authorization failed, no access token returned');
@@ -28,6 +32,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
         }
 
     };
+
     return (
         <View style={styles.container}>
             <TouchableOpacity style={styles.loginButton}>

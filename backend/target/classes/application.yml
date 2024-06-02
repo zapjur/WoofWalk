@@ -17,7 +17,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: dev-h5zqtrdr8n7sgz84.us.auth0.com
+          issuer-uri: https://dev-h5zqtrdr8n7sgz84.us.auth0.com/
 
 server:
   port: 8080

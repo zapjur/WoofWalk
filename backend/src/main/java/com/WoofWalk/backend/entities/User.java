@@ -14,11 +14,8 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
-    private String auth0Id;
-
     @Column(nullable = false)
-    private String username;
+    private String nickname;
 
     @Column(nullable = false, unique = true)
     private String email;
