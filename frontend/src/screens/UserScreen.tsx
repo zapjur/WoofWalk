@@ -6,7 +6,7 @@ import {StackNavigationProp} from "@react-navigation/stack";
 import RootStackParamList from "../../RootStackParamList";
 import {useAuth0} from "react-native-auth0";
 import MaterialCommunityIcon from "react-native-vector-icons/MaterialCommunityIcons";
-
+import * as ImagePicker from "expo-image-picker";
 
 type MapScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Map'>;
 type UserScreenNavigationProp = StackNavigationProp<RootStackParamList, 'User'>
@@ -17,7 +17,7 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
     const {user} = useAuth0();
     const [namesModalVisible, setNamesModalVisible] = useState(false);
     const [photoModalVisible, setPhotoModalVisible] = useState(false);
-
+    const [image, setImage] = useState("none");
     const {clearSession} = useAuth0();
 
     const handleLogoutButtonPress = async () => {
@@ -56,7 +56,58 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
     const handleClosePhotoModal = () => {
         setPhotoModalVisible(false);
     };
+    const uploadImage = async (mode:string) => {
 
+        try{
+            if(mode === "gallery"){
+                await ImagePicker.requestMediaLibraryPermissionsAsync();
+                const result = await ImagePicker.launchImageLibraryAsync({
+                    mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                    allowsEditing: true,
+                    aspect: [1,1],
+                    quality: 1,
+                })
+                if(!result.canceled){
+                    await saveImage(result.assets[0].uri);
+                }
+            }
+            else{
+                await ImagePicker.requestCameraPermissionsAsync();
+                const result = await ImagePicker.launchCameraAsync(
+                    {
+                        cameraType: ImagePicker.CameraType.front,
+                        allowsEditing: true,
+                        aspect: [1, 1],
+                        quality: 1,
+                    });
+                if(!result.canceled){
+                    await saveImage(result.assets[0].uri);
+                }
+            }
+
+
+        }
+        catch (error){
+            alert("Error uploading image " + error);
+            setPhotoModalVisible(false);
+        }
+    }
+    const saveImage = async ( image: string) => {
+        try {
+            // save in database
+            setImage(image);
+            setPhotoModalVisible(false);
+        }
+        catch (error){
+            setPhotoModalVisible(false);
+            throw error;
+        }
+    }
+    const deleteImage = () => {
+        // delete from database
+        setImage("none");
+        setPhotoModalVisible(false);
+    }
 
     return (
         <View style={styles.container}>
@@ -66,7 +117,7 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
             <View style={styles.profileInfo}>
                 <View style={styles.profileImageContainer}>
                     <Image
-                        source={{ uri: 'https://cdn-icons-png.flaticon.com/128/848/848043.png' }}
+                        source={{ uri: image != "none" ? image : 'https://cdn-icons-png.flaticon.com/128/848/848043.png' }}
                         style={styles.profileImage}
                     />
                     <TouchableOpacity style={styles.cameraIcon} onPress={handleOpenPhotoModal}>
@@ -144,16 +195,16 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
             >
                 <View style={styles.modalContainer}>
                     <View style={styles.modalContent}>
-                        <Text style={styles.modalTitle}>Change Profile Picture</Text>
+                        <Text style={styles.modalTitleProfilePicture}>Profile Picture</Text>
                         <View style={styles.modalItems}>
-                            <TouchableOpacity style={styles.modalProfilePictureItem}>
-                                <MaterialIcon name="photo-camera" size={45} color="#000" />
+                            <TouchableOpacity style={styles.modalProfilePictureItem} onPress={() => uploadImage("photo")}>
+                                <MaterialIcon name="photo-camera" size={55} color="#000" />
                             </TouchableOpacity>
-                            <TouchableOpacity style={styles.modalProfilePictureItem}>
-                                <MaterialIcon name="photo-library" size={45} color="#000" />
+                            <TouchableOpacity style={styles.modalProfilePictureItem} onPress={() => uploadImage("gallery")}>
+                                <MaterialIcon name="photo-library" size={55} color="#000" />
                             </TouchableOpacity>
-                            <TouchableOpacity style={styles.modalProfilePictureItem}>
-                                <MaterialIcon name="delete" size={45} color="#000" />
+                            <TouchableOpacity style={styles.modalProfilePictureItem} onPress={deleteImage}>
+                                <MaterialIcon name="delete" size={55} color="#000" />
                             </TouchableOpacity>
                         </View>
                         <TouchableOpacity style={styles.closeButton} onPress={handleClosePhotoModal}>
@@ -272,6 +323,11 @@ const styles = StyleSheet.create({
     },
     modalTitle: {
         fontSize: 20,
+        fontWeight: 'bold',
+        marginBottom: 10,
+    },
+    modalTitleProfilePicture: {
+        fontSize: 25,
         fontWeight: 'bold',
         marginBottom: 10,
     },

@@ -12,6 +12,9 @@
         {
           "domain": "dev-h5zqtrdr8n7sgz84.us.auth0.com"
         }
+      ],
+      [
+        "expo-secure-store"
       ]
     ],
     "splash": {
@@ -35,7 +38,7 @@
     },
     "extra": {
       "eas": {
-        "projectId": "bbfed984-781e-4a20-8565-4ff4b6ee249e"
+        "projectId": "134f1c30-c6b1-47ff-a0db-e4cb41ef9255"
       }
     }
 
