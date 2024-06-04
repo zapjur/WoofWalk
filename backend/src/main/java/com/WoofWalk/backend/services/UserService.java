@@ -4,6 +4,7 @@ import com.WoofWalk.backend.dto.UserDto;
 import com.WoofWalk.backend.entities.User;
 import com.WoofWalk.backend.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
@@ -28,5 +29,14 @@ public class UserService {
             newUser.setNickname(userDto.getNickname());
             return saveUser(newUser);
         });
+    }
+    public User updateAddress(UserDto userDto){
+        Optional<User> userOptional = userRepository.findByEmail(userDto.getEmail());
+        if(userOptional.isPresent()){
+            User user = userOptional.get();
+            user.setAddress(userDto.getAddress());
+            return saveUser(user);
+        }
+        return null;
     }
 }
