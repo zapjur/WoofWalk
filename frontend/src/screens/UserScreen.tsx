@@ -1,5 +1,15 @@
-import React, {useState} from 'react';
-import {View, Text, StyleSheet, Image, TouchableOpacity, Modal, FlatList, Linking} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {
+    View,
+    Text,
+    StyleSheet,
+    Image,
+    TouchableOpacity,
+    Modal,
+    FlatList,
+    Linking,
+    TextInput,
+} from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import BottomBar from "../components/BottomBar";
 import {StackNavigationProp} from "@react-navigation/stack";
@@ -7,6 +17,7 @@ import RootStackParamList from "../../RootStackParamList";
 import {useAuth0} from "react-native-auth0";
 import MaterialCommunityIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import * as ImagePicker from "expo-image-picker";
+import apiClient from "../../axiosConfig";
 
 type MapScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Map'>;
 type UserScreenNavigationProp = StackNavigationProp<RootStackParamList, 'User'>
@@ -17,9 +28,42 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
     const {user} = useAuth0();
     const [namesModalVisible, setNamesModalVisible] = useState(false);
     const [photoModalVisible, setPhotoModalVisible] = useState(false);
+    const [address, setAddress] = useState("Provide your address");
+    const [editingAddress, setEditingAddress] = useState(false);
+    const [phoneNumber, setPhoneNumber] = useState("Provide your phone number");
+    const [editingPhoneNumber, setEditingPhoneNumber] = useState(false);
     const [image, setImage] = useState("none");
     const {clearSession} = useAuth0();
+    useEffect(() => {
+        if(user){
+             apiClient.get("/user/getAddress", {
+                params: {
+                    email: user.email,
+                }
+            }).then(response =>{
+                    if(response.data.length !== 0){
+                        setAddress(response.data);
+                    }
+                    else{
+                        setAddress("Provide your address");
+                    }
+                });
+            apiClient.get("/user/getPhoneNumber", {
+                params: {
+                    email: user.email,
+                }
+            }).then(response =>{
+                    if(response.data.length !== 0){
+                        setPhoneNumber(response.data);
+                    }
+                    else{
+                        setPhoneNumber("Provide your phone number");
+                    }
+            });
 
+        }
+
+    }, []);
     const handleLogoutButtonPress = async () => {
         try {
             await clearSession({
@@ -55,6 +99,34 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
 
     const handleClosePhotoModal = () => {
         setPhotoModalVisible(false);
+    };
+    const handleEditAddressClick = () => {
+        setEditingAddress(true);
+    };
+
+    const handleEditAddressSaveClick = async () => {
+        if(user){
+            const userData = {
+                email : user.email,
+                address: address
+            }
+             apiClient.post("/user/updateAddress", userData);
+        }
+        setEditingAddress(false);
+    };
+    const handleEditPhoneNumberClick = () => {
+        setEditingPhoneNumber(true);
+    };
+
+    const handleEditPhoneNumberSaveClick = () => {
+        if(user){
+            const userData = {
+                email : user.email,
+                phoneNumber: phoneNumber,
+            }
+            apiClient.post("/user/updatePhoneNumber", userData);
+        }
+        setEditingPhoneNumber(false);
     };
     const uploadImage = async (mode:string) => {
 
@@ -134,13 +206,56 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
                 <MaterialIcon name="email" size={24} color="#007bff" />
                 <Text style={styles.infoText}>{user?.email}</Text>
             </View>
-            <View style={styles.infoSection}>
-                <MaterialIcon name="phone" size={24} color="#007bff" />
-                <Text style={styles.infoText}>+48 123 123 123</Text>
+            <View style={styles.infoSectionEdit}>
+                <View style={styles.infoSectionEditComponent}>
+                    <MaterialIcon name="phone" size={24} color="#007bff" />
+                    {editingPhoneNumber ? (
+                        <TextInput
+                            style={styles.infoText}
+                            keyboardType={"numeric"}
+                            onChangeText={setPhoneNumber}
+                            placeholder="Provide your phone number"
+                        />
+                    ) : (
+                        <Text style= {styles.infoText}>{phoneNumber}</Text>
+                    )}
+                </View>
+                <View style={styles.infoSectionEditComponent}>
+                    {editingPhoneNumber ? (
+                        <TouchableOpacity onPress={handleEditPhoneNumberSaveClick}>
+                            <MaterialIcon name={"save"} size={17}></MaterialIcon>
+                        </TouchableOpacity>
+                    ) : (
+                        <TouchableOpacity onPress={handleEditPhoneNumberClick}>
+                            <MaterialIcon name={"edit"} size={17}></MaterialIcon>
+                        </TouchableOpacity>
+                    )}
+                </View>
             </View>
-            <View style={styles.infoSection}>
-                <MaterialIcon name="location-on" size={24} color="#007bff" />
-                <Text style={styles.infoText}>Warmątowice Sienkiewiczowskie 21/37</Text>
+            <View style={styles.infoSectionEdit}>
+                <View style={styles.infoSectionEditComponent}>
+                    <MaterialIcon name="location-on" size={24} color="#007bff" />
+                    {editingAddress ? (
+                        <TextInput
+                            style={styles.infoText}
+                            onChangeText={setAddress}
+                            placeholder="Provide your address"
+                        />
+                    ) : (
+                        <Text style= {styles.infoText}>{address}</Text>
+                    )}
+                </View>
+                <View style={styles.infoSectionEditComponent}>
+                    {editingAddress ? (
+                        <TouchableOpacity onPress={handleEditAddressSaveClick}>
+                            <MaterialIcon name={"save"} size={17}></MaterialIcon>
+                        </TouchableOpacity>
+                    ) : (
+                        <TouchableOpacity onPress={handleEditAddressClick}>
+                            <MaterialIcon name={"edit"} size={17}></MaterialIcon>
+                        </TouchableOpacity>
+                    )}
+                </View>
             </View>
             <View style={styles.infoHeader}>
                 <Text style={styles.infoHeaderText}>Utilities</Text>
@@ -255,7 +370,7 @@ const styles = StyleSheet.create({
     },
     userName: {
         fontSize: 20,
-        fontWeight: 'bold',
+        fontWeight: 'bold'
     },
     infoHeaderText:{
         fontSize: 17,
@@ -265,15 +380,37 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: '#666',
     },
+
     infoSection: {
-        flexDirection: 'row',
-        alignItems: 'center',
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center",
         marginBottom: 30,
         marginLeft: 10,
     },
+    infoSectionEdit: {
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between"
+    },
+
+    infoSectionEditComponent:{
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center",
+        marginLeft: 10,
+        marginBottom: 30,
+    },
+
     infoText: {
         fontSize: 16,
         marginLeft: 15,
+    },
+    editView:{
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "flex-end",
     },
     menuSection: {
         marginTop: 0,
