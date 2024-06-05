@@ -28,10 +28,12 @@ public class UserController {
     public User updatePhoneNumber(@RequestBody UserDto userDto){
         return userService.updatePhoneNumber(userDto);
     }
+
     @GetMapping("/getAddress")
     public String getAddress(@RequestParam("email") String email ){
         return userService.getAddress(email);
     }
+
     @GetMapping("/getPhoneNumber")
     public String getPhoneNumber(@RequestParam("email") String email){
         return userService.getPhoneNumber(email);
