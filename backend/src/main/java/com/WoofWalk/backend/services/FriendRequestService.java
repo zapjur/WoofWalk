@@ -6,6 +6,8 @@ import com.WoofWalk.backend.repositories.FriendRequestRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class FriendRequestService {
@@ -20,5 +22,12 @@ public class FriendRequestService {
         friendRequest.setReceiverEmail(friendRequestDto.getReceiverEmail());
         friendRequest.setSenderEmail(friendRequestDto.getSenderEmail());
         return saveFriendRequest(friendRequest);
+    }
+    public List<FriendRequest> getReceivedFriendRequests(String receiverEmail){
+        return friendRequestRepository.findByReceiverEmail(receiverEmail);
+    }
+
+    public List<FriendRequest> getSentFriendRequests(String senderEmail){
+        return friendRequestRepository.findBySenderEmail(senderEmail);
     }
 }

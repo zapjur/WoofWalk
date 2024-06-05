@@ -4,11 +4,9 @@ import com.WoofWalk.backend.dto.FriendRequestDto;
 import com.WoofWalk.backend.entities.FriendRequest;
 import com.WoofWalk.backend.services.FriendRequestService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/friends")
@@ -20,5 +18,18 @@ public class FriendRequestController {
     @PostMapping("/invite")
     public FriendRequest inviteFriend(@RequestBody FriendRequestDto friendRequestDto){
        return friendRequestService.createFriendRequestInDatabase(friendRequestDto);
+    }
+
+    @GetMapping("/receivedFriendRequests")
+    public List<FriendRequest> getReceivedFriendRequests(
+            @RequestParam("receiverEmail") String receiverEmail){
+        return friendRequestService.getReceivedFriendRequests(receiverEmail);
+    }
+
+    @GetMapping("/sentFriendRequests")
+    public List<FriendRequest> getSentFriendRequests(
+            @RequestParam("senderEmail") String senderEmail
+    ){
+        return friendRequestService.getSentFriendRequests(senderEmail);
     }
 }
