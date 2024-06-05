@@ -11,3 +11,4 @@ com/WoofWalk/backend/entities/Location.class
 com/WoofWalk/backend/services/UserService.class
 com/WoofWalk/backend/config/WebConfig.class
 com/WoofWalk/backend/dto/UserDto.class
+com/WoofWalk/backend/AWSSecretManagerService.class
