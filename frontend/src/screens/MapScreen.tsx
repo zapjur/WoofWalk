@@ -25,11 +25,9 @@ interface MapScreenProps {
 const MapScreen: React.FC<MapScreenProps> = ({navigation}) => {
     const [locations, setLocations] = useState<Location[]>([]);
     const {user, error} = useAuth0();
-    console.log(user?.name);
     useEffect(() => {
         apiClient.get('/locations')
             .then(response => {
-                console.log('Response data:', response.data);
                 if (Array.isArray(response.data)) {
                     setLocations(response.data);
                 } else {
@@ -44,7 +42,6 @@ const MapScreen: React.FC<MapScreenProps> = ({navigation}) => {
 
     const createUser = async () => {
         try {
-            console.log("User:", user);
             if(user) {
                 const userData = {
                     email: user.email,

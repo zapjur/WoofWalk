@@ -20,9 +20,8 @@ const AddFriendButton: React.FC = () => {
                     senderEmail: user.email,
                     receiverEmail: ReceiverEmail,
                 }
-                const response = await apiClient.post("/friends/invite", friendRequestData);
+                await apiClient.post("/friends/invite", friendRequestData);
                 setModalVisible(false);
-                console.log(response.data);
 
             }
         }
