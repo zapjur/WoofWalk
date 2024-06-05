@@ -1,14 +1,7 @@
 spring:
+  application:
+    name: backend
   cloud:
     aws:
-      region:
-        static: eu-north-1
-      credentials:
-        accessKey: ${aws.accessKeyId}
-        secretKey: ${aws.secretAccessKey}
       secretsmanager:
-        enabled: true
-        region: eu-north-1
-        prefix: secrets/woof-walk
-        defaultContext: application
-        fail-fast: true
+        enabled: false

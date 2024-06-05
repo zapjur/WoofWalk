@@ -1,8 +1,14 @@
 spring:
+  application:
+    name: backend
+  cloud:
+    aws:
+      secretsmanager:
+        enabled: false
   datasource:
-    url: ${render.databaseURL}
-    username: woofwalkdb_user
-    password: ${render.databasePassword}
+    url: ${spring.datasource.url}
+    username: ${spring.datasource.username}
+    password: ${spring.datasource.password}
     driver-class-name: org.postgresql.Driver
   jpa:
     properties:
@@ -15,15 +21,16 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: ${auth0.issuerURI}
-  cloud:
-    aws:
-      region:
-        static: eu-north-1
+          issuer-uri: ${spring.security.oauth2.resourceserver.jwt.issuer-uri}
 
 server:
   port: 8080
 
-application:
-  bucket:
-    name: woof-walk-s3
+aws:
+  s3:
+    bucket: woof-walk-s3
+  region:
+    static: eu-north-1
+  credentials:
+    access-key: ${aws.accessKeyId}
+    secret-key: ${aws.secretAccessKey}
