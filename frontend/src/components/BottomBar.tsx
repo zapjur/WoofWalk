@@ -8,8 +8,9 @@ import {StackNavigationProp} from "@react-navigation/stack";
 
 type MapScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Map'>;
 type UserScreenNavigationProp = StackNavigationProp<RootStackParamList, 'User'>
+type FriendsScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Friends'>
 interface BottomBarProps {
-    navigation: MapScreenNavigationProp & UserScreenNavigationProp;
+    navigation: MapScreenNavigationProp & UserScreenNavigationProp & FriendsScreenNavigationProp;
 }
 
 const BottomBar: React.FC<BottomBarProps> = ({navigation}) => {
@@ -19,6 +20,9 @@ const BottomBar: React.FC<BottomBarProps> = ({navigation}) => {
     }
     const handleMapButtonPress = () =>{
         navigation.navigate('Map');
+    }
+    const handleFriendsButtonPress = () =>{
+        navigation.navigate('Friends');
     }
     return (
         <View style={styles.container}>
@@ -34,6 +38,10 @@ const BottomBar: React.FC<BottomBarProps> = ({navigation}) => {
             <TouchableOpacity style={styles.button}>
                 <MaterialIcon name="chat" size={30} color="#007bff" />
                 <Text style={styles.buttonText}>Chat</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={handleFriendsButtonPress}>
+                <MaterialIcon name="group" size={30} color="#007bff" />
+                <Text style={styles.buttonText}>Friends</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.button} onPress={handleUserProfileButtonPress}>
                 <MaterialIcon name="person" size={30} color="#007bff" />

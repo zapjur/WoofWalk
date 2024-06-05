@@ -21,8 +21,9 @@ import apiClient from "../../axiosConfig";
 
 type MapScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Map'>;
 type UserScreenNavigationProp = StackNavigationProp<RootStackParamList, 'User'>
+type FriendsScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Friends'>
 interface UserScreenProps {
-    navigation: MapScreenNavigationProp & UserScreenNavigationProp;
+    navigation: MapScreenNavigationProp & UserScreenNavigationProp & FriendsScreenNavigationProp;
 }
 const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
     const {user} = useAuth0();

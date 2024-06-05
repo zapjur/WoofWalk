@@ -18,8 +18,9 @@ interface Location {
 }
 type MapScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Map'>;
 type UserScreenNavigationProp = StackNavigationProp<RootStackParamList, 'User'>
+type FriendsScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Friends'>
 interface MapScreenProps {
-    navigation: MapScreenNavigationProp & UserScreenNavigationProp;
+    navigation: MapScreenNavigationProp & UserScreenNavigationProp & FriendsScreenNavigationProp;
 }
 const MapScreen: React.FC<MapScreenProps> = ({navigation}) => {
     const [locations, setLocations] = useState<Location[]>([]);
