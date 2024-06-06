@@ -18,17 +18,16 @@ interface Location {
 }
 type MapScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Map'>;
 type UserScreenNavigationProp = StackNavigationProp<RootStackParamList, 'User'>
+type FriendsScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Friends'>
 interface MapScreenProps {
-    navigation: MapScreenNavigationProp & UserScreenNavigationProp;
+    navigation: MapScreenNavigationProp & UserScreenNavigationProp & FriendsScreenNavigationProp;
 }
 const MapScreen: React.FC<MapScreenProps> = ({navigation}) => {
     const [locations, setLocations] = useState<Location[]>([]);
     const {user, error} = useAuth0();
-    console.log(user?.name);
     useEffect(() => {
         apiClient.get('/locations')
             .then(response => {
-                console.log('Response data:', response.data);
                 if (Array.isArray(response.data)) {
                     setLocations(response.data);
                 } else {
@@ -43,7 +42,6 @@ const MapScreen: React.FC<MapScreenProps> = ({navigation}) => {
 
     const createUser = async () => {
         try {
-            console.log("User:", user);
             if(user) {
                 const userData = {
                     email: user.email,

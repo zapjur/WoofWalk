@@ -4,7 +4,7 @@ import { StyleSheet, View } from 'react-native';
 import MapScreen from './src/screens/MapScreen';
 import LoginScreen from "./src/screens/LoginScreen";
 import UserScreen from "./src/screens/UserScreen";
-
+import FriendsScreen from "./src/screens/FriendsScreen";
 import {NavigationContainer} from "@react-navigation/native";
 import { createStackNavigator } from '@react-navigation/stack';
 import RootStackParamList from "./RootStackParamList";
@@ -20,6 +20,7 @@ const App: React.FC = () => {
                     <Stack.Screen name="Login" component={LoginScreen} />
                     <Stack.Screen name="Map" component={MapScreen} />
                     <Stack.Screen name="User" component={UserScreen}/>
+                    <Stack.Screen name="Friends" component={FriendsScreen}/>
                 </Stack.Navigator>
             </NavigationContainer>
         </Auth0Provider>
