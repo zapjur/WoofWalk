@@ -4,6 +4,7 @@ import com.WoofWalk.backend.dto.UserDto;
 import com.WoofWalk.backend.entities.User;
 import com.WoofWalk.backend.services.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -14,18 +15,19 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/createUser")
-    public User createUserInDatabase(@RequestBody UserDto userDto) {
-        return userService.createUserInDatabase(userDto);
+    public ResponseEntity<?> createUserInDatabase(@RequestBody UserDto userDto) {
+        userService.createUserInDatabase(userDto);
+        return ResponseEntity.ok().build();
     }
 
 
     @PostMapping("/updateAddress")
-    public User updateUserAddress(@RequestBody UserDto userDto){
+    public UserDto updateUserAddress(@RequestBody UserDto userDto){
         return userService.updateAddress(userDto);
     }
 
     @PostMapping("/updatePhoneNumber")
-    public User updatePhoneNumber(@RequestBody UserDto userDto){
+    public UserDto updatePhoneNumber(@RequestBody UserDto userDto){
         return userService.updatePhoneNumber(userDto);
     }
 

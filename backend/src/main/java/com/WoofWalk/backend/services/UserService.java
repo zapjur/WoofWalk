@@ -2,6 +2,7 @@ package com.WoofWalk.backend.services;
 
 import com.WoofWalk.backend.dto.UserDto;
 import com.WoofWalk.backend.entities.User;
+import com.WoofWalk.backend.mappers.UserMapper;
 import com.WoofWalk.backend.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -28,21 +29,24 @@ public class UserService {
             return saveUser(newUser);
         });
     }
-    public User updateAddress(UserDto userDto){
+    public UserDto updateAddress(UserDto userDto){
         Optional<User> userOptional = userRepository.findByEmail(userDto.getEmail());
         if(userOptional.isPresent()){
             User user = userOptional.get();
             user.setAddress(userDto.getAddress());
-            return saveUser(user);
+            saveUser(user);
+            return UserMapper.toDto(user);
+
         }
         return null;
     }
-    public User updatePhoneNumber(UserDto userDto){
+    public UserDto updatePhoneNumber(UserDto userDto){
         Optional<User> userOptional = userRepository.findByEmail(userDto.getEmail());
         if(userOptional.isPresent()){
             User user = userOptional.get();
             user.setPhoneNumber(userDto.getPhoneNumber());
-            return saveUser(user);
+            saveUser(user);
+            return UserMapper.toDto(user);
         }
         return null;
     }
