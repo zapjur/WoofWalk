@@ -1,15 +1,24 @@
-import React from "react";
-import { TouchableOpacity, Text, StyleSheet } from 'react-native';
+import React from 'react';
+import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
+import {NavigationProp, useNavigation} from '@react-navigation/native';
+import RootStackParamList from "../../RootStackParamList";
 
-const AddPlaceButton: React.FC = () => {
+const HomeScreen: React.FC = () => {
+    const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+
     return (
-        <TouchableOpacity style={styles.button}>
+        <TouchableOpacity
+            style={styles.button}
+            onPress={() => navigation.navigate('AddPlace')}
+        >
             <Text style={styles.buttonText}>Add</Text>
         </TouchableOpacity>
+
     );
 }
 
 const styles = StyleSheet.create({
+
     button: {
         position: 'absolute',
         width: 200,
@@ -29,4 +38,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default AddPlaceButton;
+export default HomeScreen;
