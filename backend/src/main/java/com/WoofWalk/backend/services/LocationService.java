@@ -16,4 +16,9 @@ public class LocationService {
     public List<Location> getAllLocations() {
         return locationRepository.findAll();
     }
+
+    public Location createLocation(Location location) {
+        // Add validation logic here
+        return locationRepository.save(location);
+    }
 }
