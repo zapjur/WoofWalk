@@ -83,11 +83,17 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
                         </View>
                         <View style={styles.invitations}>
                             <ScrollView>
-                                {sentFriendRequests.map((invitation, index) => (
-                                    <View style={styles.invitation} key={index}>
-                                        <Text style={styles.text}>To: {invitation.receiverEmail}</Text>
+                                {sentFriendRequests.length === 0 ? (
+                                    <View>
+                                        <Text style={styles.text}>You don't have any invitations</Text>
                                     </View>
-                                ))}
+                                ) : (
+                                    sentFriendRequests.slice().reverse().map((invitation, index) => (
+                                        <View style={styles.invitation} key={index}>
+                                            <Text style={styles.text}>To: {invitation.receiverEmail}</Text>
+                                        </View>
+                                    ))
+                                )}
                             </ScrollView>
                         </View>
                     </View>
@@ -99,7 +105,7 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
                     </View>
                     <View style={styles.invitations}>
                         <ScrollView>
-                            {receivedFriendRequests.map((invitation, index) => (
+                            {receivedFriendRequests.slice().reverse().map((invitation, index) => (
                                 <View style={styles.invitationsOptions} key={index}>
                                     <View style={styles.invitation}>
                                         <Text style={styles.text}>From: {invitation.senderEmail}</Text>
