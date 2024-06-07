@@ -1,9 +1,10 @@
 import React, {useState} from "react";
-import {TouchableOpacity, Text, StyleSheet, View, Modal, TextInput} from 'react-native';
+import {TouchableOpacity, Text, StyleSheet, View, Modal, TextInput, Alert} from 'react-native';
 import {useAuth0} from "react-native-auth0";
 import apiClient from "../../axiosConfig";
+import axios from "axios";
 
-const AddFriendButton: React.FC = () => {
+const AddFriendButton: React.FC<{ onInvitationSent: () => void }> = ({ onInvitationSent }) => {
     const {user} = useAuth0();
     const [ReceiverEmail, setReceiverEmail] = useState("0");
     const [modalVisible, setModalVisible] = useState(false);
@@ -20,9 +21,31 @@ const AddFriendButton: React.FC = () => {
                     senderEmail: user.email,
                     receiverEmail: ReceiverEmail,
                 }
-                await apiClient.post("/friends/invite", friendRequestData);
-                setModalVisible(false);
-
+                try{
+                    const response = await apiClient.post("/friends/invite", friendRequestData);
+                    onInvitationSent();
+                    setModalVisible(false);
+                }
+                catch (error: unknown) {
+                    if (axios.isAxiosError(error) && error.response) {
+                        if (error.response.status === 409) {
+                            Alert.alert("Error", error.response.data);
+                        }
+                        else if(error.response.status === 400){
+                            Alert.alert("Error", error.response.data);
+                        }
+                        else if(error.response.status === 404){
+                            Alert.alert("Error",  error.response.data);
+                        }
+                        else {
+                            Alert.alert("Error", "Failed to invite: " + error.message);
+                        }
+                    } else if (error instanceof Error) {
+                        Alert.alert("Error", error.message);
+                    } else {
+                        Alert.alert("Error", "An unknown error occurred");
+                    }
+                }
             }
         }
         catch (error){

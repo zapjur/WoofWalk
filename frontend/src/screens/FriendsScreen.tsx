@@ -21,9 +21,14 @@ interface sentInvitation{
     id: number,
     receiverEmail: string,
 }
+interface friend{
+    friendEmail: string
+}
 const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
     const [receivedFriendRequests, setReceivedFriendRequests] = useState<receivedInvitation[]>([]);
     const [sentFriendRequests, setSentFriendRequests] = useState<sentInvitation[]>([]);
+    const [friendsEmails, setFriendsEmail] = useState<friend[]>([]);
+    const [refresh, setRefresh] = useState(false);
     const {user} = useAuth0();
     useEffect(() => {
         if(user){
@@ -55,8 +60,26 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
             }).catch(error => {
                 console.error("Błąd podczas pobierania wysłanych zaproszeń:", error);
             });
+            apiClient.get("/friends/getAllFriends",{
+                params: {
+                    email: user.email
+                }
+            }).then(response => {
+                const userFriends: friend[] = response.data.map((item: any) => ({
+                    friendEmail: item.email
+                }));
+                setFriendsEmail(userFriends);
+            })
+            setRefresh(false);
         }
-    }, []);
+    }, [refresh]);
+    const acceptFriendRequest = async (id: number) =>{
+         await apiClient.post(`/friends/${id}/accept`);
+         alert("Invitation accepted successfully");
+    }
+    const handleInvitationSent = () =>{
+        setRefresh(true);
+    }
     return(
         <View style={styles.container}>
             <View style={styles.subContainer}>
@@ -65,9 +88,19 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
                         YOUR FRIENDS
                     </Text>
                 </View>
-                <View>
-                    <Text style={styles.text}>You don't have any friends yet</Text>
-                </View>
+                <ScrollView>
+                    {friendsEmails.length === 0 ? (
+                        <View>
+                            <Text style={styles.text}>You don't have any friends yet :(</Text>
+                        </View>
+                    ) : (
+                        friendsEmails.slice().reverse().map((friend, index) => (
+                            <View style={styles.invitation} key={index}>
+                                <Text style={styles.text}>{index+1 + ". " + friend.friendEmail}</Text>
+                            </View>
+                        ))
+                    )}
+                </ScrollView>
             </View>
             <View style={styles.subContainer}>
                 <View style={styles.mainHeader}>
@@ -105,28 +138,32 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
                     </View>
                     <View style={styles.invitations}>
                         <ScrollView>
-                            {receivedFriendRequests.slice().reverse().map((invitation, index) => (
-                                <View style={styles.invitationsOptions} key={index}>
-                                    <View style={styles.invitation}>
-                                        <Text style={styles.text}>From: {invitation.senderEmail}</Text>
+                            {receivedFriendRequests.length === 0 ? (
+                                <Text style={styles.text}>You don't have any invitations</Text>
+                            ) : (
+                                receivedFriendRequests.slice().reverse().map((invitation, index) => (
+                                    <View style={styles.invitationsOptions} key={index}>
+                                        <View style={styles.invitation}>
+                                            <Text style={styles.text}>From: {invitation.senderEmail}</Text>
+                                        </View>
+                                        <View style={styles.buttons}>
+                                            <TouchableOpacity style={styles.addButton} onPress={() => acceptFriendRequest(invitation.id)}>
+                                                <MaterialCommunityIcon name={"plus-box"} size={33}></MaterialCommunityIcon>
+                                            </TouchableOpacity>
+                                            <TouchableOpacity style={styles.rejectButton}>
+                                                <MaterialCommunityIcon name={"minus-box"} size={33}></MaterialCommunityIcon>
+                                            </TouchableOpacity>
+                                        </View>
                                     </View>
-                                    <View style={styles.buttons}>
-                                        <TouchableOpacity style={styles.addButton}>
-                                            <MaterialCommunityIcon name={"plus-box"} size={33}></MaterialCommunityIcon>
-                                        </TouchableOpacity>
-                                        <TouchableOpacity style={styles.rejectButton}>
-                                            <MaterialCommunityIcon name={"minus-box"} size={33}></MaterialCommunityIcon>
-                                        </TouchableOpacity>
-                                    </View>
-                                </View>
-                            ))}
+                                ))
+                            )}
                         </ScrollView>
                     </View>
                 </View>
             </View>
             <View style={styles.container}>
                 <BottomBar navigation={navigation}/>
-                <AddFriend/>
+                <AddFriend onInvitationSent={handleInvitationSent}/>
             </View>
         </View>
 
