@@ -1,0 +1,36 @@
+spring:
+  application:
+    name: backend
+  cloud:
+    aws:
+      secretsmanager:
+        enabled: false
+  datasource:
+    url: ${spring.datasource.url}
+    username: ${spring.datasource.username}
+    password: ${spring.datasource.password}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${spring.security.oauth2.resourceserver.jwt.issuer-uri}
+
+server:
+  port: 8080
+
+aws:
+  s3:
+    bucket: woof-walk-s3
+  region:
+    static: eu-north-1
+  credentials:
+    access-key: ${aws.accessKeyId}
+    secret-key: ${aws.secretAccessKey}
