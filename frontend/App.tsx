@@ -11,6 +11,7 @@ import RootStackParamList from "./RootStackParamList";
 const Stack = createStackNavigator<RootStackParamList>();
 
 import { Auth0Provider} from 'react-native-auth0';
+import AddPlaceScreen from "./src/screens/AddPlaceScreen";
 
 const App: React.FC = () => {
     return (
@@ -21,6 +22,7 @@ const App: React.FC = () => {
                     <Stack.Screen name="Map" component={MapScreen} />
                     <Stack.Screen name="User" component={UserScreen}/>
                     <Stack.Screen name="Friends" component={FriendsScreen}/>
+                    <Stack.Screen name="AddPlace" component={AddPlaceScreen}/>
                 </Stack.Navigator>
             </NavigationContainer>
         </Auth0Provider>

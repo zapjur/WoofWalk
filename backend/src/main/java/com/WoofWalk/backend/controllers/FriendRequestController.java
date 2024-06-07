@@ -1,12 +1,16 @@
 package com.WoofWalk.backend.controllers;
 
 import com.WoofWalk.backend.dto.FriendRequestDto;
+import com.WoofWalk.backend.dto.UserDto;
 import com.WoofWalk.backend.entities.FriendRequest;
+import com.WoofWalk.backend.entities.User;
 import com.WoofWalk.backend.services.FriendRequestService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/friends")
@@ -31,5 +35,16 @@ public class FriendRequestController {
             @RequestParam("senderEmail") String senderEmail
     ){
         return friendRequestService.getSentFriendRequests(senderEmail);
+    }
+
+    @PostMapping("/{friendRequestId}/accept")
+    public ResponseEntity<?> acceptFriendRequest(@PathVariable Long friendRequestId){
+        friendRequestService.acceptFriendRequest(friendRequestId);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/getAllFriends")
+    public Set<UserDto> getAllFriends(@RequestParam("email") String email){
+        return friendRequestService.getAllFriends(email);
     }
 }
