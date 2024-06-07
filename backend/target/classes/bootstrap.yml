@@ -1,7 +1,0 @@
-spring:
-  application:
-    name: backend
-  cloud:
-    aws:
-      secretsmanager:
-        enabled: false
