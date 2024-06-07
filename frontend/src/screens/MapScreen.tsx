@@ -17,6 +17,7 @@ interface Location {
     name: string;
     description: string;
     rating: number;
+    ratingCount: number;
 }
 
 type MapScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Map'>;
@@ -102,13 +103,18 @@ const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
                             <View style={styles.calloutContainer}>
                                 <Text style={styles.calloutTitle}>{location.name}</Text>
                                 <Text>{location.description}</Text>
-                                <Rating
+                                <View style={styles.ratingContainer}>
+                                    <Rating
                                     type='star'
                                     startingValue={location.rating}
                                     imageSize={24}
                                     onFinishRating={(rating:number) => handleRatingCompleted(rating, location.id)}
                                     style={styles.rating}
-                                />
+                                    />
+                                    <Text>
+                                        ({location.ratingCount})
+                                    </Text>
+                                </View>
                             </View>
                         </Callout>
                     </Marker>
@@ -141,6 +147,11 @@ const styles = StyleSheet.create({
     },
     rating: {
         marginTop: 5,
+    },
+    ratingContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
     }
 });
 
