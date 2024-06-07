@@ -23,6 +23,7 @@ public class LoadSeedData {
                 location.setLatitude(50.0595);
                 location.setLongitude(19.910139);
                 location.setRating(4.5);
+                location.setRatingCount(2);
                 locationRepository.save(location);
             }
         };
