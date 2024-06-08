@@ -15,6 +15,12 @@
       ],
       [
         "expo-secure-store"
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow WoofWalk to access your location."
+        }
       ]
     ],
     "splash": {
