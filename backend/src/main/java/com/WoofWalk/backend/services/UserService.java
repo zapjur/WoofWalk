@@ -4,6 +4,7 @@ import com.WoofWalk.backend.dto.UserDto;
 import com.WoofWalk.backend.entities.User;
 import com.WoofWalk.backend.mappers.UserMapper;
 import com.WoofWalk.backend.repositories.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -65,5 +66,11 @@ public class UserService {
             return user.getPhoneNumber();
         }
         return null;
+    }
+    public void saveProfilePictureId(String email, String fileID){
+        User user = userRepository.findByEmail(email).orElseThrow(
+                () -> new EntityNotFoundException("user not found"));
+        user.setProfilePictureId(fileID);
+        userRepository.save(user);
     }
 }
