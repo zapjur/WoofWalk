@@ -24,8 +24,7 @@ public class S3Service {
     public String uploadFile(MultipartFile file){
         String fileID = UUID.randomUUID().toString();
         try {
-            amazonS3.putObject(new PutObjectRequest(bucketName, fileID, file.getInputStream(), null)
-                    .withCannedAcl(CannedAccessControlList.PublicRead));
+            amazonS3.putObject(new PutObjectRequest(bucketName, fileID, file.getInputStream(), null));
         }
         catch (IOException e){
             throw new RuntimeException("Failed to upload a file", e);

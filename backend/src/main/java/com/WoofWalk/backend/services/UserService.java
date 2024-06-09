@@ -71,6 +71,6 @@ public class UserService {
         User user = userRepository.findByEmail(email).orElseThrow(
                 () -> new EntityNotFoundException("user not found"));
         user.setProfilePictureId(fileID);
-        userRepository.save(user);
+        saveUser(user);
     }
 }

@@ -48,7 +48,8 @@ public class UserController {
         return userService.getPhoneNumber(email);
     }
 
-    @PostMapping("/uploadProfilePicture")
+    @CrossOrigin
+    @PostMapping("/profilePicture/upload")
     public ResponseEntity<String> uploadProfilePicture(@ModelAttribute ProfilePictureDto profilePictureDto)  {
         logger.info("cjeabcd " + profilePictureDto.getEmail());
         logger.info("cjeabcd12 " + profilePictureDto.getFile());

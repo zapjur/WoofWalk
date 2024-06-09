@@ -18,6 +18,7 @@ import {useAuth0} from "react-native-auth0";
 import MaterialCommunityIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import * as ImagePicker from "expo-image-picker";
 import apiClient from "../../axiosConfig";
+import mime from "mime"
 
 type MapScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Map'>;
 type UserScreenNavigationProp = StackNavigationProp<RootStackParamList, 'User'>
@@ -25,6 +26,7 @@ type FriendsScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Frie
 interface UserScreenProps {
     navigation: MapScreenNavigationProp & UserScreenNavigationProp & FriendsScreenNavigationProp;
 }
+const FormData = global.FormData;
 const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
     const {user} = useAuth0();
     const [namesModalVisible, setNamesModalVisible] = useState(false);
@@ -163,39 +165,32 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
             setPhotoModalVisible(false);
         }
     }
-    const saveImage = async ( image: string) => {
-        try {
-            if (user && user.email) {
-                const userEmail = user.email;
-                const response = await fetch(image);
-                const blob = await response.blob();
+    const saveImage = async ( imageUri: string) => {
+        const userEmail = user?.email;
+        if(user && userEmail){
+            const newImageUri: string = "file:///" + imageUri.split("file:/").join("");
 
-                const formData = new FormData();
-                formData.append('email', userEmail);
-                formData.append('file', blob, 'profile.jpg');
-                const uploadResponse = await apiClient.post("/user/uploadProfilePicture", formData, {
+            const formData: FormData = new FormData();
+
+            (formData as any).append('file', {
+                uri: newImageUri,
+                type: mime.getType(newImageUri),
+                name: newImageUri.split("/").pop()
+            })
+            formData.append('email', userEmail);
+            try {
+                const response = await apiClient.post('/user/profilePicture/upload', formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                     },
-
                 });
-
-                if (uploadResponse.status !== 200) {
-                    throw new Error('Failed to upload image');
-                }
-
-                console.log(uploadResponse.data);
-
-
-
-                setPhotoModalVisible(false)
+                console.log('Upload success', response.data);
+            } catch (error) {
+                console.error('Upload failed', error);
             }
         }
-        catch (error){
-            setPhotoModalVisible(false);
-            throw error;
         }
-    }
+
     const deleteImage = () => {
         // delete from database
         setImage("none");
