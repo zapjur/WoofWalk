@@ -8,7 +8,9 @@ import com.WoofWalk.backend.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -56,6 +58,17 @@ public class UserController {
         String fileID = s3Service.uploadFile(profilePictureDto.getFile());
         userService.saveProfilePictureId(profilePictureDto.getEmail(), fileID);
         return new ResponseEntity<>("Success!", HttpStatus.OK);
+    }
+    @GetMapping("/profilePicture/download")
+    public ResponseEntity<ByteArrayResource> getImage(@RequestParam("email") String email){
+        byte[] imageData = s3Service.downloadImage(email);
+        ByteArrayResource resource = new ByteArrayResource(imageData);
+        return ResponseEntity
+                .ok()
+                .contentLength(imageData.length)
+                .header("Content-type", "application/octet-stream")
+                .header("Content-disposition", "attachment: filename: " + email + "_profile_picture")
+                .body(resource);
     }
 
 }

@@ -43,7 +43,7 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
                 params: {
                     email: user.email,
                 }
-            }).then(response =>{
+            }).then(response => {
                     if(response.data.length !== 0){
                         setAddress(response.data);
                     }
@@ -55,7 +55,7 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
                 params: {
                     email: user.email,
                 }
-            }).then(response =>{
+            }).then(response => {
                     if(response.data.length !== 0){
                         setPhoneNumber(response.data);
                     }
@@ -63,6 +63,16 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
                         setPhoneNumber("Provide your phone number");
                     }
             });
+            apiClient.get("/user/profilePicture/download",{
+                params: {
+                    email: user.email,
+                }
+            }).then(response => {
+                const byteArray: number[] = [response.data];
+                const imageUrl = `data:image/jpeg;base64,${byteArray.map(byte => String.fromCharCode(byte)).join('')}`;
+                console.log(response);
+                setImage(imageUrl);
+            })
 
         }
 
