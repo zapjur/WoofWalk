@@ -5,14 +5,20 @@ import com.WoofWalk.backend.dto.ProfilePictureDto;
 import com.WoofWalk.backend.dto.UserDto;
 import com.WoofWalk.backend.services.S3Service;
 import com.WoofWalk.backend.services.UserService;
+import com.amazonaws.services.s3.model.S3Object;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 
 @RestController
@@ -60,15 +66,18 @@ public class UserController {
         return new ResponseEntity<>("Success!", HttpStatus.OK);
     }
     @GetMapping("/profilePicture/download")
-    public ResponseEntity<ByteArrayResource> getImage(@RequestParam("email") String email){
-        byte[] imageData = s3Service.downloadImage(email);
-        ByteArrayResource resource = new ByteArrayResource(imageData);
-        return ResponseEntity
-                .ok()
-                .contentLength(imageData.length)
-                .header("Content-type", "application/octet-stream")
-                .header("Content-disposition", "attachment: filename: " + email + "_profile_picture")
-                .body(resource);
+    public ResponseEntity<ByteArrayResource> getImage(@RequestParam("email") String email) throws IOException {
+        try (S3Object s3Object = s3Service.downloadImage(email);
+             InputStream inputStream = s3Object.getObjectContent()) {
+
+            byte[] bytes = inputStream.readAllBytes();
+            ByteArrayResource resource = new ByteArrayResource(bytes);
+
+            return ResponseEntity.ok()
+                    .contentType(MediaType.IMAGE_JPEG)
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + email + "\"")
+                    .body(resource);
+        }
     }
 
 }

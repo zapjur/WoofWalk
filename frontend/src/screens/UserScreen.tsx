@@ -66,12 +66,19 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
             apiClient.get("/user/profilePicture/download",{
                 params: {
                     email: user.email,
-                }
+                },
+                responseType: 'blob'
             }).then(response => {
-                const byteArray: number[] = [response.data];
-                const imageUrl = `data:image/jpeg;base64,${byteArray.map(byte => String.fromCharCode(byte)).join('')}`;
-                console.log(response);
-                setImage(imageUrl);
+
+                const blob = response.data;
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    if (reader.result) {
+                        setImage(reader.result as string);
+                    }
+
+                };
+                reader.readAsDataURL(blob);
             })
 
         }
