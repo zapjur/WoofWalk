@@ -1,34 +1,37 @@
-import {StackNavigationProp} from "@react-navigation/stack";
+import { StackNavigationProp } from "@react-navigation/stack";
 import RootStackParamList from "../../RootStackParamList";
-import React, {useEffect, useState} from "react";
-import {Text, View, StyleSheet, TouchableOpacity, ScrollView} from "react-native";
-import AddFriend from "../components/AddFriend";
+import React, { useEffect, useState, useCallback } from "react";
+import { Text, View, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
+import AddFriendButton from "../components/AddFriend";
 import BottomBar from "../components/BottomBar";
 import MaterialCommunityIcon from "react-native-vector-icons/MaterialCommunityIcons";
-import {useAuth0} from "react-native-auth0";
+import { useAuth0 } from "react-native-auth0";
 import apiClient from "../../axiosConfig";
+
 type MapScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Map'>;
 type UserScreenNavigationProp = StackNavigationProp<RootStackParamList, 'User'>
 type FriendsScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Friends'>
 interface FriendsScreenProp {
     navigation: MapScreenNavigationProp & UserScreenNavigationProp & FriendsScreenNavigationProp;
 }
-interface receivedInvitation{
+interface receivedInvitation {
     id: number,
     senderEmail: string,
 }
-interface sentInvitation{
+interface sentInvitation {
     id: number,
     receiverEmail: string,
 }
-const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
+
+const FriendsScreen: React.FC<FriendsScreenProp> = ({ navigation }) => {
     const [receivedFriendRequests, setReceivedFriendRequests] = useState<receivedInvitation[]>([]);
     const [sentFriendRequests, setSentFriendRequests] = useState<sentInvitation[]>([]);
-    const {user} = useAuth0();
-    useEffect(() => {
-        if(user){
-            const receiverEmail = user.email
-            apiClient.get("/friends/receivedFriendRequests",{
+    const { user } = useAuth0();
+
+    const fetchFriendRequests = useCallback(() => {
+        if (user) {
+            const receiverEmail = user.email;
+            apiClient.get("/friends/receivedFriendRequests", {
                 params: {
                     receiverEmail: receiverEmail,
                 }
@@ -39,8 +42,9 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
                 }));
                 setReceivedFriendRequests(receivedRequests);
             }).catch(error => {
-                console.error("Error while fetching data:", error);
+                console.error("Error while fetching received friend requests:", error);
             });
+
             const senderEmail = user.email;
             apiClient.get("/friends/sentFriendRequests", {
                 params: {
@@ -53,11 +57,16 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
                 }));
                 setSentFriendRequests(sentRequests);
             }).catch(error => {
-                console.error("Błąd podczas pobierania wysłanych zaproszeń:", error);
+                console.error("Error while fetching sent friend requests:", error);
             });
         }
-    }, []);
-    return(
+    }, [user]);
+
+    useEffect(() => {
+        fetchFriendRequests();
+    }, [fetchFriendRequests]);
+
+    return (
         <View style={styles.container}>
             <View style={styles.subContainer}>
                 <View style={styles.mainHeader}>
@@ -76,28 +85,28 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
                     </Text>
                 </View>
                 <View style={styles.subSubContainer}>
-                        <View style={styles.invitationHeader}>
-                            <Text style={styles.header}>
-                                Sent
-                            </Text>
-                        </View>
-                        <View style={styles.invitations}>
-                            <ScrollView>
-                                {sentFriendRequests.length === 0 ? (
-                                    <View>
-                                        <Text style={styles.text}>You don't have any invitations</Text>
-                                    </View>
-                                ) : (
-                                    sentFriendRequests.slice().reverse().map((invitation, index) => (
-                                        <View style={styles.invitation} key={index}>
-                                            <Text style={styles.text}>To: {invitation.receiverEmail}</Text>
-                                        </View>
-                                    ))
-                                )}
-                            </ScrollView>
-                        </View>
+                    <View style={styles.invitationHeader}>
+                        <Text style={styles.header}>
+                            Sent
+                        </Text>
                     </View>
-                    <View style={styles.subSubContainer}>
+                    <View style={styles.invitations}>
+                        <ScrollView>
+                            {sentFriendRequests.length === 0 ? (
+                                <View>
+                                    <Text style={styles.text}>You don't have any invitations</Text>
+                                </View>
+                            ) : (
+                                sentFriendRequests.slice().reverse().map((invitation, index) => (
+                                    <View style={styles.invitation} key={index}>
+                                        <Text style={styles.text}>To: {invitation.receiverEmail}</Text>
+                                    </View>
+                                ))
+                            )}
+                        </ScrollView>
+                    </View>
+                </View>
+                <View style={styles.subSubContainer}>
                     <View style={styles.invitationHeader}>
                         <Text style={styles.header}>
                             Received
@@ -125,17 +134,16 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
                 </View>
             </View>
             <View style={styles.container}>
-                <BottomBar navigation={navigation}/>
-                <AddFriend/>
+                <BottomBar navigation={navigation} />
+                <AddFriendButton onFriendRequestSent={fetchFriendRequests} />
             </View>
         </View>
-
-
     );
 }
+
 const styles = StyleSheet.create({
     container: {
-        flex:1
+        flex: 1
     },
 
     subContainer: {
@@ -166,7 +174,7 @@ const styles = StyleSheet.create({
         marginBottom: 4,
         marginTop: 3,
     },
-    invitations:{
+    invitations: {
         display: "flex",
         flexDirection: "column",
         justifyContent: "flex-start",

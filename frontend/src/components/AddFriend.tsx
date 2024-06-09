@@ -1,34 +1,41 @@
-import React, {useState} from "react";
-import {TouchableOpacity, Text, StyleSheet, View, Modal, TextInput} from 'react-native';
-import {useAuth0} from "react-native-auth0";
+import React, { useState } from "react";
+import { TouchableOpacity, Text, StyleSheet, View, Modal, TextInput } from 'react-native';
+import { useAuth0 } from "react-native-auth0";
 import apiClient from "../../axiosConfig";
 
-const AddFriendButton: React.FC = () => {
-    const {user} = useAuth0();
-    const [ReceiverEmail, setReceiverEmail] = useState("0");
+interface AddFriendButtonProps {
+    onFriendRequestSent: () => void;
+}
+
+const AddFriendButton: React.FC<AddFriendButtonProps> = ({ onFriendRequestSent }) => {
+    const { user } = useAuth0();
+    const [receiverEmail, setReceiverEmail] = useState("");
     const [modalVisible, setModalVisible] = useState(false);
-    const handleAddFriendPress = () =>{
+
+    const handleAddFriendPress = () => {
         setModalVisible(true);
-    }
+    };
+
     const handleClosePhotoModal = () => {
         setModalVisible(false);
-    }
-    const handleInviteFriendPress = async () =>{
-        try{
-            if(user){
+    };
+
+    const handleInviteFriendPress = async () => {
+        try {
+            if (user) {
                 const friendRequestData = {
                     senderEmail: user.email,
-                    receiverEmail: ReceiverEmail,
-                }
+                    receiverEmail: receiverEmail,
+                };
                 await apiClient.post("/friends/invite", friendRequestData);
                 setModalVisible(false);
-
+                onFriendRequestSent(); // Call the callback to refresh the friend requests list
             }
-        }
-        catch (error){
+        } catch (error) {
             console.log(error);
         }
-    }
+    };
+
     return (
         <View style={styles.container}>
             <TouchableOpacity style={styles.button} onPress={handleAddFriendPress}>
@@ -47,8 +54,9 @@ const AddFriendButton: React.FC = () => {
                             <View style={styles.inputContainer}>
                                 <TextInput
                                     placeholder={"Provide your friend's email address"}
-                                    onChangeText={setReceiverEmail}>
-                                </TextInput>
+                                    onChangeText={setReceiverEmail}
+                                    value={receiverEmail}
+                                />
                             </View>
                         </View>
                         <View style={styles.buttonContainer}>
@@ -63,14 +71,12 @@ const AddFriendButton: React.FC = () => {
                 </View>
             </Modal>
         </View>
-
-
     );
-}
+};
 
 const styles = StyleSheet.create({
     container: {
-        flex:1,
+        flex: 1,
     },
     button: {
         position: 'absolute',
@@ -119,8 +125,8 @@ const styles = StyleSheet.create({
         alignItems: "center"
     },
     modalHeader: {
-      fontWeight: "bold",
-      fontSize: 40,
+        fontWeight: "bold",
+        fontSize: 40,
     },
     buttonContainer: {
         display: "flex",
@@ -135,7 +141,6 @@ const styles = StyleSheet.create({
         borderRadius: 5,
     },
     submitButton: {
-
         marginTop: 20,
         paddingVertical: 10,
         paddingHorizontal: 20,
@@ -149,3 +154,4 @@ const styles = StyleSheet.create({
 });
 
 export default AddFriendButton;
+
