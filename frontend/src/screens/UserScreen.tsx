@@ -157,8 +157,6 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
                     await saveImage(result.assets[0].uri);
                 }
             }
-
-
         }
         catch (error){
             alert("Error uploading image " + error);
@@ -167,9 +165,31 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
     }
     const saveImage = async ( image: string) => {
         try {
-            // save in database
-            setImage(image);
-            setPhotoModalVisible(false);
+            if (user && user.email) {
+                const userEmail = user.email;
+                const response = await fetch(image);
+                const blob = await response.blob();
+
+                const formData = new FormData();
+                formData.append('email', userEmail);
+                formData.append('file', blob, 'profile.jpg');
+                const uploadResponse = await apiClient.post("/user/uploadProfilePicture", formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+
+                });
+
+                if (uploadResponse.status !== 200) {
+                    throw new Error('Failed to upload image');
+                }
+
+                console.log(uploadResponse.data);
+
+
+
+                setPhotoModalVisible(false)
+            }
         }
         catch (error){
             setPhotoModalVisible(false);
