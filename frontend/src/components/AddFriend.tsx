@@ -29,7 +29,7 @@ const AddFriendButton: React.FC<AddFriendButtonProps> = ({ onFriendRequestSent }
                 };
                 await apiClient.post("/friends/invite", friendRequestData);
                 setModalVisible(false);
-                onFriendRequestSent(); // Call the callback to refresh the friend requests list
+                onFriendRequestSent();
             }
         } catch (error) {
             console.log(error);

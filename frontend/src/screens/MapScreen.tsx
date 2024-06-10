@@ -40,6 +40,24 @@ const MapScreen: React.FC<MapScreenProps> = ({navigation}) => {
         createUser();
     }, []);
 
+    useEffect(() => {
+        const unsubscribe = navigation.addListener('focus', () => {
+            apiClient.get('/locations')
+                .then(response => {
+                    if (Array.isArray(response.data)) {
+                        setLocations(response.data);
+                    } else {
+                        console.error('Invalid data format:', response.data);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        });
+
+        return unsubscribe;
+    }, [navigation]);
+
     const createUser = async () => {
         try {
             if(user) {

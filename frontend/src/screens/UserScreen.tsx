@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     View,
     Text,
@@ -9,15 +9,19 @@ import {
     FlatList,
     Linking,
     TextInput,
+    Switch,
+    Animated,
+    TextStyle,
 } from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import BottomBar from "../components/BottomBar";
-import {StackNavigationProp} from "@react-navigation/stack";
+import { StackNavigationProp } from "@react-navigation/stack";
 import RootStackParamList from "../../RootStackParamList";
-import {useAuth0} from "react-native-auth0";
+import { useAuth0 } from "react-native-auth0";
 import MaterialCommunityIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import * as ImagePicker from "expo-image-picker";
 import apiClient from "../../axiosConfig";
+import { useAnimatedStyle } from 'react-native-reanimated';
 
 type MapScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Map'>;
 type UserScreenNavigationProp = StackNavigationProp<RootStackParamList, 'User'>
@@ -25,46 +29,50 @@ type FriendsScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Frie
 interface UserScreenProps {
     navigation: MapScreenNavigationProp & UserScreenNavigationProp & FriendsScreenNavigationProp;
 }
-const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
-    const {user} = useAuth0();
+
+const UserScreen: React.FC<UserScreenProps> = ({ navigation }) => {
+    const { user } = useAuth0();
     const [namesModalVisible, setNamesModalVisible] = useState(false);
+    const [settingsModalVisible, setSettingsModalVisible] = useState(false);
     const [photoModalVisible, setPhotoModalVisible] = useState(false);
     const [address, setAddress] = useState("Provide your address");
     const [editingAddress, setEditingAddress] = useState(false);
     const [phoneNumber, setPhoneNumber] = useState("Provide your phone number");
     const [editingPhoneNumber, setEditingPhoneNumber] = useState(false);
     const [image, setImage] = useState("none");
-    const {clearSession} = useAuth0();
+    const { clearSession } = useAuth0();
+
+    const [isSwitchOn, setIsSwitchOn] = useState(false);
+    const [switchAnim] = useState(new Animated.Value(0));
+
+
     useEffect(() => {
-        if(user){
-             apiClient.get("/user/getAddress", {
+        if (user) {
+            apiClient.get("/user/getAddress", {
                 params: {
                     email: user.email,
                 }
-            }).then(response =>{
-                    if(response.data.length !== 0){
-                        setAddress(response.data);
-                    }
-                    else{
-                        setAddress("Provide your address");
-                    }
-                });
+            }).then(response => {
+                if (response.data.length !== 0) {
+                    setAddress(response.data);
+                } else {
+                    setAddress("Provide your address");
+                }
+            });
             apiClient.get("/user/getPhoneNumber", {
                 params: {
                     email: user.email,
                 }
-            }).then(response =>{
-                    if(response.data.length !== 0){
-                        setPhoneNumber(response.data);
-                    }
-                    else{
-                        setPhoneNumber("Provide your phone number");
-                    }
+            }).then(response => {
+                if (response.data.length !== 0) {
+                    setPhoneNumber(response.data);
+                } else {
+                    setPhoneNumber("Provide your phone number");
+                }
             });
-
         }
-
     }, []);
+
     const handleLogoutButtonPress = async () => {
         try {
             await clearSession({
@@ -72,26 +80,36 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
             });
             console.log("User's session cleared")
             navigation.navigate('Login');
-
         } catch (e) {
             console.log(e);
         }
     }
+
     const authors = [
         { name: 'Piotr Zapiór', github: 'https://github.com/zapjur' },
         { name: 'Maciej Jurczyga', github: 'https://github.com/MaciekJurczyga' },
         { name: 'Szymon Burliga', github: 'https://github.com/SzupanBurliga' },
         { name: 'Paweł Piwowarczyk', github: 'https://github.com/Dewiant112' },
     ];
+
     const handleOpenGithub = (url: string) => {
         Linking.openURL(url);
     };
+
     const handleOpenNamesModal = () => {
         setNamesModalVisible(true);
     };
 
     const handleCloseNamesModal = () => {
         setNamesModalVisible(false);
+    };
+
+    const handleOpenSettingsModal = () => {
+        setSettingsModalVisible(true);
+    };
+
+    const handleCloseSettingsModal = () => {
+        setSettingsModalVisible(false);
     };
 
     const handleOpenPhotoModal = () => {
@@ -101,17 +119,26 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
     const handleClosePhotoModal = () => {
         setPhotoModalVisible(false);
     };
+
     const handleEditAddressClick = () => {
         setEditingAddress(true);
     };
 
+    const animateSwitch = (isOn: boolean) => {
+        Animated.timing(switchAnim, {
+            toValue: isOn ? 1 : 0,
+            duration: 200,
+            useNativeDriver: false
+        }).start();
+    };
+
     const handleEditAddressSaveClick = async () => {
-        if(user){
+        if (user) {
             const userData = {
-                email : user.email,
+                email: user.email,
                 address: address
             }
-             apiClient.post("/user/updateAddress", userData);
+            apiClient.post("/user/updateAddress", userData);
         }
         setEditingAddress(false);
     };
@@ -120,31 +147,30 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
     };
 
     const handleEditPhoneNumberSaveClick = () => {
-        if(user){
+        if (user) {
             const userData = {
-                email : user.email,
+                email: user.email,
                 phoneNumber: phoneNumber,
             }
             apiClient.post("/user/updatePhoneNumber", userData);
         }
         setEditingPhoneNumber(false);
     };
-    const uploadImage = async (mode:string) => {
 
-        try{
-            if(mode === "gallery"){
+    const uploadImage = async (mode: string) => {
+        try {
+            if (mode === "gallery") {
                 await ImagePicker.requestMediaLibraryPermissionsAsync();
                 const result = await ImagePicker.launchImageLibraryAsync({
                     mediaTypes: ImagePicker.MediaTypeOptions.Images,
                     allowsEditing: true,
-                    aspect: [1,1],
+                    aspect: [1, 1],
                     quality: 1,
                 })
-                if(!result.canceled){
+                if (!result.canceled) {
                     await saveImage(result.assets[0].uri);
                 }
-            }
-            else{
+            } else {
                 await ImagePicker.requestCameraPermissionsAsync();
                 const result = await ImagePicker.launchCameraAsync(
                     {
@@ -153,34 +179,39 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
                         aspect: [1, 1],
                         quality: 1,
                     });
-                if(!result.canceled){
+                if (!result.canceled) {
                     await saveImage(result.assets[0].uri);
                 }
             }
-
-
-        }
-        catch (error){
+        } catch (error) {
             alert("Error uploading image " + error);
             setPhotoModalVisible(false);
         }
     }
-    const saveImage = async ( image: string) => {
+
+    const saveImage = async (image: string) => {
         try {
             // save in database
             setImage(image);
             setPhotoModalVisible(false);
-        }
-        catch (error){
+        } catch (error) {
             setPhotoModalVisible(false);
             throw error;
         }
     }
+
+    const label = { inputProps: { 'aria-label': 'Switch demo' } };
     const deleteImage = () => {
         // delete from database
         setImage("none");
         setPhotoModalVisible(false);
     }
+
+    const switchColor = switchAnim.interpolate({
+        inputRange: [0, 1],
+        outputRange: ['#767577', '#81b0ff']
+    });
+
 
     return (
         <View style={styles.container}>
@@ -197,7 +228,6 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
                         <MaterialIcon name="camera-alt" size={24} color="#ffffff" />
                     </TouchableOpacity>
                 </View>
-
                 <Text style={styles.userName}>{user?.nickname}</Text>
             </View>
             <View style={styles.infoHeader}>
@@ -218,7 +248,7 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
                             placeholder="Provide your phone number"
                         />
                     ) : (
-                        <Text style= {styles.infoText}>{phoneNumber}</Text>
+                        <Text style={styles.infoText}>{phoneNumber}</Text>
                     )}
                 </View>
                 <View style={styles.infoSectionEditComponent}>
@@ -243,7 +273,7 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
                             placeholder="Provide your address"
                         />
                     ) : (
-                        <Text style= {styles.infoText}>{address}</Text>
+                        <Text style={styles.infoText}>{address}</Text>
                     )}
                 </View>
                 <View style={styles.infoSectionEditComponent}>
@@ -266,7 +296,7 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
                     <MaterialIcon name="code" size={24} color="#007bff" />
                     <Text style={styles.menuText}>Creators</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.menuItem}>
+                <TouchableOpacity style={styles.menuItem} onPress={handleOpenSettingsModal}>
                     <MaterialIcon name="settings" size={24} color="#007bff" />
                     <Text style={styles.menuText}>Settings</Text>
                 </TouchableOpacity>
@@ -275,7 +305,7 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
                     <Text style={styles.menuText}>Log Out</Text>
                 </TouchableOpacity>
             </View>
-            <BottomBar navigation={navigation}/>
+            <BottomBar navigation={navigation} />
             <Modal
                 animationType="slide"
                 transparent={true}
@@ -298,6 +328,40 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
                             keyExtractor={(item) => item.name}
                         />
                         <TouchableOpacity style={styles.closeButton} onPress={handleCloseNamesModal}>
+                            <Text style={styles.closeButtonText}>Close</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
+            <Modal
+                animationType="slide"
+                transparent={true}
+                visible={settingsModalVisible}
+                onRequestClose={handleCloseSettingsModal}
+            >
+                <View style={styles.modalContainer}>
+                    <View style={styles.modalContent}>
+                        <Text style={styles.modalTitle}>Settings</Text>
+
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <Text style={styles.modalText}>Dark mode</Text>
+                            <Animated.View>
+                                <Switch
+                                    value={isSwitchOn}
+                                    onValueChange={(value) => {
+                                        setIsSwitchOn(value);
+                                        animateSwitch(value);
+                                        if(value){
+                                            //enable dark mode
+                                            console.log("Dark mode enabled");
+
+                                        }
+                                    }}
+                                />
+                            </Animated.View>
+                        </View>
+
+                        <TouchableOpacity style={styles.closeButton} onPress={handleCloseSettingsModal}>
                             <Text style={styles.closeButtonText}>Close</Text>
                         </TouchableOpacity>
                     </View>
@@ -332,6 +396,8 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
         </View>
     );
 }
+
+
 const styles = StyleSheet.create({
     container: {
         flex: 1,
@@ -373,7 +439,7 @@ const styles = StyleSheet.create({
         fontSize: 20,
         fontWeight: 'bold'
     },
-    infoHeaderText:{
+    infoHeaderText: {
         fontSize: 17,
         fontWeight: 'bold',
     },
@@ -381,7 +447,6 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: '#666',
     },
-
     infoSection: {
         display: "flex",
         flexDirection: "row",
@@ -395,20 +460,18 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "space-between"
     },
-
-    infoSectionEditComponent:{
+    infoSectionEditComponent: {
         display: "flex",
         flexDirection: "row",
         alignItems: "center",
         marginLeft: 10,
         marginBottom: 30,
     },
-
     infoText: {
         fontSize: 16,
         marginLeft: 15,
     },
-    editView:{
+    editView: {
         display: "flex",
         flexDirection: "row",
         justifyContent: "flex-end",
@@ -442,7 +505,7 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         alignItems: 'center',
     },
-    modalItems:{
+    modalItems: {
         flexDirection: 'row',
         alignItems: 'center',
         width: '100%',
@@ -485,5 +548,9 @@ const styles = StyleSheet.create({
         fontSize: 16,
     },
 });
+
+
+
+
 
 export default UserScreen;
