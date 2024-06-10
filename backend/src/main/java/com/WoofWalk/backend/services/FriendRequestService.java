@@ -57,7 +57,11 @@ public class FriendRequestService {
         userRepository.save(receiver);
         userRepository.save(sender);
         }
-
+    public void declineFriendRequest(Long friendRequestId){
+        FriendRequest friendRequest = friendRequestRepository.findById(friendRequestId)
+                .orElseThrow(() -> new EntityNotFoundException("Friend request not found"));
+        friendRequestRepository.delete(friendRequest);
+    }
     public Set<UserDto> getAllFriends(String email){
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new EntityNotFoundException("no such user"));

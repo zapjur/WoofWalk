@@ -28,6 +28,9 @@ interface UserScreenProps {
     navigation: MapScreenNavigationProp & UserScreenNavigationProp & FriendsScreenNavigationProp;
 }
 const FormData = global.FormData;
+
+
+
 const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
     const {user} = useAuth0();
     const [namesModalVisible, setNamesModalVisible] = useState(false);
@@ -70,14 +73,13 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
                 },
                 responseType: 'blob'
             }).then(response => {
-
                 const blob = response.data;
                 const reader = new FileReader();
                 reader.onloadend = () => {
                     if (reader.result) {
                         setImage(reader.result as string);
-                    }
 
+                    }
                 };
                 reader.readAsDataURL(blob);
             })
@@ -131,7 +133,7 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
                 email : user.email,
                 address: address
             }
-             apiClient.post("/user/updateAddress", userData);
+             await apiClient.post("/user/updateAddress", userData);
         }
         setEditingAddress(false);
     };
@@ -185,40 +187,41 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
     }
     const saveImage = async ( imageUri: string) => {
         const userEmail = user?.email;
-        console.log("Image uri " + imageUri);
         if(user && userEmail){
-            const newImageUri: string = "file:///" + imageUri.split("file:/").join("");
-
-            console.log(mime.getType(imageUri));
-
             const formData: FormData = new FormData();
-
             (formData as any).append('file', {
                 uri: imageUri,
                 type: mime.getType(imageUri),
                 name: imageUri.split("/").pop()
             })
-            console.log( newImageUri.split("/").pop());
             formData.append('email', userEmail);
             try {
               await apiClient.put('/user/profilePicture/upload', formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                     },
-                }).then(response =>{
-                    console.log(response.data);
-              });
-                setPhotoModalVisible(false);
+                });
+              setPhotoModalVisible(false);
             } catch (error) {
                 console.error('Upload failed', error);
             }
         }
         }
 
-    const deleteImage = () => {
-        // delete from database
-        setImage("none");
-        setPhotoModalVisible(false);
+    const deleteImage = async () => {
+        if(user){
+            try{
+                const userData = {
+                    email : user.email,
+                }
+                await apiClient.post("/user/profilePicture/delete", userData)
+                setImage("none");
+                setPhotoModalVisible(false);
+            }
+            catch (error){
+                console.error(error);
+            }
+        }
     }
 
     return (
@@ -383,6 +386,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginBottom: 20,
     },
+
     headerText: {
         fontSize: 28,
         fontWeight: 'bold',
