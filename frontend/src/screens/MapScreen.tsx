@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { StyleSheet, View, Text, Alert, TouchableOpacity } from 'react-native';
 import MapView, { Marker, Callout, Region } from 'react-native-maps';
 import * as Location from 'expo-location';
@@ -10,6 +10,7 @@ import RootStackParamList from "../../RootStackParamList";
 import { StackNavigationProp } from "@react-navigation/stack";
 import Icon from 'react-native-vector-icons/FontAwesome';
 import StarRating from "../components/StarRating";
+import MaterialIcon from "react-native-vector-icons/MaterialIcons";
 
 interface Location {
     id: number;
@@ -31,7 +32,9 @@ interface MapScreenProps {
 const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
     const [locations, setLocations] = useState<Location[]>([]);
     const [userLocation, setUserLocation] = useState<{ latitude: number, longitude: number } | null>(null);
+    const [mapRegion, setMapRegion] = useState<Region | undefined>(undefined);
     const { user, error } = useAuth0();
+    const mapRef = useRef<MapView>(null);
 
     useEffect(() => {
         apiClient.get('/locations')
@@ -57,10 +60,23 @@ const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
         }
 
         const location = await Location.getCurrentPositionAsync({});
-        setUserLocation({
+        const userLoc = {
             latitude: location.coords.latitude,
             longitude: location.coords.longitude
+        };
+        setUserLocation(userLoc);
+        setMapRegion({
+            ...userLoc,
+            latitudeDelta: 0.0922,
+            longitudeDelta: 0.0421
         });
+        if (mapRef.current) {
+            mapRef.current.animateToRegion({
+                ...userLoc,
+                latitudeDelta: 0.0922,
+                longitudeDelta: 0.0421
+            }, 1000);
+        }
     };
 
     const createUser = async () => {
@@ -81,6 +97,7 @@ const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
     return (
         <View style={styles.container}>
             <MapView
+                ref={mapRef}
                 style={styles.map}
                 initialRegion={{
                     latitude: 50.0614300,
@@ -88,16 +105,7 @@ const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
                     latitudeDelta: 0.0922,
                     longitudeDelta: 0.0421,
                 }}
-                region={
-                    userLocation
-                        ? {
-                            latitude: userLocation.latitude,
-                            longitude: userLocation.longitude,
-                            latitudeDelta: 0.0922,
-                            longitudeDelta: 0.0421,
-                        }
-                        : undefined
-                }
+                region={mapRegion}
             >
                 {userLocation && (
                     <Marker
@@ -115,7 +123,10 @@ const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
                     >
                         <Callout tooltip>
                             <View style={styles.calloutContainer}>
-                                <Text style={styles.calloutTitle}>{location.name}</Text>
+                                <View style={styles.nameContainer}>
+                                    <Text style={styles.calloutTitle}>{location.name}</Text>
+                                    <MaterialIcon name="open-in-new" size={24} color="black" />
+                                </View>
                                 <Text>{location.description}</Text>
                                 <View style={styles.ratingContainer}>
                                     <StarRating rating={location.rating} />
@@ -156,17 +167,15 @@ const styles = StyleSheet.create({
     calloutTitle: {
         fontWeight: 'bold',
     },
-    rating: {
-        marginTop: 5,
-    },
     ratingContainer: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
+        marginTop: 5,
     },
     locationButton: {
         position: 'absolute',
-        bottom: 20,
+        bottom: 85,
         right: 20,
         backgroundColor: '#007bff',
         borderRadius: 50,
@@ -180,6 +189,11 @@ const styles = StyleSheet.create({
         shadowRadius: 2,
         elevation: 4,
     },
+    nameContainer: {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+    }
 });
 
 export default MapScreen;
