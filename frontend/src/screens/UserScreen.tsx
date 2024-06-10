@@ -189,12 +189,14 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
         if(user && userEmail){
             const newImageUri: string = "file:///" + imageUri.split("file:/").join("");
 
+            console.log(mime.getType(imageUri));
+
             const formData: FormData = new FormData();
 
             (formData as any).append('file', {
-                uri: newImageUri,
-                type: mime.getType(newImageUri),
-                name: newImageUri.split("/").pop()
+                uri: imageUri,
+                type: mime.getType(imageUri),
+                name: imageUri.split("/").pop()
             })
             console.log( newImageUri.split("/").pop());
             formData.append('email', userEmail);

@@ -66,16 +66,20 @@ public class UserController {
 
     @GetMapping("/profilePicture/download")
     public ResponseEntity<ByteArrayResource> getImage(@RequestParam("email") String email) throws IOException {
-        try (S3Object s3Object = s3Service.downloadImage(email);
-             InputStream inputStream = s3Object.getObjectContent()) {
+        try(S3Object s3Object = s3Service.downloadImage(email);){
+            if(s3Object == null){
+                return ResponseEntity.notFound().build();
+            }
+            try (InputStream inputStream = s3Object.getObjectContent()) {
 
-            byte[] bytes = inputStream.readAllBytes();
-            ByteArrayResource resource = new ByteArrayResource(bytes);
+                byte[] bytes = inputStream.readAllBytes();
+                ByteArrayResource resource = new ByteArrayResource(bytes);
 
-            return ResponseEntity.ok()
-                    .contentType(MediaType.IMAGE_JPEG)
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + email + "\"")
-                    .body(resource);
+                return ResponseEntity.ok()
+                        .contentType(MediaType.IMAGE_JPEG)
+                        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + email + "\"")
+                        .body(resource);
+            }
         }
     }
 

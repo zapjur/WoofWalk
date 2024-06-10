@@ -1,0 +1,3 @@
+com/WoofWalk/backend/config/AWSConfig.class
+com/WoofWalk/backend/dto/ProfilePictureDto.class
+com/WoofWalk/backend/services/S3Service.class

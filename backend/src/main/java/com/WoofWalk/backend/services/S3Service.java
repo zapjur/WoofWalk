@@ -61,6 +61,7 @@ public class S3Service {
 
         String imageId = user.getProfilePictureId();
         if(imageId == null){
+            logger.info("No image found for user: " + email);
             return null;
         }
         return amazonS3.getObject(bucketName, imageId);
