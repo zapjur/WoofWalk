@@ -9,4 +9,5 @@ import java.util.List;
 public interface FriendRequestRepository extends JpaRepository<FriendRequest, Long> {
     List<FriendRequest> findByReceiverEmail(String receiverEmail);
     List<FriendRequest> findBySenderEmail(String senderEmail);
+    List<FriendRequest> findBySenderEmailAndReceiverEmail(String senderEmail, String receiverEmail);
 }

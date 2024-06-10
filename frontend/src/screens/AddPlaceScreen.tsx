@@ -40,6 +40,7 @@ const AddPlaceScreen: React.FC = () => {
 
         } catch (error) {
             console.error('Error:', error);
+            Alert.alert('Error');
         }
     };
 

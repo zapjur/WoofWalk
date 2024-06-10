@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Entity
 @Getter
 @Setter
@@ -22,11 +24,17 @@ public class Location {
     private String description;
 
     @Column(name = "rating")
-    private double rating;
+    private double rating = 0.0;
+
+    @Column(name = "rating_count")
+    private int ratingCount = 0;
 
     @Column(name = "latitude", nullable = false)
     private double latitude;
 
     @Column(name = "longitude", nullable = false)
     private double longitude;
+
+    @OneToMany(mappedBy = "location")
+    private List<Rating> ratings;
 }

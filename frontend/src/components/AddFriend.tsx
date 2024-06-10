@@ -1,7 +1,11 @@
 import React, { useState } from "react";
 import { TouchableOpacity, Text, StyleSheet, View, Modal, TextInput } from 'react-native';
 import { useAuth0 } from "react-native-auth0";
+import React, {useState} from "react";
+import {TouchableOpacity, Text, StyleSheet, View, Modal, TextInput, Alert} from 'react-native';
+import {useAuth0} from "react-native-auth0";
 import apiClient from "../../axiosConfig";
+import axios from "axios";
 
 interface AddFriendButtonProps {
     onFriendRequestSent: () => void;
@@ -10,6 +14,9 @@ interface AddFriendButtonProps {
 const AddFriendButton: React.FC<AddFriendButtonProps> = ({ onFriendRequestSent }) => {
     const { user } = useAuth0();
     const [receiverEmail, setReceiverEmail] = useState("");
+const AddFriendButton: React.FC<{ onInvitationSent: () => void }> = ({ onInvitationSent }) => {
+    const {user} = useAuth0();
+    const [ReceiverEmail, setReceiverEmail] = useState("0");
     const [modalVisible, setModalVisible] = useState(false);
 
     const handleAddFriendPress = () => {
@@ -25,11 +32,33 @@ const AddFriendButton: React.FC<AddFriendButtonProps> = ({ onFriendRequestSent }
             if (user) {
                 const friendRequestData = {
                     senderEmail: user.email,
-                    receiverEmail: receiverEmail,
-                };
-                await apiClient.post("/friends/invite", friendRequestData);
-                setModalVisible(false);
-                onFriendRequestSent();
+                    receiverEmail: ReceiverEmail,
+                }
+                try{
+                    const response = await apiClient.post("/friends/invite", friendRequestData);
+                    onInvitationSent();
+                    setModalVisible(false);
+                }
+                catch (error: unknown) {
+                    if (axios.isAxiosError(error) && error.response) {
+                        if (error.response.status === 409) {
+                            Alert.alert("Error", error.response.data);
+                        }
+                        else if(error.response.status === 400){
+                            Alert.alert("Error", error.response.data);
+                        }
+                        else if(error.response.status === 404){
+                            Alert.alert("Error",  error.response.data);
+                        }
+                        else {
+                            Alert.alert("Error", "Failed to invite: " + error.message);
+                        }
+                    } else if (error instanceof Error) {
+                        Alert.alert("Error", error.message);
+                    } else {
+                        Alert.alert("Error", "An unknown error occurred");
+                    }
+                }
             }
         } catch (error) {
             console.log(error);
