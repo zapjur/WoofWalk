@@ -1,7 +1,7 @@
 import {StackNavigationProp} from "@react-navigation/stack";
 import RootStackParamList from "../../RootStackParamList";
 import React, {useEffect, useState} from "react";
-import {Text, View, StyleSheet, TouchableOpacity, ScrollView} from "react-native";
+import {Text, View, StyleSheet, TouchableOpacity, ScrollView, Alert} from "react-native";
 import AddFriend from "../components/AddFriend";
 import BottomBar from "../components/BottomBar";
 import MaterialCommunityIcon from "react-native-vector-icons/MaterialCommunityIcons";
@@ -74,8 +74,12 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
         }
     }, [refresh]);
     const acceptFriendRequest = async (id: number) => {
-         await apiClient.post(`/friends/${id}/accept`);
-         alert("Invitation accepted successfully");
+         const response = await apiClient.post(`/friends/${id}/accept`);
+         Alert.alert("Success", response.data);
+    }
+    const declineFriendRequest = async (id: number)=> {
+        const response = await apiClient.post(`/friends/${id}/decline`);
+        Alert.alert("Success", response.data);
     }
     const handleInvitationSent = () =>{
         setRefresh(true);
@@ -150,7 +154,7 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
                                             <TouchableOpacity style={styles.addButton} onPress={() => acceptFriendRequest(invitation.id)}>
                                                 <MaterialCommunityIcon name={"plus-box"} size={33}></MaterialCommunityIcon>
                                             </TouchableOpacity>
-                                            <TouchableOpacity style={styles.rejectButton}>
+                                            <TouchableOpacity style={styles.rejectButton} onPress={() => declineFriendRequest(invitation.id)}>
                                                 <MaterialCommunityIcon name={"minus-box"} size={33}></MaterialCommunityIcon>
                                             </TouchableOpacity>
                                         </View>
