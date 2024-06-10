@@ -13,9 +13,7 @@
           "domain": "dev-h5zqtrdr8n7sgz84.us.auth0.com"
         }
       ],
-      [
-        "expo-secure-store"
-      ],
+      ["expo-secure-store"],
       [
         "expo-location",
         {
@@ -30,7 +28,7 @@
     },
     "ios": {
       "supportsTablet": true,
-        "bundleIdentifier": "com.anonymous.frontend"
+      "bundleIdentifier": "com.anonymous.frontend"
     },
     "android": {
       "adaptiveIcon": {
@@ -47,6 +45,5 @@
         "projectId": "bbfed984-781e-4a20-8565-4ff4b6ee249e"
       }
     }
-
   }
 }

@@ -35,6 +35,8 @@ public class LocationService {
     public Location createLocation(LocationDto locationDto) {
         // Add validation logic here
         Location location = LocationMapper.toEntity(locationDto);
+        location.setRating(0.0);
+        location.setRatingCount(0);
         return locationRepository.save(location);
     }
 
