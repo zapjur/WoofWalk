@@ -1,9 +1,12 @@
+import { Place } from "./src/types/types";
+
 type RootStackParamList = {
     Login: undefined;
-    Map: undefined; // tutaj można definiować jakie parametry będą przekazywane między ekranami
+    Map: undefined;
     User: undefined;
     Friends: undefined;
     AddPlace: undefined;
+    PlaceScreen: { place: Place };
 };
 
 export default RootStackParamList;

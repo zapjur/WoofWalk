@@ -6,31 +6,20 @@ import apiClient from "../../axiosConfig";
 import { useAuth0 } from "react-native-auth0";
 import BottomBar from "../components/BottomBar";
 import AddPlaceButton from "../components/AddPlaceButton";
-import RootStackParamList from "../../RootStackParamList";
 import { StackNavigationProp } from "@react-navigation/stack";
 import Icon from 'react-native-vector-icons/FontAwesome';
 import StarRating from "../components/StarRating";
 import MaterialIcon from "react-native-vector-icons/MaterialIcons";
-
-interface Location {
-    id: number;
-    latitude: number;
-    longitude: number;
-    name: string;
-    description: string;
-    rating: number;
-    ratingCount: number;
-}
+import { Place, RootStackParamList } from "../types/types";
 
 type MapScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Map'>;
-type UserScreenNavigationProp = StackNavigationProp<RootStackParamList, 'User'>
-type FriendsScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Friends'>
+
 interface MapScreenProps {
-    navigation: MapScreenNavigationProp & UserScreenNavigationProp & FriendsScreenNavigationProp;
+    navigation: MapScreenNavigationProp;
 }
 
 const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
-    const [locations, setLocations] = useState<Location[]>([]);
+    const [places, setPlaces] = useState<Place[]>([]);
     const [userLocation, setUserLocation] = useState<{ latitude: number, longitude: number } | null>(null);
     const [mapRegion, setMapRegion] = useState<Region | undefined>(undefined);
     const { user, error } = useAuth0();
@@ -40,7 +29,7 @@ const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
         apiClient.get('/locations')
             .then(response => {
                 if (Array.isArray(response.data)) {
-                    setLocations(response.data);
+                    setPlaces(response.data);
                 } else {
                     console.error('Invalid data format:', response.data);
                 }
@@ -48,8 +37,11 @@ const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
             .catch(error => {
                 console.error('Error:', error);
             });
-        createUser();
         getUserLocation();
+    }, []);
+
+    useEffect(() => {
+        createUser()
     }, []);
 
     const getUserLocation = async () => {
@@ -94,6 +86,10 @@ const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
         }
     };
 
+    const handleNavigateToLocation = (place: Place) => {
+        navigation.navigate('PlaceScreen', { place });
+    };
+
     return (
         <View style={styles.container}>
             <MapView
@@ -114,24 +110,26 @@ const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
                         pinColor="blue"
                     />
                 )}
-                {locations.map(location => (
+                {places.map(place => (
                     <Marker
-                        key={location.id}
-                        coordinate={{ latitude: location.latitude, longitude: location.longitude }}
-                        title={location.name}
-                        description={location.description}
+                        key={place.id}
+                        coordinate={{ latitude: place.latitude, longitude: place.longitude }}
+                        title={place.name}
+                        description={place.description}
                     >
                         <Callout tooltip>
                             <View style={styles.calloutContainer}>
                                 <View style={styles.nameContainer}>
-                                    <Text style={styles.calloutTitle}>{location.name}</Text>
-                                    <MaterialIcon name="open-in-new" size={24} color="black" />
+                                    <Text style={styles.calloutTitle}>{place.name}</Text>
+                                    <TouchableOpacity onPress={() => handleNavigateToLocation(place)}>
+                                        <MaterialIcon name="open-in-full" size={16} color="black" />
+                                    </TouchableOpacity>
                                 </View>
-                                <Text>{location.description}</Text>
+                                <Text>{place.description}</Text>
                                 <View style={styles.ratingContainer}>
-                                    <StarRating rating={location.rating} />
+                                    <StarRating rating={place.rating} />
                                     <Text>
-                                        ({location.ratingCount})
+                                        ({place.ratingCount})
                                     </Text>
                                 </View>
                             </View>
@@ -193,6 +191,7 @@ const styles = StyleSheet.create({
         display: 'flex',
         flexDirection: 'row',
         justifyContent: 'space-between',
+        marginBottom: 5,
     }
 });
 
