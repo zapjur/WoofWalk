@@ -1,18 +1,32 @@
 package com.WoofWalk.backend.controllers;
 
+
+import com.WoofWalk.backend.dto.ProfilePictureDto;
 import com.WoofWalk.backend.dto.UserDto;
-import com.WoofWalk.backend.entities.User;
+import com.WoofWalk.backend.services.S3Service;
 import com.WoofWalk.backend.services.UserService;
+import com.amazonaws.services.s3.model.S3Object;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
+import java.io.InputStream;
+
 
 @RestController
 @RequestMapping("/user")
 @RequiredArgsConstructor
 public class UserController {
-
+    private final static Logger logger = LoggerFactory.getLogger(UserController.class);
     private final UserService userService;
+    private final S3Service s3Service;
 
     @PostMapping("/createUser")
     public ResponseEntity<?> createUserInDatabase(@RequestBody UserDto userDto) {
@@ -40,4 +54,33 @@ public class UserController {
     public String getPhoneNumber(@RequestParam("email") String email){
         return userService.getPhoneNumber(email);
     }
+
+
+    @PutMapping("/profilePicture/upload")
+    public ResponseEntity<String> uploadProfilePicture(@ModelAttribute ProfilePictureDto profilePictureDto)  {
+        logger.info("chuj tutaj!!");
+        String fileID = s3Service.uploadFile(profilePictureDto.getFile());
+        userService.saveProfilePictureId(profilePictureDto.getEmail(), fileID);
+        return new ResponseEntity<>("Success!", HttpStatus.OK);
+    }
+
+    @GetMapping("/profilePicture/download")
+    public ResponseEntity<ByteArrayResource> getImage(@RequestParam("email") String email) throws IOException {
+        try(S3Object s3Object = s3Service.downloadImage(email);){
+            if(s3Object == null){
+                return ResponseEntity.notFound().build();
+            }
+            try (InputStream inputStream = s3Object.getObjectContent()) {
+
+                byte[] bytes = inputStream.readAllBytes();
+                ByteArrayResource resource = new ByteArrayResource(bytes);
+
+                return ResponseEntity.ok()
+                        .contentType(MediaType.IMAGE_JPEG)
+                        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + email + "\"")
+                        .body(resource);
+            }
+        }
+    }
+
 }

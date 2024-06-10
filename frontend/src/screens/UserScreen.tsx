@@ -18,6 +18,8 @@ import {useAuth0} from "react-native-auth0";
 import MaterialCommunityIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import * as ImagePicker from "expo-image-picker";
 import apiClient from "../../axiosConfig";
+import mime from "mime"
+
 
 type MapScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Map'>;
 type UserScreenNavigationProp = StackNavigationProp<RootStackParamList, 'User'>
@@ -25,6 +27,7 @@ type FriendsScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Frie
 interface UserScreenProps {
     navigation: MapScreenNavigationProp & UserScreenNavigationProp & FriendsScreenNavigationProp;
 }
+const FormData = global.FormData;
 const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
     const {user} = useAuth0();
     const [namesModalVisible, setNamesModalVisible] = useState(false);
@@ -41,7 +44,7 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
                 params: {
                     email: user.email,
                 }
-            }).then(response =>{
+            }).then(response => {
                     if(response.data.length !== 0){
                         setAddress(response.data);
                     }
@@ -53,7 +56,7 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
                 params: {
                     email: user.email,
                 }
-            }).then(response =>{
+            }).then(response => {
                     if(response.data.length !== 0){
                         setPhoneNumber(response.data);
                     }
@@ -61,6 +64,23 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
                         setPhoneNumber("Provide your phone number");
                     }
             });
+            apiClient.get("/user/profilePicture/download",{
+                params: {
+                    email: user.email,
+                },
+                responseType: 'blob'
+            }).then(response => {
+
+                const blob = response.data;
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    if (reader.result) {
+                        setImage(reader.result as string);
+                    }
+
+                };
+                reader.readAsDataURL(blob);
+            })
 
         }
 
@@ -157,25 +177,44 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
                     await saveImage(result.assets[0].uri);
                 }
             }
-
-
         }
         catch (error){
             alert("Error uploading image " + error);
             setPhotoModalVisible(false);
         }
     }
-    const saveImage = async ( image: string) => {
-        try {
-            // save in database
-            setImage(image);
-            setPhotoModalVisible(false);
+    const saveImage = async ( imageUri: string) => {
+        const userEmail = user?.email;
+        console.log("Image uri " + imageUri);
+        if(user && userEmail){
+            const newImageUri: string = "file:///" + imageUri.split("file:/").join("");
+
+            console.log(mime.getType(imageUri));
+
+            const formData: FormData = new FormData();
+
+            (formData as any).append('file', {
+                uri: imageUri,
+                type: mime.getType(imageUri),
+                name: imageUri.split("/").pop()
+            })
+            console.log( newImageUri.split("/").pop());
+            formData.append('email', userEmail);
+            try {
+              await apiClient.put('/user/profilePicture/upload', formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                }).then(response =>{
+                    console.log(response.data);
+              });
+                setPhotoModalVisible(false);
+            } catch (error) {
+                console.error('Upload failed', error);
+            }
         }
-        catch (error){
-            setPhotoModalVisible(false);
-            throw error;
         }
-    }
+
     const deleteImage = () => {
         // delete from database
         setImage("none");

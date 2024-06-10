@@ -29,6 +29,9 @@ public class User {
     @Column
     private String address;
 
+    @Column
+    private String profilePictureId;
+
     @OneToMany(mappedBy = "user")
     private List<Rating> ratings;
 

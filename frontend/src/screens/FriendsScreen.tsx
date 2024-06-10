@@ -73,7 +73,7 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
             setRefresh(false);
         }
     }, [refresh]);
-    const acceptFriendRequest = async (id: number) =>{
+    const acceptFriendRequest = async (id: number) => {
          await apiClient.post(`/friends/${id}/accept`);
          alert("Invitation accepted successfully");
     }

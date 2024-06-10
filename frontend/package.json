@@ -23,6 +23,8 @@
     "expo-location": "~17.0.1",
     "expo-secure-store": "~13.0.1",
     "expo-status-bar": "~1.12.1",
+    "mime": "^4.0.3",
+    "mime-types": "^2.1.35",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-native": "0.74.2",
