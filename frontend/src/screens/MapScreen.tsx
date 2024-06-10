@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, View, Text, Alert, TouchableOpacity } from 'react-native';
 import MapView, { Marker, Callout, Region } from 'react-native-maps';
-import { Rating } from 'react-native-ratings';
 import * as Location from 'expo-location';
 import apiClient from "../../axiosConfig";
 import { useAuth0 } from "react-native-auth0";
@@ -9,8 +8,8 @@ import BottomBar from "../components/BottomBar";
 import AddPlaceButton from "../components/AddPlaceButton";
 import RootStackParamList from "../../RootStackParamList";
 import { StackNavigationProp } from "@react-navigation/stack";
-import axios from "axios";
 import Icon from 'react-native-vector-icons/FontAwesome';
+import StarRating from "../components/StarRating";
 
 interface Location {
     id: number;
@@ -79,26 +78,6 @@ const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
         }
     };
 
-    const handleRatingCompleted = async (rating: number, locationId: number) => {
-        const userEmail = user?.email;
-        try {
-            const response = await apiClient.post(`/locations/${locationId}/rate`, { rating, userEmail });
-            Alert.alert("Dziękujemy!", "Twoja ocena została zapisana.");
-        } catch (error: unknown) {
-            if (axios.isAxiosError(error) && error.response) {
-                if (error.response.status === 409) {
-                    Alert.alert("Błąd", error.response.data);
-                } else {
-                    Alert.alert("Error", "Failed to add place: " + error.message);
-                }
-            } else if (error instanceof Error) {
-                Alert.alert("Error", error.message);
-            } else {
-                Alert.alert("Error", "An unknown error occurred");
-            }
-        }
-    };
-
     return (
         <View style={styles.container}>
             <MapView
@@ -139,13 +118,7 @@ const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
                                 <Text style={styles.calloutTitle}>{location.name}</Text>
                                 <Text>{location.description}</Text>
                                 <View style={styles.ratingContainer}>
-                                    <Rating
-                                        type='star'
-                                        startingValue={location.rating}
-                                        imageSize={24}
-                                        onFinishRating={(rating: number) => handleRatingCompleted(rating, location.id)}
-                                        style={styles.rating}
-                                    />
+                                    <StarRating rating={location.rating} />
                                     <Text>
                                         ({location.ratingCount})
                                     </Text>
