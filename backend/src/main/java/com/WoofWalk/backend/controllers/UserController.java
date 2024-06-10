@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -56,15 +55,15 @@ public class UserController {
         return userService.getPhoneNumber(email);
     }
 
-    @CrossOrigin
-    @PostMapping("/profilePicture/upload")
+
+    @PutMapping("/profilePicture/upload")
     public ResponseEntity<String> uploadProfilePicture(@ModelAttribute ProfilePictureDto profilePictureDto)  {
-        logger.info("cjeabcd " + profilePictureDto.getEmail());
-        logger.info("cjeabcd12 " + profilePictureDto.getFile());
+        logger.info("chuj tutaj!!");
         String fileID = s3Service.uploadFile(profilePictureDto.getFile());
         userService.saveProfilePictureId(profilePictureDto.getEmail(), fileID);
         return new ResponseEntity<>("Success!", HttpStatus.OK);
     }
+
     @GetMapping("/profilePicture/download")
     public ResponseEntity<ByteArrayResource> getImage(@RequestParam("email") String email) throws IOException {
         try (S3Object s3Object = s3Service.downloadImage(email);

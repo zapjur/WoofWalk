@@ -20,6 +20,7 @@ import * as ImagePicker from "expo-image-picker";
 import apiClient from "../../axiosConfig";
 import mime from "mime"
 
+
 type MapScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Map'>;
 type UserScreenNavigationProp = StackNavigationProp<RootStackParamList, 'User'>
 type FriendsScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Friends'>
@@ -184,6 +185,7 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
     }
     const saveImage = async ( imageUri: string) => {
         const userEmail = user?.email;
+        console.log("Image uri " + imageUri);
         if(user && userEmail){
             const newImageUri: string = "file:///" + imageUri.split("file:/").join("");
 
@@ -194,14 +196,17 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
                 type: mime.getType(newImageUri),
                 name: newImageUri.split("/").pop()
             })
+            console.log( newImageUri.split("/").pop());
             formData.append('email', userEmail);
             try {
-                const response = await apiClient.post('/user/profilePicture/upload', formData, {
+              await apiClient.put('/user/profilePicture/upload', formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                     },
-                });
-                console.log('Upload success', response.data);
+                }).then(response =>{
+                    console.log(response.data);
+              });
+                setPhotoModalVisible(false);
             } catch (error) {
                 console.error('Upload failed', error);
             }

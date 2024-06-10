@@ -60,6 +60,9 @@ public class S3Service {
                 () -> new EntityNotFoundException("no such user"));
 
         String imageId = user.getProfilePictureId();
+        if(imageId == null){
+            return null;
+        }
         return amazonS3.getObject(bucketName, imageId);
     }
 }
