@@ -87,7 +87,8 @@ const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
     };
 
     const handleNavigateToLocation = (place: Place) => {
-        navigation.navigate('PlaceScreen', { place });
+        console.log('Navigating to:', place);
+        navigation.navigate('PlaceScreen', { place, userLocation });
     };
 
     return (
@@ -121,7 +122,7 @@ const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
                             <View style={styles.calloutContainer}>
                                 <View style={styles.nameContainer}>
                                     <Text style={styles.calloutTitle}>{place.name}</Text>
-                                    <TouchableOpacity onPress={() => handleNavigateToLocation(place)}>
+                                    <TouchableOpacity style={styles.buttonPageScreen} onPress={() => handleNavigateToLocation(place)}>
                                         <MaterialIcon name="open-in-full" size={16} color="black" />
                                     </TouchableOpacity>
                                 </View>
@@ -192,6 +193,10 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         marginBottom: 5,
+    },
+    buttonPageScreen: {
+        width: 20,
+        height: 20,
     }
 });
 
