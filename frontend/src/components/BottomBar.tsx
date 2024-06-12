@@ -9,8 +9,10 @@ import {StackNavigationProp} from "@react-navigation/stack";
 type MapScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Map'>;
 type UserScreenNavigationProp = StackNavigationProp<RootStackParamList, 'User'>
 type FriendsScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Friends'>
+type ChatScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Chat'>
+
 interface BottomBarProps {
-    navigation: MapScreenNavigationProp & UserScreenNavigationProp & FriendsScreenNavigationProp;
+    navigation: MapScreenNavigationProp & UserScreenNavigationProp & FriendsScreenNavigationProp & ChatScreenNavigationProp;
 }
 
 const BottomBar: React.FC<BottomBarProps> = ({navigation}) => {
@@ -24,6 +26,9 @@ const BottomBar: React.FC<BottomBarProps> = ({navigation}) => {
     const handleFriendsButtonPress = () =>{
         navigation.navigate('Friends');
     }
+    const handleChatButtonPress = () =>{
+        navigation.navigate('Chat');
+    }
     return (
         <View style={styles.container}>
 
@@ -35,7 +40,7 @@ const BottomBar: React.FC<BottomBarProps> = ({navigation}) => {
                 <MaterialCommunityIcon name="google-nearby" size={30} color="#007bff" />
                 <Text style={styles.buttonText}>Nearby</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.button}>
+            <TouchableOpacity style={styles.button} onPress={handleChatButtonPress}>
                 <MaterialIcon name="chat" size={30} color="#007bff" />
                 <Text style={styles.buttonText}>Chat</Text>
             </TouchableOpacity>

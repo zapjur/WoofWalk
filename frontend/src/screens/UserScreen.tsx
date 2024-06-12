@@ -24,8 +24,9 @@ import mime from "mime"
 type MapScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Map'>;
 type UserScreenNavigationProp = StackNavigationProp<RootStackParamList, 'User'>
 type FriendsScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Friends'>
+type ChatScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Chat'>
 interface UserScreenProps {
-    navigation: MapScreenNavigationProp & UserScreenNavigationProp & FriendsScreenNavigationProp;
+    navigation: MapScreenNavigationProp & UserScreenNavigationProp & FriendsScreenNavigationProp & ChatScreenNavigationProp;
 }
 const FormData = global.FormData;
 

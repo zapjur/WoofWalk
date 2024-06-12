@@ -4,6 +4,7 @@ type RootStackParamList = {
     User: undefined;
     Friends: undefined;
     AddPlace: undefined;
+    Chat: undefined;
 };
 
 export default RootStackParamList;
