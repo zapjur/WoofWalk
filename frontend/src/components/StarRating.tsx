@@ -6,7 +6,7 @@ interface StarRatingProps {
     rating: number;
 }
 
-const StarRating: React.FC<StarRatingProps> = ({ rating }) => {
+const StarRating: React.FC<StarRatingProps> = ({ rating , fontSize}) => {
     const maxRating = 5;
     const stars = [];
 
@@ -16,7 +16,7 @@ const StarRating: React.FC<StarRatingProps> = ({ rating }) => {
                 <FontAwesome
                     key={i}
                     name="star"
-                    size={24}
+                    size={fontSize}
                     color="#FFD700"
                 />
             );
@@ -25,7 +25,7 @@ const StarRating: React.FC<StarRatingProps> = ({ rating }) => {
                 <FontAwesome
                     key={i}
                     name="star-half-o"
-                    size={24}
+                    size={fontSize}
                     color="#FFD700"
                 />
             );
@@ -34,7 +34,7 @@ const StarRating: React.FC<StarRatingProps> = ({ rating }) => {
                 <FontAwesome
                     key={i}
                     name="star-o"
-                    size={24}
+                    size={fontSize}
                     color="#FFD700"
                 />
             );

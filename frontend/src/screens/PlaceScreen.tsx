@@ -147,7 +147,7 @@ const PlaceScreen: React.FC<PlaceScreenProps> = ({ route }) => {
                         <View style={styles.detail}>
                             <Text style={styles.detailsText}>Rating</Text>
                             <View style={styles.ratingContainer}>
-                                <StarRating rating={place.rating} />
+                                <StarRating rating={place.rating} fontSize={24} />
                                 <Text>({place.ratingCount})</Text>
                             </View>
                         </View>
@@ -158,12 +158,18 @@ const PlaceScreen: React.FC<PlaceScreenProps> = ({ route }) => {
                     </View>
                     <Text style={styles.nameText}>About {place.name}</Text>
                     <Text style={styles.descriptionText}>{place.description}</Text>
+                    <View style={styles.separator} />
                     <Text style={styles.nameText}>Opinions</Text>
                     {locationDetails && locationDetails.ratings.map((rating, index) => (
-                        <View key={index} style={styles.ratingContainer}>
-                            <Text>{rating.userEmail}</Text>
-                            <StarRating rating={rating.rating} />
-                            <Text>{rating.opinion}</Text>
+                        <View key={index}>
+                            <View style={styles.opinionContainer}>
+                                <Text>{rating.userEmail}</Text>
+                                <StarRating rating={rating.rating} fontSize={20} />
+                                <Text>{rating.opinion}</Text>
+                            </View>
+                            {index < locationDetails.ratings.length - 1 && (
+                                <View style={styles.opinionSeparator} />
+                            )}
                         </View>
                     ))}
                 </View>
@@ -304,6 +310,20 @@ const styles = StyleSheet.create({
         height: 100,
         marginRight: 10,
         marginBottom: 10,
+    },
+    opinionContainer: {
+        flexDirection: 'column',
+        gap: 10,
+        paddingVertical: 10,
+    },
+    opinionSeparator: {
+        height: 1,
+        backgroundColor: '#edede9',
+    },
+    separator: {
+        height: 5,
+        backgroundColor: '#edede9',
+        borderRadius: 5,
     },
 });
 

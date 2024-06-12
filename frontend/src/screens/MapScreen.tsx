@@ -128,7 +128,7 @@ const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
                                 </View>
                                 <Text>{place.description}</Text>
                                 <View style={styles.ratingContainer}>
-                                    <StarRating rating={place.rating} />
+                                    <StarRating rating={place.rating} fontSize={24} />
                                     <Text>
                                         ({place.ratingCount})
                                     </Text>
