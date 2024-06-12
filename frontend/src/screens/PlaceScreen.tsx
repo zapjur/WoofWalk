@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
-import {View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, SafeAreaView} from "react-native";
+import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, SafeAreaView, Modal, TextInput, Button, Alert } from "react-native";
 import { RouteProp } from "@react-navigation/native";
 import { Place, RootStackParamList } from "../types/types";
 import StarRating from "../components/StarRating";
 import apiClient from "../../axiosConfig";
 import axios from "axios";
 import MaterialIcon from "react-native-vector-icons/MaterialIcons";
+import * as ImagePicker from 'expo-image-picker';
+import {useAuth0} from "react-native-auth0";
 
 interface PlaceScreenProps {
     route: RouteProp<RootStackParamList, 'PlaceScreen'>;
@@ -15,8 +17,14 @@ const PlaceScreen: React.FC<PlaceScreenProps> = ({ route }) => {
     const { place, userLocation } = route.params;
     const [image, setImage] = useState("none");
     const [distance, setDistance] = useState<string | null>(null);
+    const [modalVisible, setModalVisible] = useState(false);
+    const [opinion, setOpinion] = useState('');
+    const [rating, setRating] = useState('');
+    const [images, setImages] = useState<string[]>([]);
 
     const googleMapsApiKey = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
+
+    const userEmail = useAuth0().user.email;
 
     useEffect(() => {
         apiClient.get("/user/profilePicture/download", {
@@ -56,6 +64,69 @@ const PlaceScreen: React.FC<PlaceScreenProps> = ({ route }) => {
         }
     }, [userLocation, place.latitude, place.longitude]);
 
+    const selectImage = async () => {
+        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (status !== 'granted') {
+            alert('Sorry, we need camera roll permissions to make this work!');
+            return;
+        }
+
+        const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsMultipleSelection: true,
+        });
+
+        if (!result.canceled) {
+            const selectedImages = result.assets.map(asset => asset.uri);
+            setImages([...images, ...selectedImages]);
+        }
+    };
+
+    const submitReview = async () => {
+        if (!rating) {
+            Alert.alert('Rating is required');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('userEmail', userEmail);
+        formData.append('rating', rating);
+        if (opinion) {
+            formData.append('opinion', opinion);
+        }
+        if (images.length > 0) {
+            images.forEach((imageUri, index) => {
+                const fileName = imageUri.split('/').pop();
+                const fileType = fileName.split('.').pop();
+                formData.append('images', {
+                    uri: imageUri,
+                    name: fileName,
+                    type: `image/${fileType}`,
+                });
+            });
+        }
+
+        try {
+            const response = await apiClient.post(`/locations/${place.id}/reviews`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+            if (response.status === 200) {
+                Alert.alert('Review submitted successfully');
+                setModalVisible(false);
+                setOpinion('');
+                setRating('');
+                setImages([]);
+            } else {
+                Alert.alert('Failed to submit review');
+            }
+        } catch (error) {
+            console.error('Error submitting review:', error);
+            Alert.alert('Error submitting review');
+        }
+    };
+
     return (
         <SafeAreaView style={styles.safeArea}>
             <ScrollView style={styles.container}>
@@ -83,9 +154,42 @@ const PlaceScreen: React.FC<PlaceScreenProps> = ({ route }) => {
                     <Text style={styles.nameText}>Opinions</Text>
                 </View>
             </ScrollView>
-            <TouchableOpacity style={styles.addButton}>
+            <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
                 <MaterialIcon name="add" size={24} color="white" />
             </TouchableOpacity>
+            <Modal
+                animationType="slide"
+                transparent={true}
+                visible={modalVisible}
+                onRequestClose={() => setModalVisible(false)}
+            >
+                <View style={styles.modalContainer}>
+                    <View style={styles.modalContent}>
+                        <Text style={styles.modalTitle}>Add Opinion</Text>
+                        <TextInput
+                            style={styles.input}
+                            value={rating}
+                            onChangeText={setRating}
+                            placeholder="Give a rating out of 5"
+                            keyboardType="numeric"
+                        />
+                        <TextInput
+                            style={styles.input}
+                            value={opinion}
+                            onChangeText={setOpinion}
+                            placeholder="Write your opinion"
+                        />
+                        <Button title="Select Images" onPress={selectImage} />
+                        <View style={styles.imagePreviewContainer}>
+                            {images.map((img, index) => (
+                                <Image key={index} source={{ uri: img }} style={styles.imagePreview} />
+                            ))}
+                        </View>
+                        <Button title="Submit" onPress={submitReview} />
+                        <Button title="Cancel" onPress={() => setModalVisible(false)} />
+                    </View>
+                </View>
+            </Modal>
         </SafeAreaView>
     );
 };
@@ -139,14 +243,51 @@ const styles = StyleSheet.create({
     addButton: {
         position: 'absolute',
         right: 20,
-        bottom: 20,
+        bottom: 50,
         backgroundColor: 'blue',
         borderRadius: 25,
         alignItems: 'center',
         justifyContent: 'center',
         width: 50,
         height: 50,
-    }
+    },
+    modalContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0,0,0,0.5)',
+    },
+    modalContent: {
+        width: '80%',
+        padding: 20,
+        backgroundColor: 'white',
+        borderRadius: 10,
+        alignItems: 'center',
+    },
+    modalTitle: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        marginBottom: 10,
+    },
+    input: {
+        borderWidth: 1,
+        borderColor: '#ccc',
+        padding: 10,
+        marginVertical: 10,
+        borderRadius: 5,
+        width: '100%',
+    },
+    imagePreviewContainer: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        marginVertical: 10,
+    },
+    imagePreview: {
+        width: 100,
+        height: 100,
+        marginRight: 10,
+        marginBottom: 10,
+    },
 });
 
 export default PlaceScreen;

@@ -37,4 +37,9 @@ public class Location {
 
     @OneToMany(mappedBy = "location")
     private List<Rating> ratings;
+
+    @ElementCollection
+    @CollectionTable(name = "location_images", joinColumns = @JoinColumn(name = "location_id"))
+    @Column(name = "image_url")
+    private List<String> images;
 }
