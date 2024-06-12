@@ -66,7 +66,7 @@ public class UserController {
 
     @GetMapping("/profilePicture/download")
     public ResponseEntity<ByteArrayResource> getImage(@RequestParam("email") String email) throws IOException {
-        try(S3Object s3Object = s3Service.downloadImage(email);){
+        try(S3Object s3Object = s3Service.downloadProfilePicture(email);){
             if(s3Object == null){
                 return ResponseEntity.notFound().build();
             }

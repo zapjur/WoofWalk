@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, SafeAreaView, Modal, TextInput, Button, Alert } from "react-native";
+import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, SafeAreaView, Modal, TextInput, Button, Alert, Dimensions } from "react-native";
 import { RouteProp } from "@react-navigation/native";
 import { Place, RootStackParamList } from "../types/types";
 import StarRating from "../components/StarRating";
@@ -7,7 +7,9 @@ import apiClient from "../../axiosConfig";
 import axios from "axios";
 import MaterialIcon from "react-native-vector-icons/MaterialIcons";
 import * as ImagePicker from 'expo-image-picker';
-import {useAuth0} from "react-native-auth0";
+import { useAuth0 } from "react-native-auth0";
+
+const { width } = Dimensions.get('window');
 
 interface PlaceScreenProps {
     route: RouteProp<RootStackParamList, 'PlaceScreen'>;
@@ -15,33 +17,26 @@ interface PlaceScreenProps {
 
 const PlaceScreen: React.FC<PlaceScreenProps> = ({ route }) => {
     const { place, userLocation } = route.params;
-    const [image, setImage] = useState("none");
     const [distance, setDistance] = useState<string | null>(null);
     const [modalVisible, setModalVisible] = useState(false);
     const [opinion, setOpinion] = useState('');
     const [rating, setRating] = useState('');
     const [images, setImages] = useState<string[]>([]);
+    const [locationDetails, setLocationDetails] = useState<LocationDetails | null>(null);
 
     const googleMapsApiKey = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
 
     const userEmail = useAuth0().user.email;
 
     useEffect(() => {
-        apiClient.get("/user/profilePicture/download", {
-            params: {
-                email: "pz@gmail.com",
-            },
-            responseType: 'blob'
-        }).then(response => {
-            const blob = response.data;
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                if (reader.result) {
-                    setImage(reader.result as string);
-                }
-            };
-            reader.readAsDataURL(blob);
-        });
+        apiClient.get(`/locations/details/${place.id}`)
+            .then(response => {
+                console.log('Location details:', response.data);
+                setLocationDetails(response.data);
+            })
+            .catch(error => {
+                console.error('Error fetching location details:', error);
+            });
 
         if (userLocation) {
             const calculateDistance = async () => {
@@ -62,7 +57,7 @@ const PlaceScreen: React.FC<PlaceScreenProps> = ({ route }) => {
 
             calculateDistance();
         }
-    }, [userLocation, place.latitude, place.longitude]);
+    }, [userLocation, place.id]);
 
     const selectImage = async () => {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -132,10 +127,22 @@ const PlaceScreen: React.FC<PlaceScreenProps> = ({ route }) => {
             <ScrollView style={styles.container}>
                 <View style={styles.infoContainer}>
                     <Text style={styles.nameText}>{place.name}</Text>
-                    <Image
-                        source={{ uri: image !== "none" ? image : 'https://cdn-icons-png.flaticon.com/128/848/848043.png' }}
-                        style={styles.placeImage}
-                    />
+                    {locationDetails && locationDetails.images.length > 0 ? (
+                        <ScrollView horizontal={true} pagingEnabled={true} style={styles.imageScrollView}>
+                            {locationDetails.images.map((imageUri, index) => (
+                                <Image
+                                    key={index}
+                                    source={{ uri: imageUri }}
+                                    style={styles.placeImage}
+                                />
+                            ))}
+                        </ScrollView>
+                    ) : (
+                        <Image
+                            source={{ uri: 'https://cdn-icons-png.flaticon.com/128/848/848043.png' }}
+                            style={styles.placeImage}
+                        />
+                    )}
                     <View style={styles.detailsContainer}>
                         <View style={styles.detail}>
                             <Text style={styles.detailsText}>Rating</Text>
@@ -152,6 +159,13 @@ const PlaceScreen: React.FC<PlaceScreenProps> = ({ route }) => {
                     <Text style={styles.nameText}>About {place.name}</Text>
                     <Text style={styles.descriptionText}>{place.description}</Text>
                     <Text style={styles.nameText}>Opinions</Text>
+                    {locationDetails && locationDetails.ratings.map((rating, index) => (
+                        <View key={index} style={styles.ratingContainer}>
+                            <Text>{rating.userEmail}</Text>
+                            <StarRating rating={rating.rating} />
+                            <Text>{rating.opinion}</Text>
+                        </View>
+                    ))}
                 </View>
             </ScrollView>
             <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
@@ -222,11 +236,14 @@ const styles = StyleSheet.create({
         gap: 10,
     },
     placeImage: {
-        width: '100%',
-        minHeight: 400,
-        maxHeight: 400,
+        width: width - 40,
+        height: 400,
         borderRadius: 10,
         marginBottom: 10,
+    },
+    imageScrollView: {
+        width: '100%',
+        height: 400,
     },
     ratingContainer: {
         flexDirection: 'row',
