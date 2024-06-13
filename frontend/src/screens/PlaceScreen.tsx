@@ -245,11 +245,11 @@ const styles = StyleSheet.create({
         marginBottom: 10,
     },
     infoContainer: {
-        padding: 20,
+        padding: 16,
         gap: 10,
     },
     placeImage: {
-        width: width - 40,
+        width: width - 32,
         height: 400,
         borderRadius: 10,
         marginBottom: 10,
