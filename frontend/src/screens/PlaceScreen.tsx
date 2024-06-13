@@ -226,6 +226,7 @@ const styles = StyleSheet.create({
     nameText: {
         fontWeight: 'bold',
         fontSize: 24,
+        marginBottom: 5,
     },
     descriptionText: {
         fontSize: 16,

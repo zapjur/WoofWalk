@@ -55,7 +55,11 @@ public class LocationService {
                     .orElseThrow(() -> new EntityNotFoundException("Location not found"));
 
             Optional<Rating> existingRatingOpt = ratingRepository.findByUserAndLocation(user, location);
-            existingRatingOpt.ifPresent(ratingRepository::delete);
+            if(existingRatingOpt.isPresent()) {
+                location.setRating((location.getRating() * location.getRatingCount() - existingRatingOpt.get().getRating()) / (location.getRatingCount() - 1));
+                location.setRatingCount(location.getRatingCount() - 1);
+                ratingRepository.delete(existingRatingOpt.get());
+            }
 
             Rating newRating = new Rating();
             newRating.setLocation(location);
@@ -63,6 +67,9 @@ public class LocationService {
             newRating.setRating(rating);
             newRating.setOpinion(opinion);
             ratingRepository.save(newRating);
+
+            location.setRating((location.getRating() * location.getRatingCount() + rating) / ((double) location.getRatingCount() + 1));
+            location.setRatingCount(location.getRatingCount() + 1);
 
             if (images != null && images.length > 0) {
                 for (MultipartFile image : images) {
