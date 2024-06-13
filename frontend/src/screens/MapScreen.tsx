@@ -1,44 +1,35 @@
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, Text, Alert, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState, useRef } from 'react';
+import {StyleSheet, View, Text, Alert, TouchableOpacity, Platform} from 'react-native';
 import MapView, { Marker, Callout, Region } from 'react-native-maps';
-import { Rating } from 'react-native-ratings';
 import * as Location from 'expo-location';
 import apiClient from "../../axiosConfig";
 import { useAuth0 } from "react-native-auth0";
 import BottomBar from "../components/BottomBar";
 import AddPlaceButton from "../components/AddPlaceButton";
-import RootStackParamList from "../../RootStackParamList";
 import { StackNavigationProp } from "@react-navigation/stack";
-import axios from "axios";
 import Icon from 'react-native-vector-icons/FontAwesome';
-
-interface Location {
-    id: number;
-    latitude: number;
-    longitude: number;
-    name: string;
-    description: string;
-    rating: number;
-    ratingCount: number;
-}
+import StarRating from "../components/StarRating";
+import MaterialIcon from "react-native-vector-icons/MaterialIcons";
+import { Place, RootStackParamList } from "../types/types";
 
 type MapScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Map'>;
-type UserScreenNavigationProp = StackNavigationProp<RootStackParamList, 'User'>
-type FriendsScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Friends'>
+
 interface MapScreenProps {
-    navigation: MapScreenNavigationProp & UserScreenNavigationProp & FriendsScreenNavigationProp;
+    navigation: MapScreenNavigationProp;
 }
 
 const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
-    const [locations, setLocations] = useState<Location[]>([]);
+    const [places, setPlaces] = useState<Place[]>([]);
     const [userLocation, setUserLocation] = useState<{ latitude: number, longitude: number } | null>(null);
+    const [mapRegion, setMapRegion] = useState<Region | undefined>(undefined);
     const { user, error } = useAuth0();
+    const mapRef = useRef<MapView>(null);
 
     useEffect(() => {
         apiClient.get('/locations')
             .then(response => {
                 if (Array.isArray(response.data)) {
-                    setLocations(response.data);
+                    setPlaces(response.data);
                 } else {
                     console.error('Invalid data format:', response.data);
                 }
@@ -46,8 +37,11 @@ const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
             .catch(error => {
                 console.error('Error:', error);
             });
-        createUser();
         getUserLocation();
+    }, []);
+
+    useEffect(() => {
+        createUser()
     }, []);
 
     const getUserLocation = async () => {
@@ -58,10 +52,23 @@ const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
         }
 
         const location = await Location.getCurrentPositionAsync({});
-        setUserLocation({
+        const userLoc = {
             latitude: location.coords.latitude,
             longitude: location.coords.longitude
+        };
+        setUserLocation(userLoc);
+        setMapRegion({
+            ...userLoc,
+            latitudeDelta: 0.0922,
+            longitudeDelta: 0.0421
         });
+        if (mapRef.current) {
+            mapRef.current.animateToRegion({
+                ...userLoc,
+                latitudeDelta: 0.0922,
+                longitudeDelta: 0.0421
+            }, 1000);
+        }
     };
 
     const createUser = async () => {
@@ -79,29 +86,15 @@ const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
         }
     };
 
-    const handleRatingCompleted = async (rating: number, locationId: number) => {
-        const userEmail = user?.email;
-        try {
-            const response = await apiClient.post(`/locations/${locationId}/rate`, { rating, userEmail });
-            Alert.alert("Dziękujemy!", "Twoja ocena została zapisana.");
-        } catch (error: unknown) {
-            if (axios.isAxiosError(error) && error.response) {
-                if (error.response.status === 409) {
-                    Alert.alert("Błąd", error.response.data);
-                } else {
-                    Alert.alert("Error", "Failed to add place: " + error.message);
-                }
-            } else if (error instanceof Error) {
-                Alert.alert("Error", error.message);
-            } else {
-                Alert.alert("Error", "An unknown error occurred");
-            }
-        }
+    const handleNavigateToLocation = (place: Place) => {
+        console.log('Navigating to:', place);
+        navigation.navigate('PlaceScreen', { place, userLocation });
     };
 
     return (
         <View style={styles.container}>
             <MapView
+                ref={mapRef}
                 style={styles.map}
                 initialRegion={{
                     latitude: 50.0614300,
@@ -109,16 +102,7 @@ const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
                     latitudeDelta: 0.0922,
                     longitudeDelta: 0.0421,
                 }}
-                region={
-                    userLocation
-                        ? {
-                            latitude: userLocation.latitude,
-                            longitude: userLocation.longitude,
-                            latitudeDelta: 0.0922,
-                            longitudeDelta: 0.0421,
-                        }
-                        : undefined
-                }
+                region={mapRegion}
             >
                 {userLocation && (
                     <Marker
@@ -127,27 +111,26 @@ const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
                         pinColor="blue"
                     />
                 )}
-                {locations.map(location => (
+                {places.map(place => (
                     <Marker
-                        key={location.id}
-                        coordinate={{ latitude: location.latitude, longitude: location.longitude }}
-                        title={location.name}
-                        description={location.description}
+                        key={place.id}
+                        coordinate={{ latitude: place.latitude, longitude: place.longitude }}
+                        title={place.name}
+                        description={place.description}
                     >
                         <Callout tooltip>
                             <View style={styles.calloutContainer}>
-                                <Text style={styles.calloutTitle}>{location.name}</Text>
-                                <Text>{location.description}</Text>
+                                <View style={styles.nameContainer}>
+                                    <Text style={styles.calloutTitle}>{place.name}</Text>
+                                    <TouchableOpacity style={styles.buttonPageScreen} onPress={() => handleNavigateToLocation(place)}>
+                                        <MaterialIcon name="open-in-full" size={16} color="black" />
+                                    </TouchableOpacity>
+                                </View>
+                                <Text>{place.description}</Text>
                                 <View style={styles.ratingContainer}>
-                                    <Rating
-                                        type='star'
-                                        startingValue={location.rating}
-                                        imageSize={24}
-                                        onFinishRating={(rating: number) => handleRatingCompleted(rating, location.id)}
-                                        style={styles.rating}
-                                    />
+                                    <StarRating rating={place.rating} fontSize={24} />
                                     <Text>
-                                        ({location.ratingCount})
+                                        ({place.ratingCount})
                                     </Text>
                                 </View>
                             </View>
@@ -183,17 +166,15 @@ const styles = StyleSheet.create({
     calloutTitle: {
         fontWeight: 'bold',
     },
-    rating: {
-        marginTop: 5,
-    },
     ratingContainer: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
+        marginTop: 5,
     },
     locationButton: {
         position: 'absolute',
-        bottom: 20,
+        bottom: 85,
         right: 20,
         backgroundColor: '#007bff',
         borderRadius: 50,
@@ -207,6 +188,16 @@ const styles = StyleSheet.create({
         shadowRadius: 2,
         elevation: 4,
     },
+    nameContainer: {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginBottom: 5,
+    },
+    buttonPageScreen: {
+        width: 20,
+        height: 20,
+    }
 });
 
 export default MapScreen;
