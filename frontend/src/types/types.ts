@@ -7,3 +7,24 @@ export interface Place {
     rating: number;
     ratingCount: number;
 }
+
+export interface NearestPlace extends Place {
+    distance: number;
+    imageUri: string;
+}
+
+export interface userLocation {
+    latitude: number;
+    longitude: number;
+
+}
+
+export interface LocationDetails {
+    images: string[];
+    ratings: {
+        userEmail: string;
+        rating: number;
+        opinion: string;
+    }[];
+
+}

@@ -1,4 +1,4 @@
-import { Place } from "./src/types/types";
+import { Place, userLocation } from "./src/types/types";
 
 type RootStackParamList = {
     Login: undefined;
@@ -6,7 +6,8 @@ type RootStackParamList = {
     User: undefined;
     Friends: undefined;
     AddPlace: undefined;
-    PlaceScreen: { place: Place; userLocation: { latitude: number, longitude: number } | null };
+    PlaceScreen: { place: Place; userLocation: userLocation | null };
+    NearbyScreen: undefined;
 };
 
 export default RootStackParamList;

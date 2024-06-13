@@ -56,9 +56,16 @@ public class LocationService {
 
             Optional<Rating> existingRatingOpt = ratingRepository.findByUserAndLocation(user, location);
             if(existingRatingOpt.isPresent()) {
-                location.setRating((location.getRating() * location.getRatingCount() - existingRatingOpt.get().getRating()) / (location.getRatingCount() - 1));
-                location.setRatingCount(location.getRatingCount() - 1);
-                ratingRepository.delete(existingRatingOpt.get());
+                if(location.getRatingCount() == 1) {
+                    location.setRating(0.0);
+                    location.setRatingCount(0);
+                }
+                else {
+                    location.setRating((location.getRating() * location.getRatingCount() - existingRatingOpt.get().getRating()) / (location.getRatingCount() - 1));
+                    location.setRatingCount(location.getRatingCount() - 1);
+                    ratingRepository.delete(existingRatingOpt.get());
+                }
+
             }
 
             Rating newRating = new Rating();
@@ -106,6 +113,15 @@ public class LocationService {
         dto.setRatings(ratings);
 
         return dto;
+    }
+
+    public String getOnePhotoForLocation(Long locationId) {
+        Location location = locationRepository.findById(locationId)
+                .orElseThrow(() -> new EntityNotFoundException("Location not found"));
+        if(location.getImages().isEmpty()) {
+            return null;
+        }
+        return s3Service.getFileUrl(location.getImages().get(0));
     }
 }
 

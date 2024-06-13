@@ -24,6 +24,10 @@ const BottomBar: React.FC<BottomBarProps> = ({ navigation }) => {
     const handleFriendsButtonPress = () =>{
         navigation.navigate('Friends');
     }
+    const handleNearbyButtonPress = () =>{
+        navigation.navigate('NearbyScreen');
+    }
+
     return (
         <View style={styles.container}>
 
@@ -31,7 +35,7 @@ const BottomBar: React.FC<BottomBarProps> = ({ navigation }) => {
                 <MaterialIcon name="map" size={30} color="#007bff" />
                 <Text style={styles.buttonText}>Map</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.button}>
+            <TouchableOpacity style={styles.button} onPress={handleNearbyButtonPress}>
                 <MaterialCommunityIcon name="google-nearby" size={30} color="#007bff" />
                 <Text style={styles.buttonText}>Nearby</Text>
             </TouchableOpacity>
