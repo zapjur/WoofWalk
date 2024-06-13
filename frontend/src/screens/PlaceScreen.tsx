@@ -1,18 +1,29 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, SafeAreaView, Modal, TextInput, Button, Alert, Dimensions } from "react-native";
 import { RouteProp } from "@react-navigation/native";
-import { Place, RootStackParamList } from "../types/types";
+import { Place } from "../types/types";
 import StarRating from "../components/StarRating";
 import apiClient from "../../axiosConfig";
 import axios from "axios";
 import MaterialIcon from "react-native-vector-icons/MaterialIcons";
 import * as ImagePicker from 'expo-image-picker';
 import { useAuth0 } from "react-native-auth0";
+import RootStackParamList from "../../RootStackParamList";
 
 const { width } = Dimensions.get('window');
 
 interface PlaceScreenProps {
     route: RouteProp<RootStackParamList, 'PlaceScreen'>;
+}
+
+interface LocationDetails {
+    images: string[];
+    ratings: {
+        userEmail: string;
+        rating: number;
+        opinion: string;
+    }[];
+
 }
 
 const PlaceScreen: React.FC<PlaceScreenProps> = ({ route }) => {
@@ -26,7 +37,7 @@ const PlaceScreen: React.FC<PlaceScreenProps> = ({ route }) => {
 
     const googleMapsApiKey = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
 
-    const userEmail = useAuth0().user.email;
+    const userEmail = useAuth0().user?.email;
 
     useEffect(() => {
         apiClient.get(`/locations/details/${place.id}`)
@@ -82,7 +93,10 @@ const PlaceScreen: React.FC<PlaceScreenProps> = ({ route }) => {
             Alert.alert('Rating is required');
             return;
         }
-
+        if(!userEmail) {
+            Alert.alert('Please log in to submit a review');
+            return;
+        }
         const formData = new FormData();
         formData.append('userEmail', userEmail);
         formData.append('rating', rating);
@@ -92,12 +106,12 @@ const PlaceScreen: React.FC<PlaceScreenProps> = ({ route }) => {
         if (images.length > 0) {
             images.forEach((imageUri, index) => {
                 const fileName = imageUri.split('/').pop();
-                const fileType = fileName.split('.').pop();
+                const fileType = fileName?.split('.').pop();
                 formData.append('images', {
                     uri: imageUri,
                     name: fileName,
                     type: `image/${fileType}`,
-                });
+                } as any);
             });
         }
 

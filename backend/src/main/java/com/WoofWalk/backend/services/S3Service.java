@@ -46,6 +46,16 @@ public class S3Service {
         return fileID;
     }
 
+    public String uploadFile(MultipartFile file){
+        String fileID = UUID.randomUUID().toString();
+        File fileObj = convert(file);
+        amazonS3.putObject(new PutObjectRequest(bucketName, fileID, fileObj));
+        if(fileObj != null){
+            fileObj.delete();
+        }
+        return fileID;
+    }
+
     private File convert(MultipartFile file) {
         if(file.getOriginalFilename() != null){
             File convertedFile = new File(file.getOriginalFilename());
