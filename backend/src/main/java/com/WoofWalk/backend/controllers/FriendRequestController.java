@@ -5,6 +5,7 @@ import com.WoofWalk.backend.dto.UserDto;
 import com.WoofWalk.backend.entities.FriendRequest;
 import com.WoofWalk.backend.services.FriendRequestService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,9 +38,15 @@ public class FriendRequestController {
     }
 
     @PostMapping("/{friendRequestId}/accept")
-    public ResponseEntity<?> acceptFriendRequest(@PathVariable Long friendRequestId){
+    public ResponseEntity<String> acceptFriendRequest(@PathVariable Long friendRequestId){
         friendRequestService.acceptFriendRequest(friendRequestId);
-        return ResponseEntity.ok().build();
+        return new ResponseEntity<>("Friend request accepted", HttpStatus.OK);
+    }
+
+    @PostMapping("/{friendRequestId}/decline")
+    public ResponseEntity<String> declineFriendRequest(@PathVariable Long friendRequestId){
+        friendRequestService.declineFriendRequest(friendRequestId);
+        return new ResponseEntity<>("Friend request declined", HttpStatus.OK);
     }
 
     @GetMapping("/getAllFriends")

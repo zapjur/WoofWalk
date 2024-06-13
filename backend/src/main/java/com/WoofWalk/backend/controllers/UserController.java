@@ -7,8 +7,6 @@ import com.WoofWalk.backend.services.S3Service;
 import com.WoofWalk.backend.services.UserService;
 import com.amazonaws.services.s3.model.S3Object;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -24,7 +22,6 @@ import java.io.InputStream;
 @RequestMapping("/user")
 @RequiredArgsConstructor
 public class UserController {
-    private final static Logger logger = LoggerFactory.getLogger(UserController.class);
     private final UserService userService;
     private final S3Service s3Service;
 
@@ -55,11 +52,9 @@ public class UserController {
         return userService.getPhoneNumber(email);
     }
 
-
     @PutMapping("/profilePicture/upload")
-    public ResponseEntity<String> uploadProfilePicture(@ModelAttribute ProfilePictureDto profilePictureDto)  {
-        logger.info("chuj tutaj!!");
-        String fileID = s3Service.uploadFile(profilePictureDto.getFile());
+    public ResponseEntity<String> uploadProfilePicture(@ModelAttribute ProfilePictureDto profilePictureDto){
+        String fileID = s3Service.uploadFile(profilePictureDto.getFile(), profilePictureDto.getEmail());
         userService.saveProfilePictureId(profilePictureDto.getEmail(), fileID);
         return new ResponseEntity<>("Success!", HttpStatus.OK);
     }
@@ -67,6 +62,7 @@ public class UserController {
     @GetMapping("/profilePicture/download")
     public ResponseEntity<ByteArrayResource> getImage(@RequestParam("email") String email) throws IOException {
         try(S3Object s3Object = s3Service.downloadProfilePicture(email);){
+
             if(s3Object == null){
                 return ResponseEntity.notFound().build();
             }
@@ -82,5 +78,8 @@ public class UserController {
             }
         }
     }
-
+    @PostMapping("/profilePicture/delete")
+    public ResponseEntity<String> deleteProfilePicture(@RequestBody UserDto userDto){
+        return s3Service.deleteImage(userDto.getEmail());
+    }
 }

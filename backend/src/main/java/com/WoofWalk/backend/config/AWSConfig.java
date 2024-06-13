@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class AWSConfig {
-    private final static Logger logger = LoggerFactory.getLogger(AWSConfig.class);
+
     @Value("${aws.credentials.access-key}")
     private String accessKey;
 
@@ -25,9 +25,7 @@ public class AWSConfig {
 
     @Bean
     public AmazonS3 amazonS3(){
-        logger.info("Aws access key " + accessKey);
-        logger.info("Aws secret key " + secretKey);
-        logger.info("Aws region " + region);
+
         BasicAWSCredentials awsCredentials = new BasicAWSCredentials(accessKey, secretKey);
         return AmazonS3ClientBuilder
                 .standard()
