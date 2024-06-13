@@ -10,6 +10,7 @@ export interface Place {
 
 export interface NearestPlace extends Place {
     distance: number;
+    imageUri: string;
 }
 
 export interface userLocation {

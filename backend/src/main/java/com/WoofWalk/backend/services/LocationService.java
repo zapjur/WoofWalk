@@ -114,5 +114,14 @@ public class LocationService {
 
         return dto;
     }
+
+    public String getOnePhotoForLocation(Long locationId) {
+        Location location = locationRepository.findById(locationId)
+                .orElseThrow(() -> new EntityNotFoundException("Location not found"));
+        if(location.getImages().isEmpty()) {
+            return null;
+        }
+        return s3Service.getFileUrl(location.getImages().get(0));
+    }
 }
 

@@ -59,4 +59,9 @@ public class LocationController {
         return ResponseEntity.ok(locationDetails);
     }
 
+    @GetMapping("/image/{locationId}")
+    public ResponseEntity<String> getOnePhotoForLocation(@PathVariable Long locationId) {
+        return ResponseEntity.ok(locationService.getOnePhotoForLocation(locationId));
+    }
+
 }

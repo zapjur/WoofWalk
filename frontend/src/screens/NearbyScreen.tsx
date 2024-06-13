@@ -1,6 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {View, Text, StyleSheet, ScrollView, TouchableOpacity} from "react-native";
-import {RouteProp, useNavigation} from "@react-navigation/native";
+import {View, Text, StyleSheet, ScrollView, TouchableOpacity, Image} from "react-native";
 import RootStackParamList from "../../RootStackParamList";
 import {Place, NearestPlace} from "../types/types";
 import axios from "axios";
@@ -8,6 +7,7 @@ import {useLocation} from "../contexts/LocationContext";
 import StarRating from "../components/StarRating";
 import BottomBar from "../components/BottomBar";
 import {StackNavigationProp} from "@react-navigation/stack";
+import apiClient from "../../axiosConfig";
 
 type NearbyScreenNavigationProp = StackNavigationProp<RootStackParamList, 'NearbyScreen'>;
 
@@ -30,8 +30,19 @@ const NearbyScreen: React.FC<NearbyScreenProps> = ({ navigation }) => {
     }
 
     useEffect(() => {
+
         findNearestPlaces();
     }, []);
+
+    const fetchImageUri = async (placeId: number): Promise<string> => {
+        try {
+            const response = await apiClient.get(`/locations/image/${placeId}`);
+            return response.data;
+        } catch (error) {
+            console.error(`Error fetching photo for place ${placeId}:`, error);
+            return '';
+        }
+    };
 
     const findNearestPlaces = async () => {
         const origins = `${userLocation.latitude},${userLocation.longitude}`;
@@ -44,9 +55,14 @@ const NearbyScreen: React.FC<NearbyScreenProps> = ({ navigation }) => {
             const response = await axios.get(url);
             const distances = response.data.rows[0].elements;
 
-            const placesWithDistance = places.map((place, index) => ({
+            let placesWithDistance = places.map((place, index) => ({
                 ...place,
                 distance: distances[index].distance.value / 1000,
+                imageUri: '',
+            }));
+            placesWithDistance = await Promise.all(placesWithDistance.map(async (place) => {
+                const imageUri = await fetchImageUri(place.id);
+                return { ...place, imageUri };
             }));
 
             const sortedPlaces = placesWithDistance.sort((a, b) => a.distance - b.distance).slice(0, 10);
@@ -69,8 +85,16 @@ const NearbyScreen: React.FC<NearbyScreenProps> = ({ navigation }) => {
                         <View key={place.id} style={styles.placeContainer}>
                             <TouchableOpacity onPress={() => handleNavigateToPlaceScreen(place)}>
                                 <Text style={styles.placeName}>{place.name}</Text>
-                                <Text>{place.description}</Text>
-                                <Text>Distance: {place.distance.toFixed(1)}km</Text>
+                                {place.imageUri ? (
+                                    <Image source={{ uri: place.imageUri }} style={styles.placeImage} />
+                                ) : (
+                                    <Image source={{ uri: 'https://cdn-icons-png.flaticon.com/128/848/848043.png'}} style={styles.placeImage}/>
+                                )}
+                                <Text style={styles.description}>{place.description}</Text>
+                                <View style={styles.distanceContainer}>
+                                    <Text style={styles.distanceText}>Distance:</Text>
+                                    <Text>{place.distance.toFixed(1)}km</Text>
+                                </View>
                                 <View style={styles.ratingContainer}>
                                     <StarRating rating={place.rating} fontSize={16}/>
                                     <Text>({place.ratingCount})</Text>
@@ -104,10 +128,28 @@ const styles = StyleSheet.create({
     placeName: {
         fontSize: 18,
         fontWeight: 'bold',
+        marginBottom: 8,
     },
     ratingContainer: {
         flexDirection: 'row',
         gap: 8,
+    },
+    distanceContainer: {
+        flexDirection: 'row',
+        gap: 4,
+    },
+    distanceText: {
+        fontWeight: 'bold',
+    },
+    placeImage: {
+        width: '100%',
+        height: 200,
+        borderRadius: 8,
+        marginBottom: 8,
+    },
+    description: {
+        marginBottom: 4,
+        fontSize: 16,
     }
 });
 export default NearbyScreen;
