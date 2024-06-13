@@ -10,7 +10,8 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import Icon from 'react-native-vector-icons/FontAwesome';
 import StarRating from "../components/StarRating";
 import MaterialIcon from "react-native-vector-icons/MaterialIcons";
-import { Place, RootStackParamList } from "../types/types";
+import { Place } from "../types/types";
+import RootStackParamList from "../../RootStackParamList";
 
 type MapScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Map'>;
 
@@ -88,7 +89,7 @@ const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
 
     const handleNavigateToLocation = (place: Place) => {
         console.log('Navigating to:', place);
-        navigation.navigate('PlaceScreen', { place, userLocation });
+        navigation.navigate('PlaceScreen', { place, userLocation: userLocation });
     };
 
     return (
