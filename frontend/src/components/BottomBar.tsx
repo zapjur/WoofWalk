@@ -6,14 +6,14 @@ import {useAuth0} from "react-native-auth0";
 import RootStackParamList from "../../RootStackParamList";
 import {StackNavigationProp} from "@react-navigation/stack";
 
-type MapScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Map'>;
-type UserScreenNavigationProp = StackNavigationProp<RootStackParamList, 'User'>
-type FriendsScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Friends'>
+type BottomBarNavigationProp = StackNavigationProp<RootStackParamList>;
+
 interface BottomBarProps {
-    navigation: MapScreenNavigationProp & UserScreenNavigationProp & FriendsScreenNavigationProp;
+    navigation: BottomBarNavigationProp;
 }
 
-const BottomBar: React.FC<BottomBarProps> = ({navigation}) => {
+const BottomBar: React.FC<BottomBarProps> = ({ navigation }) => {
+
 
     const handleUserProfileButtonPress = () =>{
         navigation.navigate('User');

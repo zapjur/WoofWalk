@@ -4,6 +4,7 @@ import { FontAwesome } from '@expo/vector-icons';
 
 interface StarRatingProps {
     rating: number;
+    fontSize: number;
 }
 
 const StarRating: React.FC<StarRatingProps> = ({ rating , fontSize}) => {

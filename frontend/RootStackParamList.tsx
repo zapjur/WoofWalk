@@ -6,7 +6,7 @@ type RootStackParamList = {
     User: undefined;
     Friends: undefined;
     AddPlace: undefined;
-    PlaceScreen: { place: Place };
+    PlaceScreen: { place: Place; userLocation: { latitude: number, longitude: number } | null };
 };
 
 export default RootStackParamList;
