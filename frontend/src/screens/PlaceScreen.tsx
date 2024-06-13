@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, SafeAreaView, Modal, TextInput, Button, Alert, Dimensions } from "react-native";
 import { RouteProp } from "@react-navigation/native";
-import { Place } from "../types/types";
+import { LocationDetails } from "../types/types";
 import StarRating from "../components/StarRating";
 import apiClient from "../../axiosConfig";
 import axios from "axios";
@@ -16,15 +16,7 @@ interface PlaceScreenProps {
     route: RouteProp<RootStackParamList, 'PlaceScreen'>;
 }
 
-interface LocationDetails {
-    images: string[];
-    ratings: {
-        userEmail: string;
-        rating: number;
-        opinion: string;
-    }[];
 
-}
 
 const PlaceScreen: React.FC<PlaceScreenProps> = ({ route }) => {
     const { place, userLocation } = route.params;

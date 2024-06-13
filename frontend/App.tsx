@@ -10,22 +10,27 @@ import RootStackParamList from "./RootStackParamList";
 import { Auth0Provider } from 'react-native-auth0';
 import AddPlaceScreen from "./src/screens/AddPlaceScreen";
 import PlaceScreen from "./src/screens/PlaceScreen";
+import NearbyScreen from "./src/screens/NearbyScreen";
+import {LocationProvider} from "./src/contexts/LocationContext";
 
 const Stack = createStackNavigator<RootStackParamList>();
 
 const App: React.FC = () => {
     return (
         <Auth0Provider domain={"dev-h5zqtrdr8n7sgz84.us.auth0.com"} clientId={"QYzAJiWlnzcgLlozDVuRJEpGvcTJxQXv"}>
-            <NavigationContainer>
-                <Stack.Navigator initialRouteName="Login">
-                    <Stack.Screen name="Login" component={LoginScreen} />
-                    <Stack.Screen name="Map" component={MapScreen} />
-                    <Stack.Screen name="User" component={UserScreen}/>
-                    <Stack.Screen name="Friends" component={FriendsScreen}/>
-                    <Stack.Screen name="AddPlace" component={AddPlaceScreen}/>
-                    <Stack.Screen name="PlaceScreen" component={PlaceScreen}/>
-                </Stack.Navigator>
-            </NavigationContainer>
+            <LocationProvider>
+                <NavigationContainer>
+                    <Stack.Navigator initialRouteName="Login">
+                        <Stack.Screen name="Login" component={LoginScreen} />
+                        <Stack.Screen name="Map" component={MapScreen} />
+                        <Stack.Screen name="User" component={UserScreen}/>
+                        <Stack.Screen name="Friends" component={FriendsScreen}/>
+                        <Stack.Screen name="AddPlace" component={AddPlaceScreen}/>
+                        <Stack.Screen name="PlaceScreen" component={PlaceScreen}/>
+                        <Stack.Screen name="NearbyScreen" component={NearbyScreen}/>
+                    </Stack.Navigator>
+                </NavigationContainer>
+            </LocationProvider>
         </Auth0Provider>
     );
 };

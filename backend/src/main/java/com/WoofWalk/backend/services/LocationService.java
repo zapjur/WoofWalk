@@ -56,9 +56,16 @@ public class LocationService {
 
             Optional<Rating> existingRatingOpt = ratingRepository.findByUserAndLocation(user, location);
             if(existingRatingOpt.isPresent()) {
-                location.setRating((location.getRating() * location.getRatingCount() - existingRatingOpt.get().getRating()) / (location.getRatingCount() - 1));
-                location.setRatingCount(location.getRatingCount() - 1);
-                ratingRepository.delete(existingRatingOpt.get());
+                if(location.getRatingCount() == 1) {
+                    location.setRating(0.0);
+                    location.setRatingCount(0);
+                }
+                else {
+                    location.setRating((location.getRating() * location.getRatingCount() - existingRatingOpt.get().getRating()) / (location.getRatingCount() - 1));
+                    location.setRatingCount(location.getRatingCount() - 1);
+                    ratingRepository.delete(existingRatingOpt.get());
+                }
+
             }
 
             Rating newRating = new Rating();

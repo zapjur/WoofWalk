@@ -12,6 +12,7 @@ import StarRating from "../components/StarRating";
 import MaterialIcon from "react-native-vector-icons/MaterialIcons";
 import { Place } from "../types/types";
 import RootStackParamList from "../../RootStackParamList";
+import {useLocation} from "../contexts/LocationContext";
 
 type MapScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Map'>;
 
@@ -20,57 +21,29 @@ interface MapScreenProps {
 }
 
 const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
-    const [places, setPlaces] = useState<Place[]>([]);
-    const [userLocation, setUserLocation] = useState<{ latitude: number, longitude: number } | null>(null);
+    const { userLocation, places, getUserLocation } = useLocation();
     const [mapRegion, setMapRegion] = useState<Region | undefined>(undefined);
     const { user, error } = useAuth0();
     const mapRef = useRef<MapView>(null);
 
     useEffect(() => {
-        apiClient.get('/locations')
-            .then(response => {
-                if (Array.isArray(response.data)) {
-                    setPlaces(response.data);
-                } else {
-                    console.error('Invalid data format:', response.data);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
-        getUserLocation();
-    }, []);
-
-    useEffect(() => {
-        createUser()
-    }, []);
-
-    const getUserLocation = async () => {
-        const { status } = await Location.requestForegroundPermissionsAsync();
-        if (status !== 'granted') {
-            Alert.alert('Permission to access location was denied');
-            return;
-        }
-
-        const location = await Location.getCurrentPositionAsync({});
-        const userLoc = {
-            latitude: location.coords.latitude,
-            longitude: location.coords.longitude
-        };
-        setUserLocation(userLoc);
-        setMapRegion({
-            ...userLoc,
-            latitudeDelta: 0.0922,
-            longitudeDelta: 0.0421
-        });
-        if (mapRef.current) {
-            mapRef.current.animateToRegion({
-                ...userLoc,
+        createUser();
+        if (userLocation) {
+            setMapRegion({
+                ...userLocation,
                 latitudeDelta: 0.0922,
-                longitudeDelta: 0.0421
-            }, 1000);
+                longitudeDelta: 0.0421,
+            });
+
+            if (mapRef.current) {
+                mapRef.current.animateToRegion({
+                    ...userLocation,
+                    latitudeDelta: 0.0922,
+                    longitudeDelta: 0.0421,
+                }, 1000);
+            }
         }
-    };
+    }, [userLocation]);
 
     const createUser = async () => {
         try {
@@ -87,7 +60,7 @@ const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
         }
     };
 
-    const handleNavigateToLocation = (place: Place) => {
+    const handleNavigateToPlace = (place: Place) => {
         console.log('Navigating to:', place);
         navigation.navigate('PlaceScreen', { place, userLocation: userLocation });
     };
@@ -123,7 +96,7 @@ const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
                             <View style={styles.calloutContainer}>
                                 <View style={styles.nameContainer}>
                                     <Text style={styles.calloutTitle}>{place.name}</Text>
-                                    <TouchableOpacity style={styles.buttonPageScreen} onPress={() => handleNavigateToLocation(place)}>
+                                    <TouchableOpacity style={styles.buttonPageScreen} onPress={() => handleNavigateToPlace(place)}>
                                         <MaterialIcon name="open-in-full" size={16} color="black" />
                                     </TouchableOpacity>
                                 </View>
