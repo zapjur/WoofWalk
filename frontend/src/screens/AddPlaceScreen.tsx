@@ -4,10 +4,13 @@ import MapView, { Region } from 'react-native-maps';
 import apiClient from "../../axiosConfig";
 import {NavigationProp, useNavigation} from "@react-navigation/native";
 import RootStackParamList from "../../RootStackParamList";
+import ModalSelector from 'react-native-modal-selector';
+import { categories } from "../types/types";
 
 const AddPlaceScreen: React.FC = () => {
     const [name, setName] = useState<string>('');
     const [description, setDescription] = useState<string>('');
+    const [category, setCategory] = useState<string>(categories[0].value);
     const [region, setRegion] = useState<Region>({
         latitude: 50.0614300,
         longitude: 19.9365800,
@@ -34,6 +37,7 @@ const AddPlaceScreen: React.FC = () => {
                 description,
                 latitude: center.latitude,
                 longitude: center.longitude,
+                category: category.toUpperCase(),
             });
 
             navigation.navigate('Map');
@@ -71,6 +75,20 @@ const AddPlaceScreen: React.FC = () => {
                     placeholder="Enter place description"
                     multiline
                 />
+                <Text style={styles.label}>Category</Text>
+                <ModalSelector
+                    data={categories}
+                    initValue="Select something"
+                    onChange={(option) => setCategory(option.value)}
+                    style={styles.input}
+                >
+                    <TextInput
+                        style={styles.input}
+                        editable={false}
+                        placeholder="Select category"
+                        value={categories.find(cat => cat.value === category)?.label}
+                    />
+                </ModalSelector>
                 <TouchableOpacity style={styles.button} onPress={handleAddPlace}>
                     <Text style={styles.buttonText}>Add</Text>
                 </TouchableOpacity>

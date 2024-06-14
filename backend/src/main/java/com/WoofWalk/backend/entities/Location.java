@@ -39,7 +39,7 @@ public class Location {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "category", nullable = false)
-    private LocationCategory category = LocationCategory.OTHER;
+    private LocationCategory category;
 
     @OneToMany(mappedBy = "location")
     private List<Rating> ratings;
