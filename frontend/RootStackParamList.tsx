@@ -1,10 +1,11 @@
 type RootStackParamList = {
     Login: undefined;
-    Map: undefined; // tutaj można definiować jakie parametry będą przekazywane między ekranami
+    Map: undefined;
     User: undefined;
     Friends: undefined;
     AddPlace: undefined;
     Chat: undefined;
+    DM: {email: string };
 };
 
 export default RootStackParamList;

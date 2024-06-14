@@ -1,6 +1,5 @@
 import React from 'react';
 
-import { StyleSheet, View } from 'react-native';
 import MapScreen from './src/screens/MapScreen';
 import LoginScreen from "./src/screens/LoginScreen";
 import UserScreen from "./src/screens/UserScreen";
@@ -13,6 +12,7 @@ const Stack = createStackNavigator<RootStackParamList>();
 import { Auth0Provider} from 'react-native-auth0';
 import AddPlaceScreen from "./src/screens/AddPlaceScreen";
 import ChatScreen from "./src/screens/ChatScreen";
+import DirectMessageScreen from "./src/screens/DirectMessageScreen";
 
 const App: React.FC = () => {
     return (
@@ -25,17 +25,11 @@ const App: React.FC = () => {
                     <Stack.Screen name="Friends" component={FriendsScreen}/>
                     <Stack.Screen name="AddPlace" component={AddPlaceScreen}/>
                     <Stack.Screen name="Chat" component={ChatScreen}/>
+                    <Stack.Screen name="DM" component={DirectMessageScreen}/>
                 </Stack.Navigator>
             </NavigationContainer>
         </Auth0Provider>
     );
 };
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#fff',
-    },
-});
 
 export default App;

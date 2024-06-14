@@ -2,14 +2,21 @@ import { Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View}
 import React, {useEffect, useState} from "react";
 import {useAuth0} from "react-native-auth0";
 import apiClient from "../../axiosConfig";
+import {useNavigation} from "@react-navigation/native";
+import DirectMessageScreen from "../screens/DirectMessageScreen";
+import {createStackNavigator, StackNavigationProp} from "@react-navigation/stack";
+import RootStackParamList from "../../RootStackParamList";
 
+type DirectMessageScreenNavigationProp = StackNavigationProp<RootStackParamList, 'DM'>
 interface DirectMessageModalProps {
     modalVisible: boolean;
     setModalVisible: React.Dispatch<React.SetStateAction<boolean>>;
+
 }
 interface User {
     email: string;
 }
+
 const DirectMessageModal: React.FC<DirectMessageModalProps> = ({modalVisible, setModalVisible}) => {
     const [showSuggestions, setShowSuggestions] = useState<boolean>(true);
     const [inputText, setInputText] = useState<string>('');
@@ -17,6 +24,7 @@ const DirectMessageModal: React.FC<DirectMessageModalProps> = ({modalVisible, se
     const [filteredFriends, setFilteredFriends] = useState<User[]>([]);
     const suggestionContainerHeight = filteredFriends.length * 50;
     const {user} = useAuth0();
+    const navigation = useNavigation<DirectMessageScreenNavigationProp>();
     useEffect(() => {
         if(user){
             apiClient.get("/friends/getAllFriends",{
@@ -52,6 +60,10 @@ const DirectMessageModal: React.FC<DirectMessageModalProps> = ({modalVisible, se
             setFilteredFriends(friends);
         }
     };
+    const handleSendDM = () => {
+        handleCloseModal();
+        navigation.navigate('DM', { email: inputText});
+    }
 
     return (
         <Modal
@@ -100,7 +112,7 @@ const DirectMessageModal: React.FC<DirectMessageModalProps> = ({modalVisible, se
                         </TouchableOpacity>
                         <TouchableOpacity
                             style={[styles.button, styles.buttonDM]}
-                            onPress={() => handleCloseModal()}
+                            onPress={() => handleSendDM()}
                         >
                             <Text style={styles.textStyle}>Send DM</Text>
                         </TouchableOpacity>
