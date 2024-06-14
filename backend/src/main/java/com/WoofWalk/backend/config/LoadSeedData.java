@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class LoadSeedData {
-
+/*
     @Bean
     CommandLineRunner initDatabase(LocationRepository locationRepository) {
         return args -> {
@@ -28,5 +28,7 @@ public class LoadSeedData {
             }
         };
     }
+
+ */
 
 }

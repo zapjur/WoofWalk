@@ -4,6 +4,7 @@ import MapView, { Region } from 'react-native-maps';
 import apiClient from "../../axiosConfig";
 import {NavigationProp, useNavigation} from "@react-navigation/native";
 import RootStackParamList from "../../RootStackParamList";
+import {useLocation} from "../contexts/LocationContext";
 
 const AddPlaceScreen: React.FC = () => {
     const [name, setName] = useState<string>('');
@@ -17,6 +18,7 @@ const AddPlaceScreen: React.FC = () => {
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
     const mapRef = useRef<MapView>(null);
+    const { setRefreshKey } = useLocation();
 
     const handleAddPlace = async () => {
         if (!name || !description) {
@@ -26,7 +28,7 @@ const AddPlaceScreen: React.FC = () => {
 
         const center = region;
 
-       console.log(name, description, center.latitude, center.longitude);
+        console.log(name, description, center.latitude, center.longitude);
 
         try {
             const response = await apiClient.post('/locations', {
@@ -35,7 +37,7 @@ const AddPlaceScreen: React.FC = () => {
                 latitude: center.latitude,
                 longitude: center.longitude,
             });
-
+            setRefreshKey(oldKey => oldKey + 1);
             navigation.navigate('Map');
 
         } catch (error) {

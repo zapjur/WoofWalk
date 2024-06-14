@@ -4,30 +4,37 @@ import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import RootStackParamList from "../../RootStackParamList";
 import {StackNavigationProp} from "@react-navigation/stack";
+import { useLocation } from "../contexts/LocationContext";
 
-type MapScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Map'>;
-type UserScreenNavigationProp = StackNavigationProp<RootStackParamList, 'User'>
-type FriendsScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Friends'>
-type ChatScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Chat'>
+type BottomBarNavigationProp = StackNavigationProp<RootStackParamList>;
+
 
 interface BottomBarProps {
-    navigation: MapScreenNavigationProp & UserScreenNavigationProp & FriendsScreenNavigationProp & ChatScreenNavigationProp;
+    navigation: BottomBarNavigationProp;
 }
 
-const BottomBar: React.FC<BottomBarProps> = ({navigation}) => {
+const BottomBar: React.FC<BottomBarProps> = ({ navigation }) => {
+    const { setRefreshKey } = useLocation();
 
     const handleUserProfileButtonPress = () =>{
         navigation.navigate('User');
     }
     const handleMapButtonPress = () =>{
+        setRefreshKey(oldKey => oldKey + 1);
         navigation.navigate('Map');
     }
     const handleFriendsButtonPress = () =>{
         navigation.navigate('Friends');
     }
+
     const handleChatButtonPress = () =>{
         navigation.navigate('Chat');
     }
+
+    const handleNearbyButtonPress = () =>{
+        navigation.navigate('NearbyScreen');
+    }
+
     return (
         <View style={styles.container}>
 
@@ -35,7 +42,7 @@ const BottomBar: React.FC<BottomBarProps> = ({navigation}) => {
                 <MaterialIcon name="map" size={30} color="#007bff" />
                 <Text style={styles.buttonText}>Map</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.button}>
+            <TouchableOpacity style={styles.button} onPress={handleNearbyButtonPress}>
                 <MaterialCommunityIcon name="google-nearby" size={30} color="#007bff" />
                 <Text style={styles.buttonText}>Nearby</Text>
             </TouchableOpacity>

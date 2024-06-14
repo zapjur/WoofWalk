@@ -21,7 +21,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -35,6 +37,16 @@ public class S3Service {
 
     public String uploadFile(MultipartFile file, String email){
         deleteImage(email);
+        String fileID = UUID.randomUUID().toString();
+        File fileObj = convert(file);
+        amazonS3.putObject(new PutObjectRequest(bucketName, fileID, fileObj));
+        if(fileObj != null){
+            fileObj.delete();
+        }
+        return fileID;
+    }
+
+    public String uploadFile(MultipartFile file){
         String fileID = UUID.randomUUID().toString();
         File fileObj = convert(file);
         amazonS3.putObject(new PutObjectRequest(bucketName, fileID, fileObj));
@@ -58,7 +70,7 @@ public class S3Service {
         return null;
     }
 
-    public S3Object downloadImage(String email) {
+    public S3Object downloadProfilePicture(String email) {
         User user = userRepository.findByEmail(email).orElseThrow(
                 () -> new EntityNotFoundException("no such user"));
 
@@ -68,6 +80,16 @@ public class S3Service {
             return null;
         }
         return amazonS3.getObject(bucketName, imageId);
+    }
+
+    public String getFileUrl(String fileName) {
+        return amazonS3.getUrl(bucketName, fileName).toString();
+    }
+
+    public List<String> getFilesUrls(List<String> fileNames) {
+        return fileNames.stream()
+                .map(this::getFileUrl)
+                .collect(Collectors.toList());
     }
 
     public ResponseEntity<String> deleteImage(String email){
