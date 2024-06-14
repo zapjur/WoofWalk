@@ -15,6 +15,7 @@ interface Message {
 const DirectMessageScreen: React.FC = () => {
     const route = useRoute<DirectMessageScreenRouteProp>();
     const { email } = route.params;
+    const [inputHeight, setInputHeight] = useState(40);
     const [image, setImage] = useState("none");
     const [messages, setMessages] = useState<Message[]>([
         { id: '1', text: 'Hej, co tam?', sender: 'friend' },
@@ -26,6 +27,7 @@ const DirectMessageScreen: React.FC = () => {
         if (inputText.trim()) {
             setMessages([...messages, { id: (messages.length + 1).toString(), text: inputText, sender: 'user' }]);
             setInputText('');
+            setInputHeight(40)
         }
     };
 
@@ -73,10 +75,14 @@ const DirectMessageScreen: React.FC = () => {
             />
             <View style={styles.inputContainer}>
                 <TextInput
-                    style={styles.input}
+                    style={[styles.input, { height: Math.max(40, inputHeight) }]}
                     value={inputText}
                     onChangeText={setInputText}
                     placeholder="Type your message..."
+                    multiline={true}
+                    onContentSizeChange={(event) => {
+                        setInputHeight(event.nativeEvent.contentSize.height);
+                    }}
                 />
                 <TouchableOpacity style={styles.sendButton} onPress={handleSend}>
                     <Text style={styles.sendButtonText}>Send</Text>
@@ -129,6 +135,7 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         paddingLeft: 10,
         paddingVertical: 5,
+        maxHeight: 120,
     },
     sendButton: {
         marginLeft: 10,
