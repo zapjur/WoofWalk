@@ -18,7 +18,7 @@ const AddPlaceScreen: React.FC = () => {
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
     const mapRef = useRef<MapView>(null);
-    const { refreshKey, setRefreshKey } = useLocation();
+    const { setRefreshKey } = useLocation();
 
     const handleAddPlace = async () => {
         if (!name || !description) {
@@ -28,7 +28,7 @@ const AddPlaceScreen: React.FC = () => {
 
         const center = region;
 
-       console.log(name, description, center.latitude, center.longitude);
+        console.log(name, description, center.latitude, center.longitude);
 
         try {
             const response = await apiClient.post('/locations', {
