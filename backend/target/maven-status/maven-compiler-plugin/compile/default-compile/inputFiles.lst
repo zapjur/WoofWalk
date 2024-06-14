@@ -18,6 +18,7 @@
 /Users/piotrzapior/Documents/Github/WoofWalk/backend/src/main/java/com/WoofWalk/backend/entities/Location.java
 /Users/piotrzapior/Documents/Github/WoofWalk/backend/src/main/java/com/WoofWalk/backend/entities/Rating.java
 /Users/piotrzapior/Documents/Github/WoofWalk/backend/src/main/java/com/WoofWalk/backend/entities/User.java
+/Users/piotrzapior/Documents/Github/WoofWalk/backend/src/main/java/com/WoofWalk/backend/enums/LocationCategory.java
 /Users/piotrzapior/Documents/Github/WoofWalk/backend/src/main/java/com/WoofWalk/backend/exceptions/GlobalExceptionHandler.java
 /Users/piotrzapior/Documents/Github/WoofWalk/backend/src/main/java/com/WoofWalk/backend/mappers/LocationMapper.java
 /Users/piotrzapior/Documents/Github/WoofWalk/backend/src/main/java/com/WoofWalk/backend/mappers/UserMapper.java

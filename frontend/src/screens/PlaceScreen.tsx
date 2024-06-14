@@ -151,15 +151,19 @@ const PlaceScreen: React.FC<PlaceScreenProps> = ({ route }) => {
                     )}
                     <View style={styles.detailsContainer}>
                         <View style={styles.detail}>
+                            <Text style={styles.detailsText}>Distance</Text>
+                            <Text>{distance}</Text>
+                        </View>
+                        <View style={styles.detail}>
                             <Text style={styles.detailsText}>Rating</Text>
                             <View style={styles.ratingContainer}>
-                                <StarRating rating={place.rating} fontSize={24} />
+                                <StarRating rating={place.rating} fontSize={20} />
                                 <Text>({place.ratingCount})</Text>
                             </View>
                         </View>
                         <View style={styles.detail}>
-                            <Text style={styles.detailsText}>Distance</Text>
-                            <Text>{distance}</Text>
+                            <Text style={styles.detailsText}>Category</Text>
+                            <Text>{place.category}</Text>
                         </View>
                     </View>
                     <Text style={styles.nameText}>About {place.name}</Text>
@@ -261,7 +265,7 @@ const styles = StyleSheet.create({
     ratingContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 10,
+        gap: 4,
     },
     detailsText: {
         fontWeight: 'bold',

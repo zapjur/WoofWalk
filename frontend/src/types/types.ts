@@ -6,6 +6,7 @@ export interface Place {
     description: string;
     rating: number;
     ratingCount: number;
+    category: string;
 }
 
 export interface NearestPlace extends Place {

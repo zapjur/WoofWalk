@@ -1,2 +1,3 @@
 com/WoofWalk/backend/dto/RatingDto.class
 com/WoofWalk/backend/dto/LocationDetailsDto.class
+com/WoofWalk/backend/enums/LocationCategory.class
