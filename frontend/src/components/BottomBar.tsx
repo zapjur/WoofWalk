@@ -5,6 +5,7 @@ import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIc
 import {useAuth0} from "react-native-auth0";
 import RootStackParamList from "../../RootStackParamList";
 import {StackNavigationProp} from "@react-navigation/stack";
+import { useLocation } from "../contexts/LocationContext";
 
 type BottomBarNavigationProp = StackNavigationProp<RootStackParamList>;
 
@@ -13,12 +14,13 @@ interface BottomBarProps {
 }
 
 const BottomBar: React.FC<BottomBarProps> = ({ navigation }) => {
-
+    const { setRefreshKey } = useLocation();
 
     const handleUserProfileButtonPress = () =>{
         navigation.navigate('User');
     }
     const handleMapButtonPress = () =>{
+        setRefreshKey(oldKey => oldKey + 1);
         navigation.navigate('Map');
     }
     const handleFriendsButtonPress = () =>{

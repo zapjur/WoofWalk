@@ -9,6 +9,8 @@ interface LocationContextProps {
     places: Place[];
     getUserLocation: () => void;
     fetchPlaces: () => void;
+    refreshKey: number;
+    setRefreshKey: React.Dispatch<React.SetStateAction<number>>;
 }
 
 const LocationContext = createContext<LocationContextProps>({
@@ -16,6 +18,8 @@ const LocationContext = createContext<LocationContextProps>({
     places: [],
     getUserLocation: () => {},
     fetchPlaces: () => {},
+    refreshKey: 0,
+    setRefreshKey: () => {},
 });
 
 interface LocationProviderProps {
@@ -25,6 +29,7 @@ interface LocationProviderProps {
 export const LocationProvider: React.FC<LocationProviderProps> = ({ children }) => {
     const [userLocation, setUserLocation] = useState<{ latitude: number, longitude: number } | null>(null);
     const [places, setPlaces] = useState<Place[]>([]);
+    const [refreshKey, setRefreshKey] = useState(0);
 
     useEffect(() => {
         fetchPlaces();
@@ -44,6 +49,9 @@ export const LocationProvider: React.FC<LocationProviderProps> = ({ children }) 
                 console.error('Error:', error);
             });
     };
+    useEffect(() => {
+        fetchPlaces();
+    }, [refreshKey]);
 
     const getUserLocation = async () => {
         const { status } = await Location.requestForegroundPermissionsAsync();
@@ -61,7 +69,7 @@ export const LocationProvider: React.FC<LocationProviderProps> = ({ children }) 
     };
 
     return (
-        <LocationContext.Provider value={{ userLocation, places, getUserLocation, fetchPlaces }}>
+        <LocationContext.Provider value={{ userLocation, places, getUserLocation, fetchPlaces, refreshKey, setRefreshKey }}>
             {children}
         </LocationContext.Provider>
     );
