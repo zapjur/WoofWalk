@@ -51,7 +51,7 @@ const NearbyScreen: React.FC<NearbyScreenProps> = ({ navigation }) => {
         const apiKey = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
 
         const url = `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${origins}&destinations=${destinations}&key=${apiKey}`;
-        console.log(url);
+
         try {
             const response = await axios.get(url);
             const distances = response.data.rows[0].elements;

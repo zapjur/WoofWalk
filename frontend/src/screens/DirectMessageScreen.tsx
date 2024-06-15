@@ -1,173 +1,103 @@
 import React, {useEffect, useState} from 'react';
-import {FlatList, Image, StyleSheet, Text, TextInput, TouchableOpacity, View} from 'react-native';
+import {Button,  ScrollView,  Text, TextInput, View} from 'react-native';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import RootStackParamList  from '../../RootStackParamList';
-import apiClient from "../../axiosConfig";
+
+import {Client, Frame, IMessage, Stomp} from "@stomp/stompjs";
+import * as SecureStore from "expo-secure-store";
 
 
 type DirectMessageScreenRouteProp = RouteProp<RootStackParamList, 'DM'>;
 
 interface Message {
-    id: string;
-    text: string;
-    sender: 'user' | 'friend';
+    timestamp: string;
+    user: string;
+    message: string;
 }
+
 const DirectMessageScreen: React.FC = () => {
     const route = useRoute<DirectMessageScreenRouteProp>();
-    const { email } = route.params;
-    const [inputHeight, setInputHeight] = useState(40);
-    const [image, setImage] = useState("none");
-    const [messages, setMessages] = useState<Message[]>([
-        { id: '1', text: 'Hej, co tam?', sender: 'friend' },
-        { id: '2', text: 'Cześć! Wszystko dobrze, a u Ciebie?', sender: 'user' },
-    ]);
-    const [inputText, setInputText] = useState('');
+    const [client, setClient] = useState<Client | null>(null);
+    const [messages, setMessages] = useState<Message[]>([]);
+    const [user, setUser] = useState<string>('');
+    const [messageToSend, setMessageToSend] = useState<string>('');
 
-    const handleSend = () => {
-        if (inputText.trim()) {
-            setMessages([...messages, { id: (messages.length + 1).toString(), text: inputText, sender: 'user' }]);
-            setInputText('');
-            setInputHeight(40)
-        }
-    };
-
-    const renderItem = ({ item }: { item: Message }) =>  (
-        <View style={[styles.messageContainer, item.sender === 'user' ? styles.userMessage : styles.friendMessage]}>
-            <Text style={styles.messageText}>{item.text}</Text>
-        </View>
-    );
     useEffect(() => {
-        console.log(email);
-        apiClient.get("/user/profilePicture/download",{
-            params: {
-                email: email,
-            },
-            responseType: 'blob'
-        }).then(response => {
-            const blob = response.data;
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                if (reader.result) {
-                    setImage(reader.result as string);
-
-                }
-            };
-            reader.readAsDataURL(blob);
-        })
+        onConnect();
     }, []);
+    const onConnect = async () => {
+        console.log("chuj");
+        const token = await SecureStore.getItemAsync('authToken');
+        const headers = {
+            Authorization: `Bearer ${token}`,
+        };
+        console.log("Token: " + token);
+        const newClient = Stomp.client('ws://10.0.2.2:8080/chat');
+        newClient.connect(headers, (frame: Frame) => {
+            console.log('Connected to STOMP');
+            newClient.subscribe('/topic/messages', (message: IMessage) => {
+                const body = JSON.parse(message.body || '{}');
+                showMessage(body.message, body.user);
+            });
+        }, onError);
+        setClient(newClient);
+    };
+    const onError = (error: any) => {
+        console.log('Error connecting to STOMP:', error);
+    };
+    const showMessage = (value: string, user: string) => {
+        const today = new Date();
+        const date = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
+        const time = `${today.getHours()}:${today.getMinutes()}:${today.getSeconds()}`;
+        const dateTime = `${date} ${time}`;
+
+        setMessages(prevMessages => [
+            ...prevMessages,
+            {
+                timestamp: dateTime,
+                user: user,
+                message: value
+            }
+        ]);
+    };
+    const sendMessage = () => {
+        if (!client) return;
+        console.log(client);
+        console.log(messageToSend);
+        client.publish({ destination: '/app/chat', body: JSON.stringify({ message: messageToSend, user: user }) });
+        setMessageToSend('');
+    };
     return (
-        <View style={styles.container}>
-            <View style={styles.header}>
-                <Image
-                    source={{ uri: image != "none" ? image : 'https://cdn-icons-png.flaticon.com/128/848/848043.png' }}
-                    style={styles.profileImage}
-                />
-                <Text style={styles.headerText}>
-                    {email}
-                </Text>
-            </View>
-            <FlatList
-                data={messages}
-                renderItem={renderItem}
-                keyExtractor={(item) => item.id}
-                style={styles.messagesList}
-                contentContainerStyle={styles.messagesListContent}
+        <View style={{ flex: 1, justifyContent: 'center', padding: 10 }}>
+            <Text style={{ fontSize: 20, marginBottom: 20 }}>React Native Chat</Text>
+
+            <ScrollView style={{ flex: 1, marginBottom: 20 }}>
+                {messages.map((msg, index) => (
+                    <View key={index} style={{ flexDirection: 'row', marginBottom: 10 }}>
+                        <Text style={{ fontWeight: 'bold', marginRight: 5 }}>{`[${msg.timestamp}]`}</Text>
+                        <Text style={{ fontWeight: 'bold', color: 'blue', marginRight: 5 }}>{msg.user}</Text>
+                        <Text>{`: ${msg.message}`}</Text>
+                    </View>
+                ))}
+            </ScrollView>
+
+            <TextInput
+                style={{ height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 10, padding: 5 }}
+                onChangeText={text => setUser(text)}
+                value={user}
+                placeholder="User"
             />
-            <View style={styles.inputContainer}>
-                <TextInput
-                    style={[styles.input, { height: Math.max(40, inputHeight) }]}
-                    value={inputText}
-                    onChangeText={setInputText}
-                    placeholder="Type your message..."
-                    multiline={true}
-                    onContentSizeChange={(event) => {
-                        setInputHeight(event.nativeEvent.contentSize.height);
-                    }}
-                />
-                <TouchableOpacity style={styles.sendButton} onPress={handleSend}>
-                    <Text style={styles.sendButtonText}>Send</Text>
-                </TouchableOpacity>
-            </View>
+
+            <TextInput
+                style={{ height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 10, padding: 5 }}
+                onChangeText={text => setMessageToSend(text)}
+                value={messageToSend}
+                placeholder="Message"
+            />
+
+            <Button onPress={sendMessage} title="Send" />
         </View>
     );
-}
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#f2f2f2',
-    },
-    messagesList: {
-        flex: 1,
-    },
-    messagesListContent: {
-        padding: 10,
-    },
-    messageContainer: {
-        padding: 10,
-        borderRadius: 10,
-        marginVertical: 5,
-        maxWidth: '80%',
-    },
-    userMessage: {
-        backgroundColor: '#007bff',
-        alignSelf: 'flex-end',
-        marginLeft: '20%',
-    },
-    friendMessage: {
-        backgroundColor: '#90909a',
-        alignSelf: 'flex-start',
-        marginRight: '20%',
-    },
-    messageText: {
-        color: 'white',
-    },
-    inputContainer: {
-        flexDirection: 'row',
-        padding: 10,
-        backgroundColor: 'white',
-        borderTopWidth: 1,
-        borderColor: '#dcdcdc',
-    },
-    input: {
-        flex: 1,
-        borderColor: 'gray',
-        borderWidth: 1,
-        borderRadius: 20,
-        paddingLeft: 10,
-        paddingVertical: 5,
-        maxHeight: 120,
-    },
-    sendButton: {
-        marginLeft: 10,
-        backgroundColor: '#007bff',
-        borderRadius: 20,
-        paddingVertical: 10,
-        paddingHorizontal: 20,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    sendButtonText: {
-        color: 'white',
-        fontWeight: 'bold',
-    },
-    header: {
-        backgroundColor: '#d0cece',
-        height: 90,
-        display: "flex",
-        flexDirection: "row",
-        alignItems: "center",
-    },
-    headerText: {
-        marginLeft: 10,
-      fontWeight: "bold",
-      fontSize: 20,
-    },
-    profileImage: {
-        marginLeft: 10,
-        width: 60,
-        height: 60,
-        borderRadius: 50,
-        alignSelf: "center",
-    },
-})
+};
+
 export default DirectMessageScreen;
