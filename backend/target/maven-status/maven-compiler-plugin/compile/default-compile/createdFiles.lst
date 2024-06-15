@@ -1,5 +1,7 @@
+com/WoofWalk/backend/enums/DogAge.class
 com/WoofWalk/backend/dto/DogDto.class
 com/WoofWalk/backend/enums/DogSex.class
+com/WoofWalk/backend/dto/DogSummaryDto.class
 com/WoofWalk/backend/services/DogService.class
 com/WoofWalk/backend/mappers/DogMapper.class
 com/WoofWalk/backend/controllers/DogController.class

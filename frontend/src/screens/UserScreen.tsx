@@ -18,6 +18,8 @@ import apiClient from "../../axiosConfig";
 import mime from "mime";
 import NamesModal from "../modals/NamesModal";
 import PhotoModal from "../modals/PhotoModal";
+import AddDogModal from "../modals/AddDogModal";
+import { DogSummary } from "../constants/dogData";
 
 type MapScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Map'>;
 type UserScreenNavigationProp = StackNavigationProp<RootStackParamList, 'User'>
@@ -31,11 +33,13 @@ const UserScreen: React.FC<UserScreenProps> = ({ navigation }) => {
     const { user } = useAuth0();
     const [namesModalVisible, setNamesModalVisible] = useState(false);
     const [photoModalVisible, setPhotoModalVisible] = useState(false);
+    const [dogModalVisible, setDogModalVisible] = useState(false);
     const [address, setAddress] = useState("Provide your address");
     const [editingAddress, setEditingAddress] = useState(false);
     const [phoneNumber, setPhoneNumber] = useState("Provide your phone number");
     const [editingPhoneNumber, setEditingPhoneNumber] = useState(false);
     const [image, setImage] = useState("none");
+    const [dogs, setDogs] = useState<DogSummary[]>([]);
     const { clearSession } = useAuth0();
 
     useEffect(() => {
@@ -63,7 +67,14 @@ const UserScreen: React.FC<UserScreenProps> = ({ navigation }) => {
                 };
                 reader.readAsDataURL(blob);
             });
-        }
+
+            apiClient.get("/dogs/user", {
+                params: { userEmail: user.email }
+            }).then(response => {
+                console.log(response.data);
+                setDogs(response.data);
+            });
+            }
     }, []);
 
     const handleLogoutButtonPress = async () => {
@@ -118,6 +129,14 @@ const UserScreen: React.FC<UserScreenProps> = ({ navigation }) => {
             apiClient.post("/user/updatePhoneNumber", userData);
         }
         setEditingPhoneNumber(false);
+    };
+
+    const handleOpenDogModal = () => {
+      setDogModalVisible(true);
+    };
+
+    const handleCloseDogModal = () => {
+        setDogModalVisible(false);
     };
 
     const uploadImage = async (mode: string) => {
@@ -184,6 +203,15 @@ const UserScreen: React.FC<UserScreenProps> = ({ navigation }) => {
             }
         }
     };
+
+    const capitalizeWords = (str: string) => {
+        return str
+            .toLowerCase()
+            .split('_')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ');
+    };
+
 
     return (
         <View style={styles.container}>
@@ -262,9 +290,24 @@ const UserScreen: React.FC<UserScreenProps> = ({ navigation }) => {
                 </View>
             </View>
             <View style={styles.infoHeader}>
-                <Text style={styles.infoHeaderText}>Dogs</Text>
+                <Text style={styles.dogHeader}>Dogs</Text>
+                    {dogs && dogs.map((dog, index) => (
+                        <View key={index} style={styles.dogSection}>
+                            <View style={styles.dogPhotoName}>
+                                {dog.photo ? (
+                                    <Image source={{uri: dog.photo}} style={styles.dogPhoto}/>
+                                ) : (
+                                    <MaterialIcon name="pets" size={40} color="#007bff" />
+                                )
+                                }
+                                <Text style={styles.dogName}>{dog.name}</Text>
+                            </View>
+                            <Text style={styles.dogBreed}>{capitalizeWords(dog.breed)}</Text>
+                        </View>
+
+                    ))}
                 <View style={styles.addDogButtonContainer}>
-                    <TouchableOpacity style={styles.addDogButton}>
+                    <TouchableOpacity style={styles.addDogButton} onPress={handleOpenDogModal}>
                         <MaterialIcon name="add" size={24} color="#ffffff" />
                         <Text style={styles.addDogButtonText}>Add new dog</Text>
                     </TouchableOpacity>
@@ -291,6 +334,7 @@ const UserScreen: React.FC<UserScreenProps> = ({ navigation }) => {
             <BottomBar navigation={navigation} />
             <NamesModal visible={namesModalVisible} onClose={handleCloseNamesModal} onOpenGithub={handleOpenGithub} />
             <PhotoModal visible={photoModalVisible} onClose={handleClosePhotoModal} uploadImage={uploadImage} deleteImage={deleteImage} />
+            <AddDogModal visible={dogModalVisible} onClose={handleCloseDogModal} />
         </View>
     );
 }
@@ -408,7 +452,36 @@ const styles = StyleSheet.create({
     },
     scrollView: {
         paddingBottom: 80,
-    }
+    },
+    dogPhoto: {
+        width: 40,
+        height: 40,
+        borderRadius: 24,
+    },
+    dogName: {
+        fontSize: 16,
+        marginLeft: 15,
+        fontWeight: 'bold',
+    },
+    dogBreed: {
+        fontSize: 14,
+        marginLeft: 15,
+    },
+    dogPhotoName: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    dogSection: {
+        marginBottom: 8,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+    },
+    dogHeader: {
+        fontSize: 17,
+        fontWeight: 'bold',
+        marginBottom: 12,
+    },
 });
 
 export default UserScreen;

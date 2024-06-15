@@ -82,6 +82,7 @@ public enum DogBreed {
     WEST_HIGHLAND_WHITE_TERRIER,
     WHIPPET,
     YORKSHIRE_TERRIER,
+    MIXED,
     OTHER
 }
 

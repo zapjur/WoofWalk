@@ -1,5 +1,6 @@
 package com.WoofWalk.backend.entities;
 
+import com.WoofWalk.backend.enums.DogAge;
 import com.WoofWalk.backend.enums.DogBreed;
 import com.WoofWalk.backend.enums.DogSex;
 import com.WoofWalk.backend.enums.DogSize;
@@ -26,8 +27,9 @@ public class Dog {
     @Column(nullable = false)
     private DogBreed breed;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private LocalDate birthDate;
+    private DogAge age;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

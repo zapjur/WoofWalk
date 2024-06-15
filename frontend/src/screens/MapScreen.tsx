@@ -10,7 +10,7 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import Icon from 'react-native-vector-icons/FontAwesome';
 import StarRating from "../components/StarRating";
 import MaterialIcon from "react-native-vector-icons/MaterialIcons";
-import { Place } from "../types/types";
+import { Place } from "../constants/types";
 import RootStackParamList from "../../RootStackParamList";
 import {useLocation} from "../contexts/LocationContext";
 

@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Dimensions} from "react-native";
 import RootStackParamList from "../../RootStackParamList";
-import {Place, NearestPlace} from "../types/types";
+import {Place, NearestPlace} from "../constants/types";
 import axios from "axios";
 import {useLocation} from "../contexts/LocationContext";
 import StarRating from "../components/StarRating";

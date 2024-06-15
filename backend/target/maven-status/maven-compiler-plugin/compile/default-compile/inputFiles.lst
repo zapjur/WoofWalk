@@ -10,6 +10,7 @@
 /Users/piotrzapior/Documents/Github/WoofWalk/backend/src/main/java/com/WoofWalk/backend/controllers/LocationController.java
 /Users/piotrzapior/Documents/Github/WoofWalk/backend/src/main/java/com/WoofWalk/backend/controllers/UserController.java
 /Users/piotrzapior/Documents/Github/WoofWalk/backend/src/main/java/com/WoofWalk/backend/dto/DogDto.java
+/Users/piotrzapior/Documents/Github/WoofWalk/backend/src/main/java/com/WoofWalk/backend/dto/DogSummaryDto.java
 /Users/piotrzapior/Documents/Github/WoofWalk/backend/src/main/java/com/WoofWalk/backend/dto/FriendRequestDto.java
 /Users/piotrzapior/Documents/Github/WoofWalk/backend/src/main/java/com/WoofWalk/backend/dto/LocationDetailsDto.java
 /Users/piotrzapior/Documents/Github/WoofWalk/backend/src/main/java/com/WoofWalk/backend/dto/LocationDto.java
@@ -21,6 +22,7 @@
 /Users/piotrzapior/Documents/Github/WoofWalk/backend/src/main/java/com/WoofWalk/backend/entities/Location.java
 /Users/piotrzapior/Documents/Github/WoofWalk/backend/src/main/java/com/WoofWalk/backend/entities/Rating.java
 /Users/piotrzapior/Documents/Github/WoofWalk/backend/src/main/java/com/WoofWalk/backend/entities/User.java
+/Users/piotrzapior/Documents/Github/WoofWalk/backend/src/main/java/com/WoofWalk/backend/enums/DogAge.java
 /Users/piotrzapior/Documents/Github/WoofWalk/backend/src/main/java/com/WoofWalk/backend/enums/DogBreed.java
 /Users/piotrzapior/Documents/Github/WoofWalk/backend/src/main/java/com/WoofWalk/backend/enums/DogSex.java
 /Users/piotrzapior/Documents/Github/WoofWalk/backend/src/main/java/com/WoofWalk/backend/enums/DogSize.java
