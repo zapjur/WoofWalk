@@ -12,6 +12,7 @@ import java.time.LocalDate;
 @Entity
 @Getter
 @Setter
+@Table(name = "dogs")
 public class Dog {
 
     @Id
@@ -21,18 +22,25 @@ public class Dog {
     @Column(nullable = false)
     private String name;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private DogBreed breed;
 
     @Column
     private LocalDate birthDate;
 
+    @Enumerated(EnumType.STRING)
     @Column
     private DogSize size;
 
+    @Enumerated(EnumType.STRING)
     @Column
     private DogSex sex;
 
     @Column
     private String photo;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 }

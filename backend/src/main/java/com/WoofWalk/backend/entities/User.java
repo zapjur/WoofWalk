@@ -43,4 +43,7 @@ public class User {
     )
     private Set<User> friends;
 
+    @OneToMany(mappedBy = "user")
+    private List<Dog> dogs;
+
 }
