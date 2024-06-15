@@ -1,6 +1,7 @@
 package com.WoofWalk.backend.mappers;
 
 import com.WoofWalk.backend.dto.DogDto;
+import com.WoofWalk.backend.dto.DogFullDto;
 import com.WoofWalk.backend.dto.DogSummaryDto;
 import com.WoofWalk.backend.entities.Dog;
 import com.WoofWalk.backend.entities.User;
@@ -35,6 +36,24 @@ public class DogMapper {
         }
         String photoUrl = s3Service.getFileUrl(entity.getPhoto());
         dto.setPhoto(photoUrl);
+        return dto;
+    }
+
+    public static DogFullDto toFullDto(Dog entity, S3Service s3Service) {
+        DogFullDto dto = new DogFullDto();
+        dto.setId(entity.getId());
+        dto.setName(entity.getName());
+        dto.setBreed(entity.getBreed());
+        dto.setAge(entity.getAge());
+        dto.setSize(entity.getSize());
+        dto.setSex(entity.getSex());
+        dto.setUserEmail(entity.getUser().getEmail());
+        if(entity.getPhoto() == null) {
+            dto.setPhoto(null);
+            return dto;
+        }
+        String photo = s3Service.getFileUrl(entity.getPhoto());
+        dto.setPhoto(photo);
         return dto;
     }
  }

@@ -1,6 +1,7 @@
 package com.WoofWalk.backend.services;
 
 import com.WoofWalk.backend.dto.DogDto;
+import com.WoofWalk.backend.dto.DogFullDto;
 import com.WoofWalk.backend.dto.DogSummaryDto;
 import com.WoofWalk.backend.entities.Dog;
 import com.WoofWalk.backend.mappers.DogMapper;
@@ -34,5 +35,10 @@ public class DogService {
         return dogRepository.findByUserEmail(userEmail).stream()
                 .map(dog -> DogMapper.toSummaryDto(dog, s3Service))
                 .collect(Collectors.toList());
+    }
+
+    public DogFullDto getDogById(Long dogId) {
+        Dog dog = dogRepository.findById(dogId).orElseThrow();
+        return DogMapper.toFullDto(dog, s3Service);
     }
 }

@@ -20,6 +20,7 @@ import NamesModal from "../modals/NamesModal";
 import PhotoModal from "../modals/PhotoModal";
 import AddDogModal from "../modals/AddDogModal";
 import { DogSummary } from "../constants/dogData";
+import DogModal from "../modals/DogModal";
 
 type MapScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Map'>;
 type UserScreenNavigationProp = StackNavigationProp<RootStackParamList, 'User'>
@@ -34,12 +35,14 @@ const UserScreen: React.FC<UserScreenProps> = ({ navigation }) => {
     const [namesModalVisible, setNamesModalVisible] = useState(false);
     const [photoModalVisible, setPhotoModalVisible] = useState(false);
     const [dogModalVisible, setDogModalVisible] = useState(false);
+    const [dogInfoModalVisible, setDogInfoModalVisible] = useState(false);
     const [address, setAddress] = useState("Provide your address");
     const [editingAddress, setEditingAddress] = useState(false);
     const [phoneNumber, setPhoneNumber] = useState("Provide your phone number");
     const [editingPhoneNumber, setEditingPhoneNumber] = useState(false);
     const [image, setImage] = useState("none");
     const [dogs, setDogs] = useState<DogSummary[]>([]);
+    const [dogId, setDogId] = useState<number>(0);
     const { clearSession } = useAuth0();
 
     useEffect(() => {
@@ -71,7 +74,6 @@ const UserScreen: React.FC<UserScreenProps> = ({ navigation }) => {
             apiClient.get("/dogs/user", {
                 params: { userEmail: user.email }
             }).then(response => {
-                console.log(response.data);
                 setDogs(response.data);
             });
             }
@@ -137,6 +139,15 @@ const UserScreen: React.FC<UserScreenProps> = ({ navigation }) => {
 
     const handleCloseDogModal = () => {
         setDogModalVisible(false);
+    };
+
+    const handleOpenDogInfoModal = (id: number) => {
+        setDogId(id);
+        setDogInfoModalVisible(true);
+    };
+
+    const handleCloseDogInfoModal = () => {
+        setDogInfoModalVisible(false);
     };
 
     const uploadImage = async (mode: string) => {
@@ -292,7 +303,7 @@ const UserScreen: React.FC<UserScreenProps> = ({ navigation }) => {
             <View style={styles.infoHeader}>
                 <Text style={styles.dogHeader}>Dogs</Text>
                     {dogs && dogs.map((dog, index) => (
-                        <View key={index} style={styles.dogSection}>
+                        <TouchableOpacity key={index} style={styles.dogSection} onPress={() => handleOpenDogInfoModal(dog.id)}>
                             <View style={styles.dogPhotoName}>
                                 {dog.photo ? (
                                     <Image source={{uri: dog.photo}} style={styles.dogPhoto}/>
@@ -303,7 +314,7 @@ const UserScreen: React.FC<UserScreenProps> = ({ navigation }) => {
                                 <Text style={styles.dogName}>{dog.name}</Text>
                             </View>
                             <Text style={styles.dogBreed}>{capitalizeWords(dog.breed)}</Text>
-                        </View>
+                        </TouchableOpacity>
 
                     ))}
                 <View style={styles.addDogButtonContainer}>
@@ -335,6 +346,7 @@ const UserScreen: React.FC<UserScreenProps> = ({ navigation }) => {
             <NamesModal visible={namesModalVisible} onClose={handleCloseNamesModal} onOpenGithub={handleOpenGithub} />
             <PhotoModal visible={photoModalVisible} onClose={handleClosePhotoModal} uploadImage={uploadImage} deleteImage={deleteImage} />
             <AddDogModal visible={dogModalVisible} onClose={handleCloseDogModal} />
+            <DogModal visible={dogInfoModalVisible} onClose={handleCloseDogInfoModal} dogId={dogId}/>
         </View>
     );
 }
@@ -472,7 +484,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     dogSection: {
-        marginBottom: 8,
+        marginBottom: 16,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -480,7 +492,7 @@ const styles = StyleSheet.create({
     dogHeader: {
         fontSize: 17,
         fontWeight: 'bold',
-        marginBottom: 12,
+        marginBottom: 16,
     },
 });
 

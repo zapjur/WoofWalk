@@ -1,6 +1,7 @@
 package com.WoofWalk.backend.controllers;
 
 import com.WoofWalk.backend.dto.DogDto;
+import com.WoofWalk.backend.dto.DogFullDto;
 import com.WoofWalk.backend.dto.DogSummaryDto;
 import com.WoofWalk.backend.services.DogService;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,11 @@ public class DogController {
     @GetMapping("/user")
     public ResponseEntity<List<DogSummaryDto>> getDogsByUserEmail(@RequestParam String userEmail){
         return ResponseEntity.ok(dogService.getDogsByUserEmail(userEmail));
+    }
+
+    @GetMapping("/{dogId}")
+    public ResponseEntity<DogFullDto> getDogById(@PathVariable Long dogId){
+        return ResponseEntity.ok(dogService.getDogById(dogId));
     }
 
 }

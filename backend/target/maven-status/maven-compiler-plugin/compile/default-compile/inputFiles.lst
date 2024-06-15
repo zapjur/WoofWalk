@@ -10,6 +10,7 @@
 /Users/piotrzapior/Documents/Github/WoofWalk/backend/src/main/java/com/WoofWalk/backend/controllers/LocationController.java
 /Users/piotrzapior/Documents/Github/WoofWalk/backend/src/main/java/com/WoofWalk/backend/controllers/UserController.java
 /Users/piotrzapior/Documents/Github/WoofWalk/backend/src/main/java/com/WoofWalk/backend/dto/DogDto.java
+/Users/piotrzapior/Documents/Github/WoofWalk/backend/src/main/java/com/WoofWalk/backend/dto/DogFullDto.java
 /Users/piotrzapior/Documents/Github/WoofWalk/backend/src/main/java/com/WoofWalk/backend/dto/DogSummaryDto.java
 /Users/piotrzapior/Documents/Github/WoofWalk/backend/src/main/java/com/WoofWalk/backend/dto/FriendRequestDto.java
 /Users/piotrzapior/Documents/Github/WoofWalk/backend/src/main/java/com/WoofWalk/backend/dto/LocationDetailsDto.java

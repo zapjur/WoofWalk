@@ -5,6 +5,16 @@ export interface DogSummary {
     photo: string;
 }
 
+export interface Dog {
+    id: number;
+    name: string;
+    breed: string;
+    age: string;
+    size: string
+    photo: string;
+    sex: string;
+}
+
 export const dogSexes = [
     { key: 1, label: "Male", value: "MALE" },
     { key: 2, label: "Female", value: "FEMALE" }
