@@ -26,15 +26,15 @@ public class Dog {
     @Column(nullable = false)
     private DogBreed breed;
 
-    @Column
+    @Column(nullable = false)
     private LocalDate birthDate;
 
     @Enumerated(EnumType.STRING)
-    @Column
+    @Column(nullable = false)
     private DogSize size;
 
     @Enumerated(EnumType.STRING)
-    @Column
+    @Column(nullable = false)
     private DogSex sex;
 
     @Column
