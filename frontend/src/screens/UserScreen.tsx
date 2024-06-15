@@ -301,6 +301,15 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
                 </View>
             </View>
             <View style={styles.infoHeader}>
+                <Text style={styles.infoHeaderText}>Dogs</Text>
+                <View style={styles.addDogButtonContainer}>
+                    <TouchableOpacity style={styles.addDogButton}>
+                        <MaterialIcon name="add" size={24} color="#ffffff" />
+                        <Text style={styles.addDogButtonText}>Add new dog</Text>
+                    </TouchableOpacity>
+                 </View>
+            </View>
+            <View style={styles.infoHeader}>
                 <Text style={styles.infoHeaderText}>Utilities</Text>
             </View>
             <View style={styles.menuSection}>
@@ -527,6 +536,23 @@ const styles = StyleSheet.create({
         color: '#ffffff',
         fontSize: 16,
     },
+    addDogButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 8,
+        backgroundColor: '#007bff',
+        borderRadius: 24,
+        width: '80%',
+        height: 30,
+    },
+    addDogButtonText: {
+        color: '#ffffff',
+        fontSize: 16,
+    },
+    addDogButtonContainer: {
+        alignItems: 'center',
+    }
 });
 
 export default UserScreen;
