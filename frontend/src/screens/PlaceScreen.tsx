@@ -163,7 +163,7 @@ const PlaceScreen: React.FC<PlaceScreenProps> = ({ route }) => {
                         </View>
                         <View style={styles.detail}>
                             <Text style={styles.detailsText}>Category</Text>
-                            <Text>{place.category}</Text>
+                            <Text>{place.category.charAt(0)+place.category.slice(1).toLowerCase()}</Text>
                         </View>
                     </View>
                     <Text style={styles.nameText}>About {place.name}</Text>

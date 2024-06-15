@@ -83,7 +83,6 @@ const AddPlaceScreen: React.FC = () => {
                     style={styles.input}
                 >
                     <TextInput
-                        style={styles.input}
                         editable={false}
                         placeholder="Select category"
                         value={categories.find(cat => cat.value === category)?.label}
