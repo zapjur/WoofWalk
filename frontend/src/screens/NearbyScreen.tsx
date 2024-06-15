@@ -92,6 +92,10 @@ const NearbyScreen: React.FC<NearbyScreenProps> = ({ navigation }) => {
                                 )}
                                 <Text style={styles.description}>{place.description}</Text>
                                 <View style={styles.distanceContainer}>
+                                    <Text style={styles.distanceText}>Category:</Text>
+                                    <Text>{place.category.charAt(0)+place.category.slice(1).toLowerCase()}</Text>
+                                </View>
+                                <View style={styles.distanceContainer}>
                                     <Text style={styles.distanceText}>Distance:</Text>
                                     <Text>{place.distance.toFixed(1)}km</Text>
                                 </View>

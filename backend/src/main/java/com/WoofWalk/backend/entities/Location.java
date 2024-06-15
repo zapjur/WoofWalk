@@ -7,6 +7,8 @@ import lombok.Setter;
 
 import java.util.List;
 
+import com.WoofWalk.backend.enums.LocationCategory;
+
 @Entity
 @Getter
 @Setter
@@ -34,6 +36,10 @@ public class Location {
 
     @Column(name = "longitude", nullable = false)
     private double longitude;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "category", nullable = false)
+    private LocationCategory category;
 
     @OneToMany(mappedBy = "location")
     private List<Rating> ratings;
