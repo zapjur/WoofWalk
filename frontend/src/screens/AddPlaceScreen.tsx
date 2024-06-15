@@ -5,7 +5,7 @@ import apiClient from "../../axiosConfig";
 import {NavigationProp, useNavigation} from "@react-navigation/native";
 import RootStackParamList from "../../RootStackParamList";
 import ModalSelector from 'react-native-modal-selector';
-import { categories } from "../types/types";
+import { categories } from "../constants/types";
 import {useLocation} from "../contexts/LocationContext";
 
 const AddPlaceScreen: React.FC = () => {

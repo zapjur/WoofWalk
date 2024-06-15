@@ -1,7 +1,7 @@
 import React, {createContext, useState, useEffect, useContext, ReactNode} from 'react';
 import * as Location from 'expo-location';
 import apiClient from "../../axiosConfig";
-import { Place, userLocation } from "../types/types";
+import { Place, userLocation } from "../constants/types";
 import {Alert} from "react-native";
 
 interface LocationContextProps {

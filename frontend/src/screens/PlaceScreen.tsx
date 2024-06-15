@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, SafeAreaView, Modal, TextInput, Button, Alert, Dimensions } from "react-native";
 import { RouteProp } from "@react-navigation/native";
-import { LocationDetails } from "../types/types";
+import { LocationDetails } from "../constants/types";
 import StarRating from "../components/StarRating";
 import apiClient from "../../axiosConfig";
 import axios from "axios";

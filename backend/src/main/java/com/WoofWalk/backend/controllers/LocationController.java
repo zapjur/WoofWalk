@@ -9,6 +9,7 @@ import com.WoofWalk.backend.services.S3Service;
 import com.amazonaws.services.s3.model.S3Object;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -38,13 +39,13 @@ public class LocationController {
     }
 
     @PostMapping
-    public ResponseEntity<Location> createLocation(@RequestBody LocationDto locationDto) {
+    public ResponseEntity<Void> createLocation(@RequestBody LocationDto locationDto) {
         Location createdLocation = locationService.createLocation(locationDto);
-        return ResponseEntity.ok(createdLocation);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @PostMapping("/{locationId}/reviews")
-    public ResponseEntity<?> rateLocation(@PathVariable Long locationId,
+    public ResponseEntity<Void> rateLocation(@PathVariable Long locationId,
                                           @RequestParam("rating") int rating,
                                           @RequestParam("userEmail") String userEmail,
                                           @RequestParam(value = "opinion", required = false) String opinion,
