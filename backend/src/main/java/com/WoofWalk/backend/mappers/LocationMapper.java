@@ -11,6 +11,7 @@ public class LocationMapper {
         location.setDescription(dto.getDescription());
         location.setLatitude(dto.getLatitude());
         location.setLongitude(dto.getLongitude());
+        location.setCategory(dto.getCategory());
         return location;
     }
 
@@ -23,6 +24,7 @@ public class LocationMapper {
         dto.setLongitude(entity.getLongitude());
         dto.setRating(entity.getRating());
         dto.setRatingCount(entity.getRatingCount());
+        dto.setCategory(entity.getCategory());
         return dto;
     }
 }

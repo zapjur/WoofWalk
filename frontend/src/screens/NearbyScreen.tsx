@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
-import {View, Text, StyleSheet, ScrollView, TouchableOpacity, Image} from "react-native";
+import {View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Dimensions} from "react-native";
 import RootStackParamList from "../../RootStackParamList";
-import {Place, NearestPlace} from "../types/types";
+import {Place, NearestPlace} from "../constants/types";
 import axios from "axios";
 import {useLocation} from "../contexts/LocationContext";
 import StarRating from "../components/StarRating";
@@ -83,7 +83,7 @@ const NearbyScreen: React.FC<NearbyScreenProps> = ({ navigation }) => {
 
     return (
         <View>
-            <ScrollView>
+            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollView}>
                 <View style={styles.container}>
                     {nearestPlaces.map(place => (
                         <View key={place.id} style={styles.placeContainer}>
@@ -95,6 +95,10 @@ const NearbyScreen: React.FC<NearbyScreenProps> = ({ navigation }) => {
                                     <Image source={{ uri: 'https://cdn-icons-png.flaticon.com/128/848/848043.png'}} style={styles.placeImage}/>
                                 )}
                                 <Text style={styles.description}>{place.description}</Text>
+                                <View style={styles.distanceContainer}>
+                                    <Text style={styles.distanceText}>Category:</Text>
+                                    <Text>{place.category.charAt(0)+place.category.slice(1).toLowerCase()}</Text>
+                                </View>
                                 <View style={styles.distanceContainer}>
                                     <Text style={styles.distanceText}>Distance:</Text>
                                     <Text>{place.distance.toFixed(1)}km</Text>
@@ -154,6 +158,9 @@ const styles = StyleSheet.create({
     description: {
         marginBottom: 4,
         fontSize: 16,
-    }
+    },
+    scrollView: {
+        paddingBottom: 80,
+    },
 });
 export default NearbyScreen;

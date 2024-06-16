@@ -1,2 +1,12 @@
-com\WoofWalk\backend\dto\LocationDetailsDto.class
-com\WoofWalk\backend\dto\RatingDto.class
+com/WoofWalk/backend/enums/DogAge.class
+com/WoofWalk/backend/dto/DogDto.class
+com/WoofWalk/backend/enums/DogSex.class
+com/WoofWalk/backend/dto/DogFullDto.class
+com/WoofWalk/backend/dto/DogSummaryDto.class
+com/WoofWalk/backend/services/DogService.class
+com/WoofWalk/backend/mappers/DogMapper.class
+com/WoofWalk/backend/controllers/DogController.class
+com/WoofWalk/backend/enums/DogSize.class
+com/WoofWalk/backend/entities/Dog.class
+com/WoofWalk/backend/enums/DogBreed.class
+com/WoofWalk/backend/repositories/DogRepository.class

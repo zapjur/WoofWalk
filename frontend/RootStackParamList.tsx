@@ -1,4 +1,4 @@
-import { Place, userLocation } from "./src/types/types";
+import { Place, userLocation } from "./src/constants/types";
 
 type RootStackParamList = {
     Login: undefined;

@@ -1,5 +1,6 @@
 package com.WoofWalk.backend.dto;
 
+import com.WoofWalk.backend.enums.LocationCategory;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -16,6 +17,7 @@ public class LocationDto {
         private int ratingCount;
         private double latitude;
         private double longitude;
+        private LocationCategory category;
 
         public LocationDto(String name, String description, double rating, int ratingCount, double latitude, double longitude) {
             this.name = name;

@@ -1,25 +1,26 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     View,
     Text,
     StyleSheet,
     Image,
     TouchableOpacity,
-    Modal,
-    FlatList,
-    Linking,
     TextInput,
+    Linking, ScrollView, Dimensions,
 } from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import BottomBar from "../components/BottomBar";
-import {StackNavigationProp} from "@react-navigation/stack";
+import { StackNavigationProp } from "@react-navigation/stack";
 import RootStackParamList from "../../RootStackParamList";
-import {useAuth0} from "react-native-auth0";
-import MaterialCommunityIcon from "react-native-vector-icons/MaterialCommunityIcons";
+import { useAuth0 } from "react-native-auth0";
 import * as ImagePicker from "expo-image-picker";
 import apiClient from "../../axiosConfig";
-import mime from "mime"
-
+import mime from "mime";
+import NamesModal from "../modals/NamesModal";
+import PhotoModal from "../modals/PhotoModal";
+import AddDogModal from "../modals/AddDogModal";
+import { DogSummary } from "../constants/dogData";
+import DogModal from "../modals/DogModal";
 
 type MapScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Map'>;
 type UserScreenNavigationProp = StackNavigationProp<RootStackParamList, 'User'>
@@ -30,85 +31,69 @@ interface UserScreenProps {
 }
 const FormData = global.FormData;
 
-
-
-const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
-    const {user} = useAuth0();
+const UserScreen: React.FC<UserScreenProps> = ({ navigation }) => {
+    const { user } = useAuth0();
     const [namesModalVisible, setNamesModalVisible] = useState(false);
     const [photoModalVisible, setPhotoModalVisible] = useState(false);
+    const [dogModalVisible, setDogModalVisible] = useState(false);
+    const [dogInfoModalVisible, setDogInfoModalVisible] = useState(false);
     const [address, setAddress] = useState("Provide your address");
     const [editingAddress, setEditingAddress] = useState(false);
     const [phoneNumber, setPhoneNumber] = useState("Provide your phone number");
     const [editingPhoneNumber, setEditingPhoneNumber] = useState(false);
     const [image, setImage] = useState("none");
-    const {clearSession} = useAuth0();
+    const [dogs, setDogs] = useState<DogSummary[]>([]);
+    const [dogId, setDogId] = useState<number>(0);
+    const { clearSession } = useAuth0();
+
     useEffect(() => {
-        if(user){
-             apiClient.get("/user/getAddress", {
-                params: {
-                    email: user.email,
-                }
+        if (user) {
+            apiClient.get("/user/getAddress", {
+                params: { email: user.email }
             }).then(response => {
-                    if(response.data.length !== 0){
-                        setAddress(response.data);
-                    }
-                    else{
-                        setAddress("Provide your address");
-                    }
-                });
-            apiClient.get("/user/getPhoneNumber", {
-                params: {
-                    email: user.email,
-                }
-            }).then(response => {
-                    if(response.data.length !== 0){
-                        setPhoneNumber(response.data);
-                    }
-                    else{
-                        setPhoneNumber("Provide your phone number");
-                    }
+                setAddress(response.data.length !== 0 ? response.data : "Provide your address");
             });
-            apiClient.get("/user/profilePicture/download",{
-                params: {
-                    email: user.email,
-                },
+
+            apiClient.get("/user/getPhoneNumber", {
+                params: { email: user.email }
+            }).then(response => {
+                setPhoneNumber(response.data.length !== 0 ? response.data : "Provide your phone number");
+            });
+
+            apiClient.get("/user/profilePicture/download", {
+                params: { email: user.email },
                 responseType: 'blob'
             }).then(response => {
                 const blob = response.data;
                 const reader = new FileReader();
                 reader.onloadend = () => {
-                    if (reader.result) {
-                        setImage(reader.result as string);
-
-                    }
+                    if (reader.result) setImage(reader.result as string);
                 };
                 reader.readAsDataURL(blob);
-            })
+            });
 
-        }
-
+            apiClient.get("/dogs/user", {
+                params: { userEmail: user.email }
+            }).then(response => {
+                setDogs(response.data);
+            });
+            }
     }, []);
+
     const handleLogoutButtonPress = async () => {
         try {
-            await clearSession({
-                federated: true
-            });
+            await clearSession({ federated: true });
             console.log("User's session cleared")
             navigation.navigate('Login');
-
         } catch (e) {
             console.log(e);
         }
-    }
-    const authors = [
-        { name: 'Piotr Zapiór', github: 'https://github.com/zapjur' },
-        { name: 'Maciej Jurczyga', github: 'https://github.com/MaciekJurczyga' },
-        { name: 'Szymon Burliga', github: 'https://github.com/SzupanBurliga' },
-        { name: 'Paweł Piwowarczyk', github: 'https://github.com/Dewiant112' },
-    ];
+    };
+
     const handleOpenGithub = (url: string) => {
         Linking.openURL(url);
     };
+
     const handleOpenNamesModal = () => {
         setNamesModalVisible(true);
     };
@@ -124,123 +109,138 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
     const handleClosePhotoModal = () => {
         setPhotoModalVisible(false);
     };
+
     const handleEditAddressClick = () => {
         setEditingAddress(true);
     };
 
     const handleEditAddressSaveClick = async () => {
-        if(user){
-            const userData = {
-                email : user.email,
-                address: address
-            }
-             await apiClient.post("/user/updateAddress", userData);
+        if (user) {
+            const userData = { email: user.email, address };
+            await apiClient.post("/user/updateAddress", userData);
         }
         setEditingAddress(false);
     };
+
     const handleEditPhoneNumberClick = () => {
         setEditingPhoneNumber(true);
     };
 
     const handleEditPhoneNumberSaveClick = () => {
-        if(user){
-            const userData = {
-                email : user.email,
-                phoneNumber: phoneNumber,
-            }
+        if (user) {
+            const userData = { email: user.email, phoneNumber };
             apiClient.post("/user/updatePhoneNumber", userData);
         }
         setEditingPhoneNumber(false);
     };
-    const uploadImage = async (mode:string) => {
 
-        try{
-            if(mode === "gallery"){
+    const handleOpenDogModal = () => {
+      setDogModalVisible(true);
+    };
+
+    const handleCloseDogModal = () => {
+        setDogModalVisible(false);
+    };
+
+    const handleOpenDogInfoModal = (id: number) => {
+        setDogId(id);
+        setDogInfoModalVisible(true);
+    };
+
+    const handleCloseDogInfoModal = () => {
+        setDogInfoModalVisible(false);
+    };
+
+    const uploadImage = async (mode: string) => {
+        try {
+            if (mode === "gallery") {
                 await ImagePicker.requestMediaLibraryPermissionsAsync();
                 const result = await ImagePicker.launchImageLibraryAsync({
                     mediaTypes: ImagePicker.MediaTypeOptions.Images,
                     allowsEditing: true,
-                    aspect: [1,1],
+                    aspect: [1, 1],
                     quality: 1,
-                })
-                if(!result.canceled){
+                });
+                if (!result.canceled) {
                     await saveImage(result.assets[0].uri);
                 }
-            }
-            else{
+            } else {
                 await ImagePicker.requestCameraPermissionsAsync();
-                const result = await ImagePicker.launchCameraAsync(
-                    {
-                        cameraType: ImagePicker.CameraType.front,
-                        allowsEditing: true,
-                        aspect: [1, 1],
-                        quality: 1,
-                    });
-                if(!result.canceled){
+                const result = await ImagePicker.launchCameraAsync({
+                    cameraType: ImagePicker.CameraType.front,
+                    allowsEditing: true,
+                    aspect: [1, 1],
+                    quality: 1,
+                });
+                if (!result.canceled) {
                     await saveImage(result.assets[0].uri);
                 }
             }
-        }
-        catch (error){
+        } catch (error) {
             alert("Error uploading image " + error);
             setPhotoModalVisible(false);
         }
-    }
-    const saveImage = async ( imageUri: string) => {
+    };
+
+    const saveImage = async (imageUri: string) => {
         const userEmail = user?.email;
-        if(user && userEmail){
+        if (user && userEmail) {
             const formData: FormData = new FormData();
             (formData as any).append('file', {
                 uri: imageUri,
                 type: mime.getType(imageUri),
                 name: imageUri.split("/").pop()
-            })
+            });
             formData.append('email', userEmail);
             try {
-              await apiClient.put('/user/profilePicture/upload', formData, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                    },
+                await apiClient.put('/user/profilePicture/upload', formData, {
+                    headers: { 'Content-Type': 'multipart/form-data' },
                 });
-              setPhotoModalVisible(false);
+                setPhotoModalVisible(false);
             } catch (error) {
                 console.error('Upload failed', error);
             }
         }
-        }
+    };
 
     const deleteImage = async () => {
-        if(user){
-            try{
-                const userData = {
-                    email : user.email,
-                }
-                await apiClient.post("/user/profilePicture/delete", userData)
+        if (user) {
+            try {
+                const userData = { email: user.email };
+                await apiClient.post("/user/profilePicture/delete", userData);
                 setImage("none");
                 setPhotoModalVisible(false);
-            }
-            catch (error){
+            } catch (error) {
                 console.error(error);
             }
         }
-    }
+    };
+
+    const capitalizeWords = (str: string) => {
+        return str
+            .toLowerCase()
+            .split('_')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ');
+    };
+
 
     return (
         <View style={styles.container}>
+            <ScrollView contentContainerStyle={styles.scrollView} showsVerticalScrollIndicator={false}>
             <View style={styles.header}>
                 <Text style={styles.headerText}>Your Profile</Text>
             </View>
             <View style={styles.profileInfo}>
                 <View style={styles.profileImageContainer}>
                     <Image
-                        source={{ uri: image != "none" ? image : 'https://cdn-icons-png.flaticon.com/128/848/848043.png' }}
+                        source={{ uri: image !== "none" ? image : 'https://cdn-icons-png.flaticon.com/128/848/848043.png' }}
                         style={styles.profileImage}
                     />
                     <TouchableOpacity style={styles.cameraIcon} onPress={handleOpenPhotoModal}>
                         <MaterialIcon name="camera-alt" size={24} color="#ffffff" />
                     </TouchableOpacity>
                 </View>
-
                 <Text style={styles.userName}>{user?.nickname}</Text>
             </View>
             <View style={styles.infoHeader}>
@@ -261,7 +261,7 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
                             placeholder="Provide your phone number"
                         />
                     ) : (
-                        <Text style= {styles.infoText}>{phoneNumber}</Text>
+                        <Text style={styles.infoText}>{phoneNumber}</Text>
                     )}
                 </View>
                 <View style={styles.infoSectionEditComponent}>
@@ -286,7 +286,7 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
                             placeholder="Provide your address"
                         />
                     ) : (
-                        <Text style= {styles.infoText}>{address}</Text>
+                        <Text style={styles.infoText}>{address}</Text>
                     )}
                 </View>
                 <View style={styles.infoSectionEditComponent}>
@@ -299,6 +299,30 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
                             <MaterialIcon name={"edit"} size={17}></MaterialIcon>
                         </TouchableOpacity>
                     )}
+                </View>
+            </View>
+            <View style={styles.infoHeader}>
+                <Text style={styles.dogHeader}>Dogs</Text>
+                    {dogs && dogs.map((dog, index) => (
+                        <TouchableOpacity key={index} style={styles.dogSection} onPress={() => handleOpenDogInfoModal(dog.id)}>
+                            <View style={styles.dogPhotoName}>
+                                {dog.photo ? (
+                                    <Image source={{uri: dog.photo}} style={styles.dogPhoto}/>
+                                ) : (
+                                    <MaterialIcon name="pets" size={40} color="#007bff" />
+                                )
+                                }
+                                <Text style={styles.dogName}>{dog.name}</Text>
+                            </View>
+                            <Text style={styles.dogBreed}>{capitalizeWords(dog.breed)}</Text>
+                        </TouchableOpacity>
+
+                    ))}
+                <View style={styles.addDogButtonContainer}>
+                    <TouchableOpacity style={styles.addDogButton} onPress={handleOpenDogModal}>
+                        <MaterialIcon name="add" size={24} color="#ffffff" />
+                        <Text style={styles.addDogButtonText}>Add new dog</Text>
+                    </TouchableOpacity>
                 </View>
             </View>
             <View style={styles.infoHeader}>
@@ -318,63 +342,16 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
                     <Text style={styles.menuText}>Log Out</Text>
                 </TouchableOpacity>
             </View>
-            <BottomBar navigation={navigation}/>
-            <Modal
-                animationType="slide"
-                transparent={true}
-                visible={namesModalVisible}
-                onRequestClose={handleCloseNamesModal}
-            >
-                <View style={styles.modalContainer}>
-                    <View style={styles.modalContent}>
-                        <Text style={styles.modalTitle}>Creators of WoofWalk</Text>
-                        <FlatList
-                            data={authors}
-                            renderItem={({ item }) => (
-                                <View style={styles.modalItem}>
-                                    <Text style={styles.modalText}>{item.name}</Text>
-                                    <TouchableOpacity onPress={() => handleOpenGithub(item.github)}>
-                                        <MaterialCommunityIcon name="github" size={24} color="#000" />
-                                    </TouchableOpacity>
-                                </View>
-                            )}
-                            keyExtractor={(item) => item.name}
-                        />
-                        <TouchableOpacity style={styles.closeButton} onPress={handleCloseNamesModal}>
-                            <Text style={styles.closeButtonText}>Close</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-            </Modal>
-            <Modal
-                animationType="slide"
-                transparent={true}
-                visible={photoModalVisible}
-                onRequestClose={handleClosePhotoModal}
-            >
-                <View style={styles.modalContainer}>
-                    <View style={styles.modalContent}>
-                        <Text style={styles.modalTitleProfilePicture}>Profile Picture</Text>
-                        <View style={styles.modalItems}>
-                            <TouchableOpacity style={styles.modalProfilePictureItem} onPress={() => uploadImage("photo")}>
-                                <MaterialIcon name="photo-camera" size={55} color="#000" />
-                            </TouchableOpacity>
-                            <TouchableOpacity style={styles.modalProfilePictureItem} onPress={() => uploadImage("gallery")}>
-                                <MaterialIcon name="photo-library" size={55} color="#000" />
-                            </TouchableOpacity>
-                            <TouchableOpacity style={styles.modalProfilePictureItem} onPress={deleteImage}>
-                                <MaterialIcon name="delete" size={55} color="#000" />
-                            </TouchableOpacity>
-                        </View>
-                        <TouchableOpacity style={styles.closeButton} onPress={handleClosePhotoModal}>
-                            <Text style={styles.closeButtonText}>Close</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-            </Modal>
+            </ScrollView>
+            <BottomBar navigation={navigation} />
+            <NamesModal visible={namesModalVisible} onClose={handleCloseNamesModal} onOpenGithub={handleOpenGithub} />
+            <PhotoModal visible={photoModalVisible} onClose={handleClosePhotoModal} uploadImage={uploadImage} deleteImage={deleteImage} />
+            <AddDogModal visible={dogModalVisible} onClose={handleCloseDogModal} />
+            <DogModal visible={dogInfoModalVisible} onClose={handleCloseDogInfoModal} dogId={dogId}/>
         </View>
     );
 }
+
 const styles = StyleSheet.create({
     container: {
         flex: 1,
@@ -387,7 +364,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginBottom: 20,
     },
-
     headerText: {
         fontSize: 28,
         fontWeight: 'bold',
@@ -417,7 +393,7 @@ const styles = StyleSheet.create({
         fontSize: 20,
         fontWeight: 'bold'
     },
-    infoHeaderText:{
+    infoHeaderText: {
         fontSize: 17,
         fontWeight: 'bold',
     },
@@ -425,7 +401,6 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: '#666',
     },
-
     infoSection: {
         display: "flex",
         flexDirection: "row",
@@ -439,20 +414,18 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "space-between"
     },
-
-    infoSectionEditComponent:{
+    infoSectionEditComponent: {
         display: "flex",
         flexDirection: "row",
         alignItems: "center",
         marginLeft: 10,
         marginBottom: 30,
     },
-
     infoText: {
         fontSize: 16,
         marginLeft: 15,
     },
-    editView:{
+    editView: {
         display: "flex",
         flexDirection: "row",
         justifyContent: "flex-end",
@@ -473,60 +446,54 @@ const styles = StyleSheet.create({
     infoHeader: {
         marginBottom: 20,
     },
-    modalContainer: {
-        flex: 1,
+    addDogButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
         justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    },
-    modalContent: {
-        width: 300,
-        padding: 20,
-        backgroundColor: '#ffffff',
-        borderRadius: 10,
-        alignItems: 'center',
-    },
-    modalItems:{
-        flexDirection: 'row',
-        alignItems: 'center',
-        width: '100%',
-        justifyContent: "space-evenly",
-    },
-    modalItem: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 10,
-        width: '100%',
-    },
-    modalProfilePictureItem: {
-        marginBottom: 0,
-        marginTop: 5,
-    },
-    modalTitle: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        marginBottom: 10,
-    },
-    modalTitleProfilePicture: {
-        fontSize: 25,
-        fontWeight: 'bold',
-        marginBottom: 10,
-    },
-    modalText: {
-        fontSize: 16,
-        marginBottom: 5,
-    },
-    closeButton: {
-        marginTop: 20,
-        paddingVertical: 10,
-        paddingHorizontal: 20,
+        gap: 8,
         backgroundColor: '#007bff',
-        borderRadius: 5,
+        borderRadius: 24,
+        width: '80%',
+        height: 30,
     },
-    closeButtonText: {
+    addDogButtonText: {
         color: '#ffffff',
         fontSize: 16,
+    },
+    addDogButtonContainer: {
+        alignItems: 'center',
+    },
+    scrollView: {
+        paddingBottom: 80,
+    },
+    dogPhoto: {
+        width: 40,
+        height: 40,
+        borderRadius: 24,
+    },
+    dogName: {
+        fontSize: 16,
+        marginLeft: 15,
+        fontWeight: 'bold',
+    },
+    dogBreed: {
+        fontSize: 14,
+        marginLeft: 15,
+    },
+    dogPhotoName: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    dogSection: {
+        marginBottom: 16,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+    },
+    dogHeader: {
+        fontSize: 17,
+        fontWeight: 'bold',
+        marginBottom: 16,
     },
 });
 
