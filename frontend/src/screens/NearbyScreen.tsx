@@ -49,17 +49,21 @@ const NearbyScreen: React.FC<NearbyScreenProps> = ({ navigation }) => {
         const destinations = places.map(place => `${place.latitude},${place.longitude}`).join('|');
 
         const apiKey = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
+
         const url = `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${origins}&destinations=${destinations}&key=${apiKey}`;
 
         try {
             const response = await axios.get(url);
             const distances = response.data.rows[0].elements;
 
-            let placesWithDistance = places.map((place, index) => ({
-                ...place,
-                distance: distances[index].distance.value / 1000,
-                imageUri: '',
-            }));
+            let placesWithDistance = places.map((place, index) => {
+                const distance = distances[index]?.distance?.value;
+                return {
+                    ...place,
+                    distance: distance ? distance / 1000: -1,
+                    imageUri: '',
+                };
+            });
             placesWithDistance = await Promise.all(placesWithDistance.map(async (place) => {
                 const imageUri = await fetchImageUri(place.id);
                 return { ...place, imageUri };

@@ -1,3 +1,39 @@
+<<<<<<< HEAD
+C:\Users\macie\OneDrive\Pulpit\WoofWalk\backend\src\main\java\com\WoofWalk\backend\AWSSecretManagerService.java
+C:\Users\macie\OneDrive\Pulpit\WoofWalk\backend\src\main\java\com\WoofWalk\backend\BackendApplication.java
+C:\Users\macie\OneDrive\Pulpit\WoofWalk\backend\src\main\java\com\WoofWalk\backend\config\AWSConfig.java
+C:\Users\macie\OneDrive\Pulpit\WoofWalk\backend\src\main\java\com\WoofWalk\backend\config\LoadSeedData.java
+C:\Users\macie\OneDrive\Pulpit\WoofWalk\backend\src\main\java\com\WoofWalk\backend\config\SecurityConfig.java
+C:\Users\macie\OneDrive\Pulpit\WoofWalk\backend\src\main\java\com\WoofWalk\backend\config\WebConfig.java
+C:\Users\macie\OneDrive\Pulpit\WoofWalk\backend\src\main\java\com\WoofWalk\backend\config\WebSocketConfig.java
+C:\Users\macie\OneDrive\Pulpit\WoofWalk\backend\src\main\java\com\WoofWalk\backend\controllers\ChatController.java
+C:\Users\macie\OneDrive\Pulpit\WoofWalk\backend\src\main\java\com\WoofWalk\backend\controllers\FriendRequestController.java
+C:\Users\macie\OneDrive\Pulpit\WoofWalk\backend\src\main\java\com\WoofWalk\backend\controllers\LocationController.java
+C:\Users\macie\OneDrive\Pulpit\WoofWalk\backend\src\main\java\com\WoofWalk\backend\controllers\UserController.java
+C:\Users\macie\OneDrive\Pulpit\WoofWalk\backend\src\main\java\com\WoofWalk\backend\dto\FriendRequestDto.java
+C:\Users\macie\OneDrive\Pulpit\WoofWalk\backend\src\main\java\com\WoofWalk\backend\dto\LocationDetailsDto.java
+C:\Users\macie\OneDrive\Pulpit\WoofWalk\backend\src\main\java\com\WoofWalk\backend\dto\LocationDto.java
+C:\Users\macie\OneDrive\Pulpit\WoofWalk\backend\src\main\java\com\WoofWalk\backend\dto\ProfilePictureDto.java
+C:\Users\macie\OneDrive\Pulpit\WoofWalk\backend\src\main\java\com\WoofWalk\backend\dto\RatingDto.java
+C:\Users\macie\OneDrive\Pulpit\WoofWalk\backend\src\main\java\com\WoofWalk\backend\dto\UserDto.java
+C:\Users\macie\OneDrive\Pulpit\WoofWalk\backend\src\main\java\com\WoofWalk\backend\entities\FriendRequest.java
+C:\Users\macie\OneDrive\Pulpit\WoofWalk\backend\src\main\java\com\WoofWalk\backend\entities\Location.java
+C:\Users\macie\OneDrive\Pulpit\WoofWalk\backend\src\main\java\com\WoofWalk\backend\entities\Message.java
+C:\Users\macie\OneDrive\Pulpit\WoofWalk\backend\src\main\java\com\WoofWalk\backend\entities\Rating.java
+C:\Users\macie\OneDrive\Pulpit\WoofWalk\backend\src\main\java\com\WoofWalk\backend\entities\User.java
+C:\Users\macie\OneDrive\Pulpit\WoofWalk\backend\src\main\java\com\WoofWalk\backend\exceptions\GlobalExceptionHandler.java
+C:\Users\macie\OneDrive\Pulpit\WoofWalk\backend\src\main\java\com\WoofWalk\backend\mappers\LocationMapper.java
+C:\Users\macie\OneDrive\Pulpit\WoofWalk\backend\src\main\java\com\WoofWalk\backend\mappers\UserMapper.java
+C:\Users\macie\OneDrive\Pulpit\WoofWalk\backend\src\main\java\com\WoofWalk\backend\repositories\FriendRequestRepository.java
+C:\Users\macie\OneDrive\Pulpit\WoofWalk\backend\src\main\java\com\WoofWalk\backend\repositories\LocationRepository.java
+C:\Users\macie\OneDrive\Pulpit\WoofWalk\backend\src\main\java\com\WoofWalk\backend\repositories\RatingRepository.java
+C:\Users\macie\OneDrive\Pulpit\WoofWalk\backend\src\main\java\com\WoofWalk\backend\repositories\UserRepository.java
+C:\Users\macie\OneDrive\Pulpit\WoofWalk\backend\src\main\java\com\WoofWalk\backend\services\FriendRequestService.java
+C:\Users\macie\OneDrive\Pulpit\WoofWalk\backend\src\main\java\com\WoofWalk\backend\services\LocationService.java
+C:\Users\macie\OneDrive\Pulpit\WoofWalk\backend\src\main\java\com\WoofWalk\backend\services\S3Service.java
+C:\Users\macie\OneDrive\Pulpit\WoofWalk\backend\src\main\java\com\WoofWalk\backend\services\UserService.java
+C:\Users\macie\OneDrive\Pulpit\WoofWalk\backend\src\main\java\com\WoofWalk\backend\Validators\FriendRequestValidator.java
+=======
 /Users/piotrzapior/Documents/Github/WoofWalk/backend/src/main/java/com/WoofWalk/backend/AWSSecretManagerService.java
 /Users/piotrzapior/Documents/Github/WoofWalk/backend/src/main/java/com/WoofWalk/backend/BackendApplication.java
 /Users/piotrzapior/Documents/Github/WoofWalk/backend/src/main/java/com/WoofWalk/backend/Validators/FriendRequestValidator.java
@@ -42,3 +78,4 @@
 /Users/piotrzapior/Documents/Github/WoofWalk/backend/src/main/java/com/WoofWalk/backend/services/LocationService.java
 /Users/piotrzapior/Documents/Github/WoofWalk/backend/src/main/java/com/WoofWalk/backend/services/S3Service.java
 /Users/piotrzapior/Documents/Github/WoofWalk/backend/src/main/java/com/WoofWalk/backend/services/UserService.java
+>>>>>>> main

@@ -6,8 +6,11 @@ type RootStackParamList = {
     User: undefined;
     Friends: undefined;
     AddPlace: undefined;
+    Chat: undefined;
+    DM: {email: string };
     PlaceScreen: { place: Place; userLocation: userLocation | null };
     NearbyScreen: undefined;
+
 };
 
 export default RootStackParamList;
