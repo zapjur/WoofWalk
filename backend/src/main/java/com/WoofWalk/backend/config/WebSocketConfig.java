@@ -41,7 +41,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                         if (request instanceof ServletServerHttpRequest) {
                             ServletServerHttpRequest servletRequest = (ServletServerHttpRequest) request;
                             String token = servletRequest.getServletRequest().getParameter("token");
-                            System.out.println("Received token: " + token); // Logowanie tokenu
+                            System.out.println("Received token: " + token);
                             if (token != null && validateToken(token)) {
                                 attributes.put("token", token);
                                 return true;
@@ -58,12 +58,12 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     private boolean validateToken(String token) {
         try {
             Jwt jwt = jwtDecoder.decode(token);
-            System.out.println("Decoded JWT: " + jwt); // Logowanie dekodowanego JWT
-            // Możesz dodać dodatkową logikę walidacji tutaj
-            System.out.println("Token is valid"); // Logowanie walidacji tokenu
+            System.out.println("Decoded JWT: " + jwt);
+
+            System.out.println("Token is valid");
             return true;
         } catch (JwtException e) {
-            System.err.println("Token validation failed: " + e.getMessage()); // Logowanie błędu walidacji
+            System.err.println("Token validation failed: " + e.getMessage());
             return false;
         }
     }
