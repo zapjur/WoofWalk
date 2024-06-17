@@ -42,7 +42,6 @@ public class FriendRequestController {
         friendRequestService.acceptFriendRequest(friendRequestId);
         return new ResponseEntity<>("Friend request accepted", HttpStatus.OK);
     }
-
     @PostMapping("/{friendRequestId}/decline")
     public ResponseEntity<String> declineFriendRequest(@PathVariable Long friendRequestId){
         friendRequestService.declineFriendRequest(friendRequestId);

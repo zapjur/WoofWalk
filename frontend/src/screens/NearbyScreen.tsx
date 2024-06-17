@@ -74,10 +74,6 @@ const NearbyScreen: React.FC<NearbyScreenProps> = ({ navigation }) => {
             .map(place => `${place.latitude},${place.longitude}`)
             .join('|');
 
-        console.log("Sorting by:" + sortingBy);
-        console.log("length: " + filteredPlaces.length);
-
-
         if(filteredPlaces.length !== 0){
             const apiKey = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
 
