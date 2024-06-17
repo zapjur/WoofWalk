@@ -84,7 +84,7 @@ const AddPlaceScreen: React.FC = () => {
                     onChange={(option) => setCategory(option.value)}
                     style={styles.input}
                 >
-                    <TextInput
+                    <TextInput style={styles.text}
                         editable={false}
                         placeholder="Select category"
                         value={categories.find(cat => cat.value === category)?.label}
@@ -138,6 +138,9 @@ const styles = StyleSheet.create({
     label: {
         fontSize: 16,
         marginBottom: 5,
+    },
+    text: {
+        color: 'black',
     },
     input: {
         borderWidth: 1,

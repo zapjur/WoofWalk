@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Dimensions} from "react-native";
+import {View, Text, StyleSheet, ScrollView, TouchableOpacity, Image} from "react-native";
 import RootStackParamList from "../../RootStackParamList";
 import {Place, NearestPlace} from "../constants/types";
 import axios from "axios";
@@ -8,6 +8,8 @@ import StarRating from "../components/StarRating";
 import BottomBar from "../components/BottomBar";
 import {StackNavigationProp} from "@react-navigation/stack";
 import apiClient from "../../axiosConfig";
+import { categories } from "../constants/types";
+import ModalSelector from "react-native-modal-selector";
 
 type NearbyScreenNavigationProp = StackNavigationProp<RootStackParamList, 'NearbyScreen'>;
 
@@ -18,8 +20,13 @@ interface NearbyScreenProps {
 const NearbyScreen: React.FC<NearbyScreenProps> = ({ navigation }) => {
     const [nearestPlaces, setNearestPlaces] = useState<NearestPlace[]>([]);
     const { userLocation, places } = useLocation();
+    const [sortingBy, setSortingBy] = useState('');
+    const [modalVisible, setModalVisible] = useState(false);
 
-
+    const data = [
+        ...categories,
+        { key: -1, label: 'CLEAR', value: '' },
+    ];
     if(!userLocation) {
         return (
             <View>
@@ -30,9 +37,21 @@ const NearbyScreen: React.FC<NearbyScreenProps> = ({ navigation }) => {
     }
 
     useEffect(() => {
-
         findNearestPlaces();
-    }, []);
+    }, [sortingBy]);
+
+    useEffect(() => {
+        navigation.setOptions({
+            headerRight: () => (
+                <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.sort}>
+                    <Image
+                        source={{ uri: 'https://cdn-icons-png.flaticon.com/128/9630/9630141.png' }}
+                        style={styles.sortIcon}
+                    />
+                </TouchableOpacity>
+            ),
+        });
+    }, [navigation]);
 
     const fetchImageUri = async (placeId: number): Promise<string> => {
         try {
@@ -46,33 +65,48 @@ const NearbyScreen: React.FC<NearbyScreenProps> = ({ navigation }) => {
 
     const findNearestPlaces = async () => {
         const origins = `${userLocation.latitude},${userLocation.longitude}`;
-        const destinations = places.map(place => `${place.latitude},${place.longitude}`).join('|');
+        let filteredPlaces = places;
+        if(sortingBy !== ''){
+            filteredPlaces = places.filter(place =>
+                place.category.toString().toUpperCase() === sortingBy.toString().toUpperCase());
+        }
+        const destinations = filteredPlaces
+            .map(place => `${place.latitude},${place.longitude}`)
+            .join('|');
 
-        const apiKey = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
+        console.log("Sorting by:" + sortingBy);
+        console.log("length: " + filteredPlaces.length);
 
-        const url = `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${origins}&destinations=${destinations}&key=${apiKey}`;
 
-        try {
-            const response = await axios.get(url);
-            const distances = response.data.rows[0].elements;
+        if(filteredPlaces.length !== 0){
+            const apiKey = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
 
-            let placesWithDistance = places.map((place, index) => {
-                const distance = distances[index]?.distance?.value;
-                return {
-                    ...place,
-                    distance: distance ? distance / 1000: -1,
-                    imageUri: '',
-                };
-            });
-            placesWithDistance = await Promise.all(placesWithDistance.map(async (place) => {
-                const imageUri = await fetchImageUri(place.id);
-                return { ...place, imageUri };
-            }));
+            const url = `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${origins}&destinations=${destinations}&key=${apiKey}`;
+            try {
+                const response = await axios.get(url);
+                const distances = response.data.rows[0].elements;
 
-            const sortedPlaces = placesWithDistance.sort((a, b) => a.distance - b.distance).slice(0, 10);
-            setNearestPlaces(sortedPlaces);
-        } catch (error) {
-            console.error('Error fetching distance matrix:', error);
+                let placesWithDistance = filteredPlaces.map((place, index) => {
+                    const distance = distances[index]?.distance?.value;
+                    return {
+                        ...place,
+                        distance: distance ? distance / 1000: -1,
+                        imageUri: '',
+                    };
+                });
+                placesWithDistance = await Promise.all(placesWithDistance.map(async (place) => {
+                    const imageUri = await fetchImageUri(place.id);
+                    return { ...place, imageUri };
+                }));
+
+                const sortedPlaces = placesWithDistance.sort((a, b) => a.distance - b.distance);
+                setNearestPlaces(sortedPlaces);
+            } catch (error) {
+                console.error('Error fetching distance matrix:', error);
+            }
+        }
+        else{
+            setNearestPlaces([]);
         }
     };
 
@@ -82,45 +116,71 @@ const NearbyScreen: React.FC<NearbyScreenProps> = ({ navigation }) => {
     };
 
     return (
-        <View>
-            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollView}>
-                <View style={styles.container}>
-                    {nearestPlaces.map(place => (
-                        <View key={place.id} style={styles.placeContainer}>
-                            <TouchableOpacity onPress={() => handleNavigateToPlaceScreen(place)}>
-                                <Text style={styles.placeName}>{place.name}</Text>
-                                {place.imageUri ? (
-                                    <Image source={{ uri: place.imageUri }} style={styles.placeImage} />
-                                ) : (
-                                    <Image source={{ uri: 'https://cdn-icons-png.flaticon.com/128/848/848043.png'}} style={styles.placeImage}/>
-                                )}
-                                <Text style={styles.description}>{place.description}</Text>
-                                <View style={styles.distanceContainer}>
-                                    <Text style={styles.distanceText}>Category:</Text>
-                                    <Text>{place.category.charAt(0)+place.category.slice(1).toLowerCase()}</Text>
+        <View style={styles.outerContainer}>
+            {sortingBy != '' && (
+                <Text style={styles.header}>Sorting by nearest: {sortingBy} </Text>
+            )}
+            {nearestPlaces.length > 0 ? (
+                <>
+                    <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollView}>
+                        <View style={styles.container}>
+                            {nearestPlaces.map(place => (
+                                <View key={place.id} style={styles.placeContainer}>
+                                    <TouchableOpacity onPress={() => handleNavigateToPlaceScreen(place)}>
+                                        <Text style={styles.placeName}>{place.name}</Text>
+                                        {place.imageUri ? (
+                                            <Image source={{ uri: place.imageUri }} style={styles.placeImage} />
+                                        ) : (
+                                            <Image source={{ uri: 'https://cdn-icons-png.flaticon.com/128/3875/3875433.png'}} style={styles.placeImage}/>
+                                        )}
+                                        <Text style={styles.description}>{place.description}</Text>
+                                        <View style={styles.distanceContainer}>
+                                            <Text style={styles.distanceText}>Category:</Text>
+                                            <Text>{place.category.charAt(0) + place.category.slice(1).toLowerCase()}</Text>
+                                        </View>
+                                        <View style={styles.distanceContainer}>
+                                            <Text style={styles.distanceText}>Distance:</Text>
+                                            <Text>{place.distance.toFixed(1)}km</Text>
+                                        </View>
+                                        <View style={styles.ratingContainer}>
+                                            <StarRating rating={place.rating} fontSize={16}/>
+                                            <Text>({place.ratingCount})</Text>
+                                        </View>
+                                    </TouchableOpacity>
                                 </View>
-                                <View style={styles.distanceContainer}>
-                                    <Text style={styles.distanceText}>Distance:</Text>
-                                    <Text>{place.distance.toFixed(1)}km</Text>
-                                </View>
-                                <View style={styles.ratingContainer}>
-                                    <StarRating rating={place.rating} fontSize={16}/>
-                                    <Text>({place.ratingCount})</Text>
-                                </View>
-                            </TouchableOpacity>
+                            ))}
                         </View>
-                    ))}
+                    </ScrollView>
+                </>
+            ) : (
+                <View style={styles.container}>
+                    <Text>No data available.</Text>
                 </View>
-            </ScrollView>
+            )}
+            <ModalSelector
+                visible={modalVisible}
+                data={data}
+                onModalClose={() => setModalVisible(false)}
+                onChange={(option) => setSortingBy(option.value)}
+            />
             <BottomBar navigation={navigation} />
         </View>
     )
 }
 
 const styles = StyleSheet.create({
+    outerContainer: {
+        flex: 1,
+    },
     container: {
         flex: 1,
         padding: 16,
+    },
+    header: {
+        marginTop: 5,
+        fontWeight: 'bold',
+        fontSize: 18,
+        marginLeft: 16,
     },
     placeContainer: {
         marginBottom: 16,
@@ -161,6 +221,13 @@ const styles = StyleSheet.create({
     },
     scrollView: {
         paddingBottom: 80,
+    },
+    sort: {
+        marginRight: 10,
+    },
+    sortIcon: {
+        width: 42,
+        height: 42,
     },
 });
 export default NearbyScreen;

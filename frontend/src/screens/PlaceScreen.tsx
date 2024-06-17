@@ -44,6 +44,7 @@ const PlaceScreen: React.FC<PlaceScreenProps> = ({ route }) => {
         if (userLocation) {
             const calculateDistance = async () => {
                 try {
+
                     const response = await axios.get('https://maps.googleapis.com/maps/api/distancematrix/json', {
                         params: {
                             origins: `${userLocation.latitude},${userLocation.longitude}`,
@@ -145,7 +146,7 @@ const PlaceScreen: React.FC<PlaceScreenProps> = ({ route }) => {
                         </ScrollView>
                     ) : (
                         <Image
-                            source={{ uri: 'https://cdn-icons-png.flaticon.com/128/848/848043.png' }}
+                            source={{ uri: 'https://cdn-icons-png.flaticon.com/128/3875/3875433.png' }}
                             style={styles.placeImage}
                         />
                     )}
