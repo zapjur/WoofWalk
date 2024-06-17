@@ -19,9 +19,11 @@ import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
+import org.springframework.web.socket.server.support.DefaultHandshakeHandler;
 import org.springframework.web.socket.server.support.HttpSessionHandshakeInterceptor;
 import org.springframework.security.core.Authentication;
 
+import java.security.Principal;
 import java.util.Map;
 
 @Configuration
@@ -42,6 +44,12 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws")
                 .setAllowedOrigins("*")
+                .setHandshakeHandler(new DefaultHandshakeHandler() {
+                    @Override
+                    protected Principal determineUser(ServerHttpRequest request, WebSocketHandler wsHandler, Map<String, Object> attributes) {
+                        return (Principal) attributes.get("principal");
+                    }
+                })
                 .addInterceptors(new HttpSessionHandshakeInterceptor() {
                     @Override
                     public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler, Map<String, Object> attributes) throws Exception {
@@ -66,17 +74,32 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
             Jwt jwt = jwtDecoder.decode(token);
             System.out.println("Decoded JWT: " + jwt);
 
-            String sub = jwt.getClaimAsString("sub");
+            String sub = jwt.getSubject();
 
             Authentication authentication = new JwtAuthenticationToken(jwt);
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            attributes.put("sub", sub);
 
-            System.out.println("Token is valid");
+            Principal principal = new CustomPrincipal(sub);
+            attributes.put("principal", principal);
+
+            System.out.println("Token is valid, sub: " + sub);
             return true;
         } catch (JwtException e) {
             System.err.println("Token validation failed: " + e.getMessage());
             return false;
+        }
+    }
+
+    private static class CustomPrincipal implements Principal {
+        private final String name;
+
+        public CustomPrincipal(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String getName() {
+            return name;
         }
     }
 }

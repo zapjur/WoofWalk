@@ -10,6 +10,8 @@ import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.SessionAttribute;
+
+import java.security.Principal;
 import java.util.Date;
 
 @Controller
@@ -22,36 +24,36 @@ public class ChatController {
 
     @MessageMapping("/send")
     @SendTo("/topic/messages")
-    public Message sendMessage(@SessionAttribute("sub") String sub, Message message) {
-        System.out.println("Received message from sub: " + sub);
-        if (sub == null) {
-            throw new IllegalArgumentException("Sub cannot be null");
+    public Message sendMessage(Principal principal, Message message) {
+        System.out.println("Received message from sub: " + principal.getName());
+        if (principal == null) {
+            throw new IllegalArgumentException("Principal cannot be null");
         }
 
-        User user = userService.findBySub(sub);
+        User user = userService.findBySub(principal.getName());
         if (user == null) {
-            throw new IllegalArgumentException("User not found for sub: " + sub);
+            throw new IllegalArgumentException("User not found for sub: " + principal.getName());
         }
 
-        message.setSender(user.getNickname());
+        message.setSender(user.getEmail());
         message.setTimestamp(new Date().getTime());
         messageService.saveMessage(message);
         return message;
     }
 
     @MessageMapping("/private")
-    public void sendPrivateMessage(@SessionAttribute("sub") String sub, Message message) {
-        System.out.println("Received private message from sub: " + sub);
-        if (sub == null) {
-            throw new IllegalArgumentException("Sub cannot be null");
+    public void sendPrivateMessage(Principal principal, Message message) {
+        System.out.println("Received private message from sub: " + principal.getName());
+        if (principal == null) {
+            throw new IllegalArgumentException("Principal cannot be null");
         }
 
-        User user = userService.findBySub(sub);
+        User user = userService.findBySub(principal.getName());
         if (user == null) {
-            throw new IllegalArgumentException("User not found for sub: " + sub);
+            throw new IllegalArgumentException("User not found for sub: " + principal.getName());
         }
 
-        message.setSender(user.getNickname());
+        message.setSender(user.getEmail());
         message.setTimestamp(new Date().getTime());
         messageService.saveMessage(message);
         messagingTemplate.convertAndSendToUser(message.getRecipient(), "/queue/messages", message);

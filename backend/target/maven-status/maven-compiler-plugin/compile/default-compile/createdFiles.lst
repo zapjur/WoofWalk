@@ -36,7 +36,9 @@ com/WoofWalk/backend/dto/ProfilePictureDto.class
 com/WoofWalk/backend/entities/Dog.class
 com/WoofWalk/backend/mappers/UserMapper.class
 com/WoofWalk/backend/AWSSecretManagerService.class
+com/WoofWalk/backend/config/WebSocketConfig$2.class
 com/WoofWalk/backend/config/LoadSeedData.class
+com/WoofWalk/backend/config/WebSocketConfig$CustomPrincipal.class
 com/WoofWalk/backend/BackendApplication.class
 com/WoofWalk/backend/repositories/LocationRepository.class
 com/WoofWalk/backend/handlers/ChatWebSocketHandler.class
