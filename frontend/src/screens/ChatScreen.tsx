@@ -84,7 +84,7 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ navigation }) =>{
         if (client && client.connected) {
             client.publish({
                 destination: '/app/send',
-                body: JSON.stringify({ content: message, recipient: 'pz@gmail.com' })
+                body: JSON.stringify({ content: message, recipient: 'group' })
             });
             setMessage('');
         }

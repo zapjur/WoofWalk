@@ -26,8 +26,9 @@ public class UserController {
     private final S3Service s3Service;
 
     @PostMapping("/createUser")
-    public ResponseEntity<?> createUserInDatabase(@RequestBody UserDto userDto) {
-        userService.createUserInDatabase(userDto);
+    public ResponseEntity<?> createUserInDatabase(@RequestBody UserDto userDto, @RequestHeader("Authorization") String token) {
+        String jwtToken = token.replace("Bearer ", "");
+        userService.createUserInDatabase(userDto, jwtToken);
         return ResponseEntity.ok().build();
     }
 

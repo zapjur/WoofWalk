@@ -6,6 +6,8 @@ import com.WoofWalk.backend.mappers.UserMapper;
 import com.WoofWalk.backend.repositories.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -15,21 +17,34 @@ import java.util.Optional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final JwtDecoder jwtDecoder;
 
     public User saveUser(User user) {
         return userRepository.save(user);
     }
 
-    public User createUserInDatabase(UserDto userDto) {
+    public User findBySub(String sub) {
+        Optional<User> user = userRepository.findBySub(sub);
+        return user.orElse(null);
+    }
+
+    public User createUserInDatabase(UserDto userDto, String token) {
         Optional<User> userOptional = userRepository.findByEmail(userDto.getEmail());
 
         return userOptional.orElseGet(() -> {
             User newUser = new User();
             newUser.setEmail(userDto.getEmail());
             newUser.setNickname(userDto.getNickname());
+            newUser.setSub(getSubFromToken(token));
             return saveUser(newUser);
         });
     }
+
+    private String getSubFromToken(String token) {
+        Jwt jwt = jwtDecoder.decode(token);
+        return jwt.getClaimAsString("sub");
+    }
+
     public UserDto updateAddress(UserDto userDto){
         Optional<User> userOptional = userRepository.findByEmail(userDto.getEmail());
         if(userOptional.isPresent()){
