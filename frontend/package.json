@@ -45,12 +45,15 @@
     "react-native-vector-icons": "^10.1.0",
     "react-native-web": "~0.19.10",
     "sockjs-client": "^1.6.1",
+    "text-encoding": "^0.7.0",
     "ws": "^8.17.1"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
     "@types/react": "~18.2.45",
     "@types/react-native-vector-icons": "^6.4.18",
+    "@types/sockjs-client": "^1.5.4",
+    "@types/text-encoding": "^0.0.39",
     "typescript": "~5.3.3"
   },
   "private": true,

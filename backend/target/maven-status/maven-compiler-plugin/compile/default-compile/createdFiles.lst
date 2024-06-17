@@ -1,6 +1,7 @@
 com/WoofWalk/backend/config/AWSConfig.class
 com/WoofWalk/backend/enums/DogAge.class
 com/WoofWalk/backend/dto/DogDto.class
+com/WoofWalk/backend/services/MessageService.class
 com/WoofWalk/backend/config/WebSocketConfig$1.class
 com/WoofWalk/backend/dto/RatingDto.class
 com/WoofWalk/backend/config/SecurityConfig.class
@@ -13,11 +14,13 @@ com/WoofWalk/backend/controllers/DogController.class
 com/WoofWalk/backend/exceptions/GlobalExceptionHandler.class
 com/WoofWalk/backend/config/WebSocketConfig.class
 com/WoofWalk/backend/controllers/UserController.class
+com/WoofWalk/backend/entities/Message.class
 com/WoofWalk/backend/entities/Rating.class
 com/WoofWalk/backend/services/UserService.class
 com/WoofWalk/backend/repositories/FriendRequestRepository.class
 com/WoofWalk/backend/repositories/UserRepository.class
 com/WoofWalk/backend/repositories/RatingRepository.class
+com/WoofWalk/backend/controllers/ChatController.class
 com/WoofWalk/backend/mappers/LocationMapper.class
 com/WoofWalk/backend/dto/LocationDto.class
 com/WoofWalk/backend/repositories/DogRepository.class
@@ -42,6 +45,7 @@ com/WoofWalk/backend/entities/User.class
 com/WoofWalk/backend/services/S3Service.class
 com/WoofWalk/backend/enums/DogBreed.class
 com/WoofWalk/backend/controllers/FriendRequestController.class
+com/WoofWalk/backend/repositories/MessageRepository.class
 com/WoofWalk/backend/entities/FriendRequest.class
 com/WoofWalk/backend/config/WebConfig.class
 com/WoofWalk/backend/services/FriendRequestService.class

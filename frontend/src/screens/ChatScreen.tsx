@@ -10,12 +10,17 @@ import {
     TouchableOpacity,
     View
 } from "react-native";
-import BottomBar from "../components/BottomBar";
 import React, {useEffect, useState} from "react";
 import {StackNavigationProp} from "@react-navigation/stack";
 import RootStackParamList from "../../RootStackParamList";
-import DirectMessageModal from "../components/DirectMessageModal";
 import * as SecureStore from "expo-secure-store";
+import { Client } from '@stomp/stompjs';
+import SockJS from 'sockjs-client';
+import { TextDecoder, TextEncoder } from 'text-encoding';
+global.TextDecoder = TextDecoder;
+global.TextEncoder = TextEncoder;
+
+
 
 type MapScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Map'>;
 type UserScreenNavigationProp = StackNavigationProp<RootStackParamList, 'User'>
@@ -26,9 +31,9 @@ interface ChatScreenProps {
 }
 
 const ChatScreen: React.FC<ChatScreenProps> = ({ navigation }) =>{
-    const [ws, setWs] = useState<WebSocket | null>(null);
+    const [client, setClient] = useState<Client | null>(null);
     const [message, setMessage] = useState<string>('');
-    const [messages, setMessages] = useState<string[]>([]);
+    const [messages, setMessages] = useState<Message[]>([]);
 
     useEffect(() => {
         const connectWebSocket = async () => {
@@ -38,33 +43,49 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ navigation }) =>{
                 return;
             }
 
-            const websocket = new WebSocket(`ws://localhost:8080/ws?token=${token}`);
+            console.log('Token:', token);
 
-            websocket.onopen = () => {
-                console.log('WebSocket connected');
-            };
-            websocket.onmessage = (event) => {
-                setMessages(prevMessages => [...prevMessages, event.data]);
-            };
-            websocket.onerror = (error) => {
-                console.error('WebSocket error', error);
-            };
-            websocket.onclose = () => {
-                console.log('WebSocket closed');
-            };
-            setWs(websocket);
+            const stompClient = new Client({
+                brokerURL: `ws://localhost:8080/ws?token=${token}`,
+                connectHeaders: {
+                    Authorization: `Bearer ${token}`
+                },
+                debug: (str) => {
+                    console.log(str);
+                },
+                reconnectDelay: 5000,
+                heartbeatIncoming: 4000,
+                heartbeatOutgoing: 4000
+            });
 
-            return () => {
-                websocket.close();
+            stompClient.onConnect = () => {
+                console.log('Connected');
+                stompClient.subscribe('/topic/messages', (message) => {
+                    setMessages((prevMessages) => [
+                        ...prevMessages,
+                        JSON.parse(message.body)
+                    ]);
+                });
             };
+
+            stompClient.onStompError = (frame) => {
+                console.error(`Broker reported error: ${frame.headers['message']}`);
+                console.error(`Additional details: ${frame.body}`);
+            };
+
+            stompClient.activate();
+            setClient(stompClient);
         };
 
         connectWebSocket();
     }, []);
 
     const sendMessage = () => {
-        if (ws) {
-            ws.send(message);
+        if (client && client.connected) {
+            client.publish({
+                destination: '/app/send',
+                body: JSON.stringify({ content: message, recipient: 'pz@gmail.com' })
+            });
             setMessage('');
         }
     };
@@ -74,7 +95,7 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ navigation }) =>{
             <Text>WebSocket Chat</Text>
             <FlatList
                 data={messages}
-                renderItem={({ item }) => <Text>{item}</Text>}
+                renderItem={({ item }) => <Text>{item.sender}: {item.content}</Text>}
                 keyExtractor={(item, index) => index.toString()}
             />
             <TextInput
@@ -86,4 +107,12 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ navigation }) =>{
         </View>
     );
 };
+
+interface Message {
+    sender: string;
+    content: string;
+    recipient: string;
+    timestamp: number;
+}
+
 export default ChatScreen;

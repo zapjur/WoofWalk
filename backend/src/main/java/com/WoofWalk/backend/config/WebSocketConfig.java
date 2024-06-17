@@ -1,6 +1,5 @@
 package com.WoofWalk.backend.config;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
@@ -21,10 +20,10 @@ import java.util.Map;
 
 @Configuration
 @EnableWebSocketMessageBroker
-@RequiredArgsConstructor
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
-    private final JwtDecoder jwtDecoder;
+    @Autowired
+    private JwtDecoder jwtDecoder;
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
@@ -42,7 +41,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                         if (request instanceof ServletServerHttpRequest) {
                             ServletServerHttpRequest servletRequest = (ServletServerHttpRequest) request;
                             String token = servletRequest.getServletRequest().getParameter("token");
-                            System.out.println("Received token: " + token);
+                            System.out.println("Received token: " + token); // Logowanie tokenu
                             if (token != null && validateToken(token)) {
                                 attributes.put("token", token);
                                 return true;
@@ -59,11 +58,12 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     private boolean validateToken(String token) {
         try {
             Jwt jwt = jwtDecoder.decode(token);
-            System.out.println("Decoded JWT: " + jwt);
-            System.out.println("Token is valid");
+            System.out.println("Decoded JWT: " + jwt); // Logowanie dekodowanego JWT
+            // Możesz dodać dodatkową logikę walidacji tutaj
+            System.out.println("Token is valid"); // Logowanie walidacji tokenu
             return true;
         } catch (JwtException e) {
-            System.err.println("Token validation failed: " + e.getMessage());
+            System.err.println("Token validation failed: " + e.getMessage()); // Logowanie błędu walidacji
             return false;
         }
     }
