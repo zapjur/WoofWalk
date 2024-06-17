@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useRef } from 'react';
-import {StyleSheet, View, Text, TouchableOpacity} from 'react-native';
+import React, {useEffect, useState, useRef, useMemo} from 'react';
+import {StyleSheet, View, Text, TouchableOpacity, Image} from 'react-native';
 import MapView, { Marker, Callout, Region } from 'react-native-maps';
 import apiClient from "../../axiosConfig";
 import { useAuth0 } from "react-native-auth0";
@@ -12,7 +12,7 @@ import MaterialIcon from "react-native-vector-icons/MaterialIcons";
 import { Place } from "../constants/types";
 import RootStackParamList from "../../RootStackParamList";
 import {useLocation} from "../contexts/LocationContext";
-
+import {icons} from "../constants/types"
 type MapScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Map'>;
 
 interface MapScreenProps {
@@ -33,7 +33,6 @@ const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
                 latitudeDelta: 0.0922,
                 longitudeDelta: 0.0421,
             });
-
             if (mapRef.current) {
                 mapRef.current.animateToRegion({
                     ...userLocation,
@@ -58,6 +57,16 @@ const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
             console.log(e);
         }
     };
+
+    const iconMap = useMemo(() => {
+        const map: { [key: string]: string } = {};
+        icons.forEach(icon => {
+            map[icon.label.toUpperCase()] = icon.value;
+        });
+        return map;
+    }, []);
+
+    const getIcon = (key: string) => iconMap[key.toUpperCase()];
 
     const handleNavigateToPlace = (place: Place) => {
         console.log('Navigating to:', place);
@@ -91,6 +100,10 @@ const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
                         title={place.name}
                         description={place.description}
                     >
+                        <Image
+                            source={{ uri: getIcon(place.category) }}
+                            style={{ width: 40, height: 40 }}
+                        />
                         <Callout tooltip>
                             <View style={styles.calloutContainer}>
                                 <View style={styles.nameContainer}>
