@@ -1,4 +1,6 @@
 spring:
+  websocket:
+    enabled: true
   servlet:
     multipart:
       max-file-size: 20MB

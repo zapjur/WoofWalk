@@ -44,7 +44,8 @@
     "react-native-svg-transformer": "^1.4.0",
     "react-native-vector-icons": "^10.1.0",
     "react-native-web": "~0.19.10",
-    "sockjs-client": "^1.6.1"
+    "sockjs-client": "^1.6.1",
+    "ws": "^8.17.1"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
