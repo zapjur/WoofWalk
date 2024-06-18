@@ -44,6 +44,9 @@ const UserScreen: React.FC<UserScreenProps> = ({ navigation }) => {
     const [image, setImage] = useState("none");
     const [dogs, setDogs] = useState<DogSummary[]>([]);
     const [dogId, setDogId] = useState<number>(0);
+    const [refreshUserData, setRefreshUserData] = useState(false);
+    const [refreshProfilePicture, setRefreshProfilePicture] = useState(false);
+    const [refreshDogs, setRefreshDogs] = useState(false);
     const { clearSession } = useAuth0();
 
     useEffect(() => {
@@ -60,6 +63,13 @@ const UserScreen: React.FC<UserScreenProps> = ({ navigation }) => {
                 setPhoneNumber(response.data.length !== 0 ? response.data : "Provide your phone number");
             });
 
+
+        }
+        setRefreshUserData(false);
+    }, [refreshUserData]);
+
+    useEffect(() => {
+        if(user){
             apiClient.get("/user/profilePicture/download", {
                 params: { email: user.email },
                 responseType: 'blob'
@@ -71,14 +81,20 @@ const UserScreen: React.FC<UserScreenProps> = ({ navigation }) => {
                 };
                 reader.readAsDataURL(blob);
             });
+        }
+        setRefreshProfilePicture(false);
+    }, [refreshProfilePicture]);
 
+    useEffect(() => {
+        if(user){
             apiClient.get("/dogs/user", {
                 params: { userEmail: user.email }
             }).then(response => {
                 setDogs(response.data);
             });
-            }
-    }, []);
+        }
+        setRefreshDogs(false);
+    }, [refreshDogs]);
 
     const handleLogoutButtonPress = async () => {
         try {
@@ -118,6 +134,7 @@ const UserScreen: React.FC<UserScreenProps> = ({ navigation }) => {
         if (user) {
             const userData = { email: user.email, address };
             await apiClient.post("/user/updateAddress", userData);
+            setRefreshUserData(true);
         }
         setEditingAddress(false);
     };
@@ -130,6 +147,7 @@ const UserScreen: React.FC<UserScreenProps> = ({ navigation }) => {
         if (user) {
             const userData = { email: user.email, phoneNumber };
             apiClient.post("/user/updatePhoneNumber", userData);
+            setRefreshUserData(true);
         }
         setEditingPhoneNumber(false);
     };
@@ -138,7 +156,11 @@ const UserScreen: React.FC<UserScreenProps> = ({ navigation }) => {
       setDogModalVisible(true);
     };
 
-    const handleCloseDogModal = () => {
+    const handleCloseDogModal = (dogAdded: boolean) => {
+        if(dogAdded){
+            setRefreshDogs(true);
+        }
+
         setDogModalVisible(false);
     };
 
@@ -197,6 +219,7 @@ const UserScreen: React.FC<UserScreenProps> = ({ navigation }) => {
                     headers: { 'Content-Type': 'multipart/form-data' },
                 });
                 setPhotoModalVisible(false);
+                setRefreshProfilePicture(true);
             } catch (error) {
                 console.error('Upload failed', error);
             }
@@ -210,6 +233,7 @@ const UserScreen: React.FC<UserScreenProps> = ({ navigation }) => {
                 await apiClient.post("/user/profilePicture/delete", userData);
                 setImage("none");
                 setPhotoModalVisible(false);
+                setRefreshProfilePicture(true);
             } catch (error) {
                 console.error(error);
             }

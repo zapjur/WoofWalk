@@ -18,7 +18,7 @@ import {useAuth0} from "react-native-auth0";
 
 interface AddDogModalProps {
     visible: boolean;
-    onClose: () => void;
+    onClose: (dogAdded: boolean) => void;
 }
 
 const AddDogModal: React.FC<AddDogModalProps> = ({ visible, onClose }) => {
@@ -64,7 +64,7 @@ const AddDogModal: React.FC<AddDogModalProps> = ({ visible, onClose }) => {
                     'Content-Type': 'multipart/form-data',
                 },
             });
-            onClose();
+            onClose(true);
 
             setName('');
             setSex('');
@@ -208,7 +208,7 @@ const AddDogModal: React.FC<AddDogModalProps> = ({ visible, onClose }) => {
                         <Image source={{ uri: photo }} style={styles.imagePreview} />
                     )}
                     <View style={styles.buttonContainer}>
-                        <Button title="Cancel" onPress={onClose} />
+                        <Button title="Cancel" onPress={() => onClose(false)} />
                         <Button title="Submit" onPress={handleSave} />
                     </View>
                 </View>
