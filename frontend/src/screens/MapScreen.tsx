@@ -1,5 +1,5 @@
-import React, {useEffect, useState, useRef, useMemo} from 'react';
-import {StyleSheet, View, Text, TouchableOpacity, Image} from 'react-native';
+import React, { useEffect, useState, useRef, useMemo } from 'react';
+import { StyleSheet, View, Text, TouchableOpacity, Image } from 'react-native';
 import MapView, { Marker, Callout, Region } from 'react-native-maps';
 import apiClient from "../../axiosConfig";
 import { useAuth0 } from "react-native-auth0";
@@ -11,8 +11,9 @@ import StarRating from "../components/StarRating";
 import MaterialIcon from "react-native-vector-icons/MaterialIcons";
 import { Place } from "../constants/types";
 import RootStackParamList from "../../RootStackParamList";
-import {useLocation} from "../contexts/LocationContext";
-import {icons} from "../constants/types"
+import { useLocation } from "../contexts/LocationContext";
+import { icons } from "../constants/types";
+
 type MapScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Map'>;
 
 interface MapScreenProps {
@@ -28,17 +29,14 @@ const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
     useEffect(() => {
         createUser();
         if (userLocation) {
-            setMapRegion({
+            const region = {
                 ...userLocation,
                 latitudeDelta: 0.0922,
                 longitudeDelta: 0.0421,
-            });
+            };
+            setMapRegion(region);
             if (mapRef.current) {
-                mapRef.current.animateToRegion({
-                    ...userLocation,
-                    latitudeDelta: 0.0922,
-                    longitudeDelta: 0.0421,
-                }, 1000);
+                mapRef.current.animateToRegion(region, 1000);
             }
         }
     }, [userLocation]);
@@ -50,10 +48,9 @@ const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
                     email: user.email,
                     nickname: user.nickname
                 };
-                const response = await apiClient.post("/user/createUser", userData);
+                await apiClient.post("/user/createUser", userData);
             }
-        }
-        catch (e) {
+        } catch (e) {
             console.log(e);
         }
     };
@@ -70,8 +67,38 @@ const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
 
     const handleNavigateToPlace = (place: Place) => {
         console.log('Navigating to:', place);
-        navigation.navigate('PlaceScreen', { place, userLocation: userLocation });
+        navigation.navigate('PlaceScreen', { place, userLocation });
     };
+
+    const renderMarkers = useMemo(() => {
+        return places.map(place => (
+            <Marker
+                key={place.id}
+                coordinate={{ latitude: place.latitude, longitude: place.longitude }}
+                title={place.name}
+                description={place.description}
+            >
+                <Image
+                    source={{ uri: getIcon(place.category) }}
+                    style={{ width: 40, height: 40 }}
+                />
+                <Callout tooltip onPress={() => handleNavigateToPlace(place)}>
+                    <View style={styles.calloutContainer}>
+                        <View style={styles.nameContainer}>
+                            <Text style={styles.calloutTitle}>{place.name}</Text>
+                        </View>
+                        <Text>{place.description}</Text>
+                        <View style={styles.ratingContainer}>
+                            <StarRating rating={place.rating} fontSize={24} />
+                            <Text>
+                                ({place.ratingCount})
+                            </Text>
+                        </View>
+                    </View>
+                </Callout>
+            </Marker>
+        ));
+    }, [places, iconMap]);
 
     return (
         <View style={styles.container}>
@@ -93,36 +120,7 @@ const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
                         pinColor="blue"
                     />
                 )}
-                {places.map(place => (
-                    <Marker
-                        key={place.id}
-                        coordinate={{ latitude: place.latitude, longitude: place.longitude }}
-                        title={place.name}
-                        description={place.description}
-                    >
-                        <Image
-                            source={{ uri: getIcon(place.category) }}
-                            style={{ width: 40, height: 40 }}
-                        />
-                        <Callout tooltip>
-                            <View style={styles.calloutContainer}>
-                                <View style={styles.nameContainer}>
-                                    <Text style={styles.calloutTitle}>{place.name}</Text>
-                                    <TouchableOpacity style={styles.buttonPageScreen} onPress={() => handleNavigateToPlace(place)}>
-                                        <MaterialIcon name="open-in-full" size={16} color="black" />
-                                    </TouchableOpacity>
-                                </View>
-                                <Text>{place.description}</Text>
-                                <View style={styles.ratingContainer}>
-                                    <StarRating rating={place.rating} fontSize={24} />
-                                    <Text>
-                                        ({place.ratingCount})
-                                    </Text>
-                                </View>
-                            </View>
-                        </Callout>
-                    </Marker>
-                ))}
+                {renderMarkers}
             </MapView>
             <TouchableOpacity style={styles.locationButton} onPress={getUserLocation}>
                 <Icon name="location-arrow" size={24} color="white" />
@@ -147,7 +145,7 @@ const styles = StyleSheet.create({
         maxWidth: 200,
         padding: 10,
         backgroundColor: 'white',
-        borderRadius: 10,
+        borderRadius: 5,
     },
     calloutTitle: {
         fontWeight: 'bold',
@@ -183,7 +181,9 @@ const styles = StyleSheet.create({
     buttonPageScreen: {
         width: 20,
         height: 20,
-    }
+        zIndex: 10,
+    },
+
 });
 
 export default MapScreen;

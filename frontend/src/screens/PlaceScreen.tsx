@@ -26,6 +26,7 @@ const PlaceScreen: React.FC<PlaceScreenProps> = ({ route }) => {
     const [rating, setRating] = useState('');
     const [images, setImages] = useState<string[]>([]);
     const [locationDetails, setLocationDetails] = useState<LocationDetails | null>(null);
+    const [refreshOpinions, setRefreshOpinions] = useState(false);
 
     const googleMapsApiKey = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
 
@@ -61,7 +62,7 @@ const PlaceScreen: React.FC<PlaceScreenProps> = ({ route }) => {
 
             calculateDistance();
         }
-    }, [userLocation, place.id]);
+    }, [userLocation, place.id, refreshOpinions]);
 
     const selectImage = async () => {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -120,6 +121,7 @@ const PlaceScreen: React.FC<PlaceScreenProps> = ({ route }) => {
                 setOpinion('');
                 setRating('');
                 setImages([]);
+                setRefreshOpinions(true);
             } else {
                 Alert.alert('Failed to submit review');
             }
