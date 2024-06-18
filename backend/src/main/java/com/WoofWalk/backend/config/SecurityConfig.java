@@ -15,8 +15,8 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfig {
 
-
-    private String issuerUri = "https://dev-h5zqtrdr8n7sgz84.us.auth0.com/.well-known/jwks.json";
+    @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}"+".well-known/jwks.json")
+    private String issuerUri;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
