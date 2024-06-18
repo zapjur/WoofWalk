@@ -2,7 +2,7 @@ import {
     Button,
     FlatList,
     Image,
-    Modal,
+    Modal, Platform,
     ScrollView,
     StyleSheet,
     Text,
@@ -30,13 +30,18 @@ interface ChatScreenProps {
     navigation: MapScreenNavigationProp & UserScreenNavigationProp & FriendsScreenNavigationProp & ChatScreenNavigationProp;
 }
 
+const baseURL = Platform.select({
+    ios: 'ws://localhost:8080',
+    android: 'ws://10.0.2.2:8080',
+});
+
 const ChatScreen: React.FC<ChatScreenProps> = ({ navigation }) =>{
     const [client, setClient] = useState<Client | null>(null);
     const [message, setMessage] = useState<string>('');
     const [messages, setMessages] = useState<Message[]>([]);
+    const [recipient, setRecipient] = useState<string>('');
 
     useEffect(() => {
-
         const fetchMessages = async () => {
             try {
                 const response = await apiClient.get('/messages');
@@ -54,9 +59,9 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ navigation }) =>{
                 console.error('No token found');
                 return;
             }
-
+            console.log(baseURL);
             const stompClient = new Client({
-                brokerURL: `ws://localhost:8080/ws?token=${token}`,
+                brokerURL: `${baseURL}/ws?token=${token}`,
                 connectHeaders: {
                     Authorization: `Bearer ${token}`
                 },
@@ -65,12 +70,13 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ navigation }) =>{
                 },
                 reconnectDelay: 5000,
                 heartbeatIncoming: 4000,
-                heartbeatOutgoing: 4000
+                heartbeatOutgoing: 4000,
             });
 
-            stompClient.onConnect = () => {
-                console.log('Connected');
+            stompClient.onConnect = (frame) => {
+                console.log('Connected:', frame);
                 stompClient.subscribe('/user/queue/messages', (message) => {
+                    console.log('Received message:', message.body);
                     setMessages((prevMessages) => [
                         ...prevMessages,
                         JSON.parse(message.body)
@@ -81,6 +87,14 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ navigation }) =>{
             stompClient.onStompError = (frame) => {
                 console.error(`Broker reported error: ${frame.headers['message']}`);
                 console.error(`Additional details: ${frame.body}`);
+            };
+
+            stompClient.onWebSocketClose = (event) => {
+                console.error('WebSocket closed', event);
+            };
+
+            stompClient.onWebSocketError = (error) => {
+                console.error('WebSocket error', error);
             };
 
             stompClient.activate();
@@ -94,9 +108,11 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ navigation }) =>{
         if (client && client.connected) {
             client.publish({
                 destination: '/app/private',
-                body: JSON.stringify({ content: message, recipient: 'maciekjur123@gmail.com' })
+                body: JSON.stringify({ content: message, recipient: recipient })
             });
             setMessage('');
+        } else {
+            console.error('Client is not connected');
         }
     };
 
@@ -107,6 +123,11 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ navigation }) =>{
                 data={messages}
                 renderItem={({ item }) => <Text>{item.sender}: {item.content}</Text>}
                 keyExtractor={(item, index) => index.toString()}
+            />
+            <TextInput
+                value={recipient}
+                onChangeText={setRecipient}
+                placeholder="Recipient"
             />
             <TextInput
                 value={message}
@@ -124,6 +145,5 @@ interface Message {
     recipient: string;
     timestamp: number;
 }
-
 
 export default ChatScreen;

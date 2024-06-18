@@ -19,12 +19,13 @@ export default ({ config }) => {
                 googleMaps: {
                     apiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY
                 }
-            }
+            },
+            permissions: ["INTERNET", "ACCESS_NETWORK_STATE"]
         },
         extra: {
             googleMapsApiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY,
             eas: {
-                projectId: "134f1c30-c6b1-47ff-a0db-e4cb41ef9255"
+                projectId: "bbfed984-781e-4a20-8565-4ff4b6ee249e"
             }
         },
 
