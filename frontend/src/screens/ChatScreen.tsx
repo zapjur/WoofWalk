@@ -15,8 +15,8 @@ import {StackNavigationProp} from "@react-navigation/stack";
 import RootStackParamList from "../../RootStackParamList";
 import * as SecureStore from "expo-secure-store";
 import { Client } from '@stomp/stompjs';
-import SockJS from 'sockjs-client';
 import { TextDecoder, TextEncoder } from 'text-encoding';
+import apiClient from "../../axiosConfig";
 global.TextDecoder = TextDecoder;
 global.TextEncoder = TextEncoder;
 
@@ -36,14 +36,24 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ navigation }) =>{
     const [messages, setMessages] = useState<Message[]>([]);
 
     useEffect(() => {
+
+        const fetchMessages = async () => {
+            try {
+                const response = await apiClient.get('/messages');
+                setMessages(response.data);
+            } catch (error) {
+                console.error('Error fetching messages', error);
+            }
+        };
+
+        fetchMessages();
+
         const connectWebSocket = async () => {
             const token = await SecureStore.getItemAsync('authToken');
             if (!token) {
                 console.error('No token found');
                 return;
             }
-
-            console.log('Token:', token);
 
             const stompClient = new Client({
                 brokerURL: `ws://localhost:8080/ws?token=${token}`,
@@ -60,7 +70,7 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ navigation }) =>{
 
             stompClient.onConnect = () => {
                 console.log('Connected');
-                stompClient.subscribe('/topic/messages', (message) => {
+                stompClient.subscribe('/user/queue/messages', (message) => {
                     setMessages((prevMessages) => [
                         ...prevMessages,
                         JSON.parse(message.body)
@@ -83,8 +93,8 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ navigation }) =>{
     const sendMessage = () => {
         if (client && client.connected) {
             client.publish({
-                destination: '/app/send',
-                body: JSON.stringify({ content: message, recipient: 'group' })
+                destination: '/app/private',
+                body: JSON.stringify({ content: message, recipient: 'maciekjur123@gmail.com' })
             });
             setMessage('');
         }
@@ -114,5 +124,6 @@ interface Message {
     recipient: string;
     timestamp: number;
 }
+
 
 export default ChatScreen;

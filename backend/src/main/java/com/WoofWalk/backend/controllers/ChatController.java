@@ -9,12 +9,15 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.SessionAttribute;
 
 import java.security.Principal;
 import java.util.Date;
+import java.util.List;
 
-@Controller
+@RestController
 @RequiredArgsConstructor
 public class ChatController {
 
@@ -57,5 +60,14 @@ public class ChatController {
         message.setTimestamp(new Date().getTime());
         messageService.saveMessage(message);
         messagingTemplate.convertAndSendToUser(message.getRecipient(), "/queue/messages", message);
+    }
+
+    @GetMapping("/messages")
+    public List<Message> getMessages(Principal principal) {
+        User user = userService.findBySub(principal.getName());
+        if (user == null) {
+            throw new IllegalArgumentException("User not found for sub: " + principal.getName());
+        }
+        return messageService.getMessagesForRecipient(user.getEmail());
     }
 }
