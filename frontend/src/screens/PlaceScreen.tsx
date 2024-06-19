@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, SafeAreaView, Modal, TextInput, Button, Alert, Dimensions } from "react-native";
-import { RouteProp } from "@react-navigation/native";
+import {RouteProp, useNavigation} from "@react-navigation/native";
 import { LocationDetails } from "../constants/types";
 import StarRating from "../components/StarRating";
 import apiClient from "../../axiosConfig";
@@ -9,6 +9,7 @@ import MaterialIcon from "react-native-vector-icons/MaterialIcons";
 import * as ImagePicker from 'expo-image-picker';
 import { useAuth0 } from "react-native-auth0";
 import RootStackParamList from "../../RootStackParamList";
+import {useLocation} from "../contexts/LocationContext";
 
 const { width } = Dimensions.get('window');
 
@@ -27,11 +28,10 @@ const PlaceScreen: React.FC<PlaceScreenProps> = ({ route }) => {
     const [images, setImages] = useState<string[]>([]);
     const [locationDetails, setLocationDetails] = useState<LocationDetails | null>(null);
     const [refreshOpinions, setRefreshOpinions] = useState(false);
-
+    const { setRefreshKey } = useLocation();
     const googleMapsApiKey = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
-
     const userEmail = useAuth0().user?.email;
-
+    const navigation = useNavigation();
     useEffect(() => {
         apiClient.get(`/locations/details/${place.id}`)
             .then(response => {
@@ -42,10 +42,24 @@ const PlaceScreen: React.FC<PlaceScreenProps> = ({ route }) => {
                 console.error('Error fetching location details:', error);
             });
 
+        apiClient.get(`/locations/ratingCount/${place.id}`).
+            then(response => {
+                place.ratingCount = response.data;
+        }).catch(error => {
+            console.error('Error fetching rating count:', error);
+        });
+
+        apiClient.get(`/locations/rating/${place.id}`).
+        then(response => {
+            place.rating = response.data;
+        }).catch(error => {
+            console.error('Error fetching rating:', error);
+        });
+
+
         if (userLocation) {
             const calculateDistance = async () => {
                 try {
-
                     const response = await axios.get('https://maps.googleapis.com/maps/api/distancematrix/json', {
                         params: {
                             origins: `${userLocation.latitude},${userLocation.longitude}`,
@@ -63,6 +77,10 @@ const PlaceScreen: React.FC<PlaceScreenProps> = ({ route }) => {
             calculateDistance();
         }
     }, [userLocation, place.id, refreshOpinions]);
+
+    useEffect(() => {
+        navigation.setOptions({title: ''});
+    }, []);
 
     const selectImage = async () => {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -122,6 +140,8 @@ const PlaceScreen: React.FC<PlaceScreenProps> = ({ route }) => {
                 setRating('');
                 setImages([]);
                 setRefreshOpinions(true);
+                setRefreshKey(oldKey => oldKey + 1);
+
             } else {
                 Alert.alert('Failed to submit review');
             }

@@ -3,25 +3,19 @@ package com.WoofWalk.backend.controllers;
 import com.WoofWalk.backend.dto.LocationDetailsDto;
 import com.WoofWalk.backend.dto.LocationDto;
 import com.WoofWalk.backend.entities.Location;
-import com.WoofWalk.backend.repositories.LocationRepository;
+
 import com.WoofWalk.backend.services.LocationService;
-import com.WoofWalk.backend.services.S3Service;
-import com.amazonaws.services.s3.model.S3Object;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.io.InputStream;
+
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+
 
 @RestController
 @RequestMapping("/locations")
@@ -63,6 +57,17 @@ public class LocationController {
     @GetMapping("/image/{locationId}")
     public ResponseEntity<String> getOnePhotoForLocation(@PathVariable Long locationId) {
         return ResponseEntity.ok(locationService.getOnePhotoForLocation(locationId));
+    }
+
+    @GetMapping("/rating/{locationId}")
+    public ResponseEntity<Double> getRating(@PathVariable Long locationId){
+        double rating = locationService.getRating(locationId);
+        return ResponseEntity.ok(rating);
+    }
+    @GetMapping("/ratingCount/{locationId}")
+    public ResponseEntity<Integer> getRatingCount(@PathVariable Long locationId){
+        int ratingCount = locationService.getRatingCount(locationId);
+        return ResponseEntity.ok(ratingCount);
     }
 
 }

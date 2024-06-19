@@ -26,14 +26,14 @@ const App: React.FC = () => {
             <LocationProvider>
                 <NavigationContainer>
                     <Stack.Navigator initialRouteName="Login">
-                        <Stack.Screen name="Login" component={LoginScreen} />
-                        <Stack.Screen name="Map" component={MapScreen} />
-                        <Stack.Screen name="User" component={UserScreen}/>
-                        <Stack.Screen name="Friends" component={FriendsScreen}/>
+                        <Stack.Screen name="Login" component={LoginScreen}  options={{ headerShown: false }}/>
+                        <Stack.Screen name="Map" component={MapScreen} options={{ headerShown: false }}/>
+                        <Stack.Screen name="User" component={UserScreen} options={{ headerShown: false }}/>
+                        <Stack.Screen name="Friends" component={FriendsScreen} options={{ headerShown: false }}/>
                         <Stack.Screen name="AddPlace" component={AddPlaceScreen}/>
                         <Stack.Screen name="PlaceScreen" component={PlaceScreen}/>
-                        <Stack.Screen name="NearbyScreen" component={NearbyScreen}/>
-                        <Stack.Screen name="Chat" component={ChatScreen}/>
+                        <Stack.Screen name="NearbyScreen" component={NearbyScreen} options={{ headerShown: false }}/>
+                        <Stack.Screen name="Chat" component={ChatScreen} options={{ headerShown: false }}/>
                         <Stack.Screen name="DM" component={DirectMessageScreen}/>
                     </Stack.Navigator>
                 </NavigationContainer>

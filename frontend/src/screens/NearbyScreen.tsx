@@ -40,18 +40,6 @@ const NearbyScreen: React.FC<NearbyScreenProps> = ({ navigation }) => {
         findNearestPlaces();
     }, [sortingBy]);
 
-    useEffect(() => {
-        navigation.setOptions({
-            headerRight: () => (
-                <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.sort}>
-                    <Image
-                        source={{ uri: 'https://cdn-icons-png.flaticon.com/128/9630/9630141.png' }}
-                        style={styles.sortIcon}
-                    />
-                </TouchableOpacity>
-            ),
-        });
-    }, [navigation]);
 
     const fetchImageUri = async (placeId: number): Promise<string> => {
         try {
@@ -113,9 +101,6 @@ const NearbyScreen: React.FC<NearbyScreenProps> = ({ navigation }) => {
 
     return (
         <View style={styles.outerContainer}>
-            {sortingBy != '' && (
-                <Text style={styles.header}>Sorting by nearest: {sortingBy} </Text>
-            )}
             {nearestPlaces.length > 0 ? (
                 <>
                     <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollView}>
@@ -159,6 +144,19 @@ const NearbyScreen: React.FC<NearbyScreenProps> = ({ navigation }) => {
                 onModalClose={() => setModalVisible(false)}
                 onChange={(option) => setSortingBy(option.value)}
             />
+            <View style={styles.sortContainer}>
+                {sortingBy != '' && (
+                    <View style={styles.sortingByContainer}>
+                        <Text>Sorted by: {sortingBy}</Text>
+                    </View>
+                )}
+                <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.sort}>
+                    <Image
+                        source={{ uri: 'https://cdn-icons-png.flaticon.com/128/9630/9630141.png' }}
+                        style={styles.sortIcon}
+                    />
+                </TouchableOpacity>
+            </View>
             <BottomBar navigation={navigation} />
         </View>
     )
@@ -167,6 +165,7 @@ const NearbyScreen: React.FC<NearbyScreenProps> = ({ navigation }) => {
 const styles = StyleSheet.create({
     outerContainer: {
         flex: 1,
+        marginTop: 50,
     },
     container: {
         flex: 1,
@@ -216,6 +215,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
     },
     scrollView: {
+        marginTop: 35,
         paddingBottom: 80,
     },
     sort: {
@@ -224,6 +224,23 @@ const styles = StyleSheet.create({
     sortIcon: {
         width: 42,
         height: 42,
+    },
+    sortContainer: {
+        position:"absolute",
+        right: 10,
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center"
+    },
+    sortingByContainer: {
+        backgroundColor: "#c2cafd",
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center",
+        height: 35,
+        marginRight: 5,
+        padding: 5,
+        borderRadius: 10,
     },
 });
 export default NearbyScreen;
