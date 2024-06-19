@@ -1,12 +1,13 @@
-import React, { useState, useRef } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import MapView, { Region } from 'react-native-maps';
+import React, {useRef, useState} from "react";
+import {Alert, StyleSheet, Text, TextInput, TouchableOpacity, View} from 'react-native';
+import MapView, {Region} from 'react-native-maps';
 import apiClient from "../../axiosConfig";
 import {NavigationProp, useNavigation} from "@react-navigation/native";
 import RootStackParamList from "../../RootStackParamList";
 import ModalSelector from 'react-native-modal-selector';
-import { categories } from "../constants/types";
+import {categories} from "../constants/types";
 import {useLocation} from "../contexts/LocationContext";
+
 
 const AddPlaceScreen: React.FC = () => {
     const [name, setName] = useState<string>('');
@@ -23,32 +24,104 @@ const AddPlaceScreen: React.FC = () => {
     const mapRef = useRef<MapView>(null);
     const { setRefreshKey } = useLocation();
 
+    const [day, setDay] = useState('');
+    const [month, setMonth] = useState('');
+    const [year, setYear] = useState('');
+
+
+    const isDateValid = (Day: string, Month: string, Year: string) => {
+        if (!/^\d*$/.test(Day)) {
+            return false;
+        }
+        if (!/^\d*$/.test(Month)) {
+            return false;
+        }
+        if (!/^\d*$/.test(Year)) {
+            return false;
+        }
+        const day = parseInt(Day, 10);
+        const month = parseInt(Month, 10);
+        const year = parseInt(Month, 10);
+        if (month < 1 || month > 12) {
+            return false;
+        }
+
+        const daysInMonth = new Date(year, month, 0).getDate();
+        if (day < 1 || day > daysInMonth) {
+            return false;
+        }
+
+        if (year <= 0) {
+            return false;
+        }
+
+        return true;
+    }
+    const dateFormatter = (Day: string, Month: string, Year: string) => {
+        const day = parseInt(Day, 10);
+        const month = parseInt(Month, 10);
+        const year = parseInt(Year, 10);
+
+
+        return `${day.toString().padStart(2, '0')}-${(month).toString().padStart(2, '0')}-${year.toString()}`;
+    }
+
+
+
     const handleAddPlace = async () => {
         if (!name || !description) {
             Alert.alert('Error', 'Please fill in all fields');
             return;
         }
+        if(category.toUpperCase() == "EVENT"){
+            const isDataValid = isDateValid(day, month, year);
+            if(isDataValid){
+                console.log("siemano kolano")
+                try {
+                    const date = dateFormatter(day, month, year);
+                    console.log("Data: " + date);
+                    const center = region;
+                     await apiClient.post('/locations', {
+                        name,
+                        description,
+                        latitude: center.latitude,
+                        longitude: center.longitude,
+                        category: category.toUpperCase(),
+                        date: date,
+                    });
+                    setRefreshKey(oldKey => oldKey + 1);
+                    navigation.navigate('Map');
 
-        const center = region;
-
-        console.log(name, description, center.latitude, center.longitude);
-
-        try {
-            const response = await apiClient.post('/locations', {
-                name,
-                description,
-                latitude: center.latitude,
-                longitude: center.longitude,
-                category: category.toUpperCase(),
-            });
-            setRefreshKey(oldKey => oldKey + 1);
-            navigation.navigate('Map');
-
-        } catch (error) {
-            console.error('Error:', error);
-            Alert.alert('Error');
+                } catch (error) {
+                    console.error('Error:', error);
+                    Alert.alert('Error');
+                }
+            }
+            else{
+                Alert.alert("Invalid date", "Please provide Valid Date");
+            }
         }
+        else{
+            try {
+                const center = region;
+                await apiClient.post('/locations', {
+                    name,
+                    description,
+                    latitude: center.latitude,
+                    longitude: center.longitude,
+                    category: category.toUpperCase(),
+                });
+                setRefreshKey(oldKey => oldKey + 1);
+                navigation.navigate('Map');
+
+            } catch (error) {
+                console.error('Error:', error);
+                Alert.alert('Error');
+            }
+        }
+
     };
+
 
     return (
         <View style={styles.container}>
@@ -77,6 +150,38 @@ const AddPlaceScreen: React.FC = () => {
                     placeholder="Enter place description"
                     multiline
                 />
+
+                {category == "EVENT" && (
+                    <View>
+                        <Text style={styles.label}>Date</Text>
+                        <View style={styles.dateContainer}>
+                            <TextInput
+                                style={styles.inputDate}
+                                value={day}
+                                keyboardType={'numeric'}
+                                onChangeText={setDay}
+                                placeholder="day"
+                                multiline
+                            />
+                            <TextInput
+                                style={styles.inputDate}
+                                value={month}
+                                keyboardType={'numeric'}
+                                onChangeText={setMonth}
+                                placeholder="month"
+                                multiline
+                            />
+                            <TextInput
+                                style={styles.inputDate}
+                                value={year}
+                                keyboardType={'numeric'}
+                                onChangeText={setYear}
+                                placeholder="year"
+                                multiline
+                            />
+                        </View>
+                    </View>
+                )}
                 <Text style={styles.label}>Category</Text>
                 <ModalSelector
                     data={categories}
@@ -134,6 +239,20 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: -2 },
         shadowOpacity: 0.1,
         shadowRadius: 5,
+    },
+    dateContainer: {
+      display: "flex",
+      flexDirection: "row",
+      alignItems: "center"
+    },
+    inputDate: {
+        width: 80,
+        borderWidth: 1,
+        borderColor: '#ddd',
+        padding: 5,
+        borderRadius: 5,
+        marginRight: 10,
+        marginBottom: 10,
     },
     label: {
         fontSize: 16,

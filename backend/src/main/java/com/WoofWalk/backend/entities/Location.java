@@ -37,6 +37,9 @@ public class Location {
     @Column(name = "longitude", nullable = false)
     private double longitude;
 
+    @Column(name = "date")
+    private String date;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "category", nullable = false)
     private LocationCategory category;

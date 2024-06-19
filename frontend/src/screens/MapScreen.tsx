@@ -80,11 +80,18 @@ const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
 
     const handleNavigateToPlace = (place: Place) => {
         console.log('Navigating to:', place);
-        navigation.navigate('PlaceScreen', {
-            place,
-            userLocation,
+        if(place.category.toUpperCase() !== 'EVENT'){
+            navigation.navigate('PlaceScreen', {
+                place,
+                userLocation,
             });
-
+        }
+        else{
+            navigation.navigate('EventScreen', {
+                place,
+                userLocation,
+            })
+        }
     };
 
     const renderMarkers = useMemo(() => {

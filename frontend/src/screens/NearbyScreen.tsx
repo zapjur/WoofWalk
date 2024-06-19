@@ -111,8 +111,10 @@ const NearbyScreen: React.FC<NearbyScreenProps> = ({ navigation }) => {
                                         <Text style={styles.placeName}>{place.name}</Text>
                                         {place.imageUri ? (
                                             <Image source={{ uri: place.imageUri }} style={styles.placeImage} />
+                                        ) : place.category.toUpperCase() !== 'EVENT' ? (
+                                            <Image source={{ uri: 'https://cdn-icons-png.flaticon.com/128/3875/3875433.png'}} style={styles.placeImageNone}/>
                                         ) : (
-                                            <Image source={{ uri: 'https://cdn-icons-png.flaticon.com/128/3875/3875433.png'}} style={styles.placeImage}/>
+                                            <Image source={{ uri: 'https://cdn-icons-png.flaticon.com/128/1968/1968779.png'}} style={styles.placeImageNone}/>
                                         )}
                                         <Text style={styles.description}>{place.description}</Text>
                                         <View style={styles.distanceContainer}>
@@ -206,6 +208,14 @@ const styles = StyleSheet.create({
     },
     placeImage: {
         width: '100%',
+        height: 200,
+        borderRadius: 8,
+        marginBottom: 8,
+    },
+    placeImageNone: {
+        width: 200,
+        display: "flex",
+        alignSelf: "center",
         height: 200,
         borderRadius: 8,
         marginBottom: 8,

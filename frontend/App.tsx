@@ -16,6 +16,7 @@ import DirectMessageScreen from "./src/screens/DirectMessageScreen";
 import PlaceScreen from "./src/screens/PlaceScreen";
 import NearbyScreen from "./src/screens/NearbyScreen";
 import {LocationProvider} from "./src/contexts/LocationContext";
+import EventScreen from "./src/screens/EventScreen";
 
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -32,6 +33,7 @@ const App: React.FC = () => {
                         <Stack.Screen name="Friends" component={FriendsScreen} options={{ headerShown: false }}/>
                         <Stack.Screen name="AddPlace" component={AddPlaceScreen}/>
                         <Stack.Screen name="PlaceScreen" component={PlaceScreen}/>
+                        <Stack.Screen name="EventScreen" component={EventScreen}/>
                         <Stack.Screen name="NearbyScreen" component={NearbyScreen} options={{ headerShown: false }}/>
                         <Stack.Screen name="Chat" component={ChatScreen} options={{ headerShown: false }}/>
                         <Stack.Screen name="DM" component={DirectMessageScreen}/>
