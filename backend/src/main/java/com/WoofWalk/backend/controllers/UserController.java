@@ -78,6 +78,7 @@ public class UserController {
             }
         }
     }
+
     @PostMapping("/profilePicture/delete")
     public ResponseEntity<String> deleteProfilePicture(@RequestBody UserDto userDto){
         return s3Service.deleteImage(userDto.getEmail());

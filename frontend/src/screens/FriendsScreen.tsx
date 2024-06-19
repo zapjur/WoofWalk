@@ -1,7 +1,7 @@
 import {StackNavigationProp} from "@react-navigation/stack";
 import RootStackParamList from "../../RootStackParamList";
 import React, {useEffect, useState} from "react";
-import {Text, View, StyleSheet, TouchableOpacity, ScrollView, Alert, Button, Modal} from "react-native";
+import {Text, View, StyleSheet, TouchableOpacity, ScrollView, Alert, Button, Modal, Image} from "react-native";
 import AddFriend from "../components/AddFriend";
 import BottomBar from "../components/BottomBar";
 import MaterialCommunityIcon from "react-native-vector-icons/MaterialCommunityIcons";
@@ -31,7 +31,7 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
     const [refresh, setRefresh] = useState(false);
     const {user} = useAuth0();
     const [selectedTab, setSelectedTab] = useState('Friends');
-
+    const [image, setImage] = useState("none");
 
     useEffect(() => {
         if(user){
@@ -74,6 +74,22 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
                 setFriendsEmail(userFriends);
             })
             setRefresh(false);
+            apiClient.get("/profilePicture/friends/download",{
+                params: {
+                    email: user.email,
+                },
+                responseType: 'blob'
+            }).then(response => {
+                const blob = response.data;
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    if (reader.result) {
+                        setImage(reader.result as string);
+
+                    }
+                };
+                reader.readAsDataURL(blob);
+            })
         }
     }, [refresh]);
     const acceptFriendRequest = async (id: number) => {
@@ -128,7 +144,11 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
                         ) : (
                             friendsEmails.slice().reverse().map((friend, index) => (
                                 <View key={index}>
-                                    <Text>fotka </Text>
+
+                                    <Image
+                                        style={{width: 50, height: 50}}
+                                        source={{ uri: image != "none" ? image : 'https://cdn-icons-png.flaticon.com/128/848/848043.png' }}
+                                    />
                                     <View style={styles.friendsText}>
                                         <Text >{index+1 + ". " + friend.friendEmail}</Text>
 
@@ -154,6 +174,10 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
                                 receivedFriendRequests.slice().reverse().map((invitation, index) => (
                                     <>
                                         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }} key={index}>
+                                            <Image
+                                                style={{width: 50, height: 50}}
+                                                source={{ uri: image != "none" ? image : 'https://cdn-icons-png.flaticon.com/128/848/848043.png' }}
+                                            />
                                             <Text style={styles.textInvitation}>{invitation.senderEmail}</Text>
                                             <View style={styles.buttonPanel}>
                                                 <TouchableOpacity style={styles.addButton} onPress={() => acceptFriendRequest(invitation.id)}>
@@ -192,6 +216,11 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
                                     sentFriendRequests.slice().reverse().map((invitation, index) => (
                                         <View key={index}>
                                             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                                                <Image
+                                                    style={{width: 50, height: 50}}
+                                                    source={{ uri: image != "none" ? image : 'https://cdn-icons-png.flaticon.com/128/848/848043.png' }}
+                                                />
+
                                                 <Text style={styles.textInvitation}>{invitation.receiverEmail}</Text>
                                             </View>
                                             <View style={{ borderBottomColor: 'gray', borderBottomWidth: 1, width: '80%', alignSelf: 'center', marginVertical: 10 }} />
