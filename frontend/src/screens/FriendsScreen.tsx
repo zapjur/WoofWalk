@@ -1,7 +1,7 @@
 import {StackNavigationProp} from "@react-navigation/stack";
 import RootStackParamList from "../../RootStackParamList";
 import React, {useEffect, useState} from "react";
-import {Text, View, StyleSheet, TouchableOpacity, ScrollView, Alert} from "react-native";
+import {Text, View, StyleSheet, TouchableOpacity, ScrollView, Alert, Button, Modal, Image} from "react-native";
 import AddFriend from "../components/AddFriend";
 import BottomBar from "../components/BottomBar";
 import MaterialCommunityIcon from "react-native-vector-icons/MaterialCommunityIcons";
@@ -10,9 +10,8 @@ import apiClient from "../../axiosConfig";
 type MapScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Map'>;
 type UserScreenNavigationProp = StackNavigationProp<RootStackParamList, 'User'>
 type FriendsScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Friends'>
-type ChatScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Chat'>
 interface FriendsScreenProp {
-    navigation: MapScreenNavigationProp & UserScreenNavigationProp & FriendsScreenNavigationProp & ChatScreenNavigationProp;
+    navigation: MapScreenNavigationProp & UserScreenNavigationProp & FriendsScreenNavigationProp;
 }
 interface receivedInvitation{
     id: number,
@@ -31,6 +30,9 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
     const [friendsEmails, setFriendsEmail] = useState<friend[]>([]);
     const [refresh, setRefresh] = useState(false);
     const {user} = useAuth0();
+    const [selectedTab, setSelectedTab] = useState('Friends');
+    const [image, setImage] = useState("none");
+
     useEffect(() => {
         if(user){
             const receiverEmail = user.email
@@ -72,11 +74,27 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
                 setFriendsEmail(userFriends);
             })
             setRefresh(false);
+            apiClient.get("user/profilePicture/friends/download",{
+                params: {
+                    email: user.email,
+                },
+                responseType: 'blob'
+            }).then(response => {
+                const blob = response.data;
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    if (reader.result) {
+                        setImage(reader.result as string);
+
+                    }
+                };
+                reader.readAsDataURL(blob);
+            })
         }
     }, [refresh]);
     const acceptFriendRequest = async (id: number) => {
-         const response = await apiClient.post(`/friends/${id}/accept`);
-         Alert.alert("Success", response.data);
+        const response = await apiClient.post(`/friends/${id}/accept`);
+        Alert.alert("Success", response.data);
     }
     const declineFriendRequest = async (id: number)=> {
         const response = await apiClient.post(`/friends/${id}/decline`);
@@ -87,173 +105,265 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
     }
     return(
         <View style={styles.container}>
-            <View style={styles.subContainer}>
-                <View style={styles.mainHeader}>
-                    <Text style={styles.mainHeaderText}>
-                        YOUR FRIENDS
-                    </Text>
+            <View style={styles.bar}>
+                <View style={styles.topBar}>
+                    <Text style={styles.topName}>{selectedTab}</Text>
                 </View>
-                <ScrollView>
-                    {friendsEmails.length === 0 ? (
-                        <View>
-                            <Text style={styles.text}>You don't have any friends yet :(</Text>
+            </View>
+            <View style={{ borderBottomColor: 'fff', borderBottomWidth: 1, marginVertical: 10 }} />
+            <View style={styles.buttonContainer}>
+                <TouchableOpacity style={styles.button} onPress={() => setSelectedTab('Friends')}>
+                    <View style={styles.innerContainer}>
+                        <Text style={styles.textNextTo}>Friends</Text>
+                        <MaterialCommunityIcon name={"account-group"} size={33}></MaterialCommunityIcon>
+                    </View>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={styles.button} onPress={() => setSelectedTab('Requests')}>
+                    <View style={styles.innerContainer}>
+                        <Text style={styles.textNextTo} >Requests</Text>
+                        <MaterialCommunityIcon name={"human-greeting-variant"} size={33}></MaterialCommunityIcon>
+                    </View>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={styles.button} onPress={() => setSelectedTab('Sent')}>
+                    <View style={styles.innerContainer}>
+                        <Text style={styles.textNextTo}>Sent</Text>
+                        <MaterialCommunityIcon name={"email-fast"} size={33}></MaterialCommunityIcon>
+                    </View>
+                </TouchableOpacity>
+            </View>
+            <View style={{ borderBottomColor: 'gray', borderBottomWidth: 1, width: '80%', alignSelf: 'center', marginVertical: 10 }} />
+            {selectedTab === 'Friends' &&
+                <View style={styles.shadowPanel}>
+                    <ScrollView>
+                        {friendsEmails.length === 0 ? (
+                            <View >
+                                <Text style={styles.sadText}>You don't have any friends yet :(</Text>
+                            </View>
+                        ) : (
+                            friendsEmails.slice().reverse().map((friend, index) => (
+                                <View key={index}>
+
+                                    <Image
+                                        style={{width: 50, height: 50}}
+                                        source={{ uri: image != "none" ? image : 'https://cdn-icons-png.flaticon.com/128/848/848043.png' }}
+                                    />
+                                    <View style={styles.friendsText}>
+                                        <Text >{index+1 + ". " + friend.friendEmail}</Text>
+
+                                    </View>
+                                    <View style={{ borderBottomColor: 'white', borderBottomWidth: 1, width: '80%', alignSelf: 'center', marginVertical: 10 }} />
+                                </View>
+                            ))
+                        )}
+                    </ScrollView>
+
+
+                </View>
+
+
+            }
+            {selectedTab === 'Requests' &&
+                <View>
+                    <View>
+                        <View >
+                            {receivedFriendRequests.length === 0 ? (
+                                <View style={styles.shadowPanel}>
+                                    <Text>You don't have any invitations</Text>
+                                </View>
+                            ) : (
+                                receivedFriendRequests.slice().reverse().map((invitation, index) => (
+                                    <>
+                                        <View style={styles.shadowPanel}>
+                                            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }} key={index}>
+                                                <Image
+                                                    style={{width: 50, height: 50}}
+                                                    source={{ uri: image != "none" ? image : 'https://cdn-icons-png.flaticon.com/128/848/848043.png' }}
+                                                />
+                                                <Text style={styles.textInvitation}>{invitation.senderEmail}</Text>
+                                                <View style={styles.buttonPanel}>
+                                                    <TouchableOpacity style={styles.addButton} onPress={() => acceptFriendRequest(invitation.id)}>
+                                                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                                            <MaterialCommunityIcon name={"account-multiple-check"} size={21}></MaterialCommunityIcon>
+                                                            <Text style={styles.buttonText}>Accept</Text>
+                                                        </View>
+                                                    </TouchableOpacity>
+                                                    <TouchableOpacity style={styles.rejectButton}  onPress={() => declineFriendRequest(invitation.id)}>
+                                                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                                            <MaterialCommunityIcon name={"account-multiple-remove"} size={21}></MaterialCommunityIcon>
+                                                            <Text style={styles.buttonText}>Reject</Text>
+                                                        </View>
+
+                                                    </TouchableOpacity>
+                                                </View>
+                                            </View>
+                                        </View>
+                                    </>
+                                ))
+                            )}
+                        </View>
+                    </View>
+                </View>
+            }
+            {selectedTab === 'Sent' &&
+                <View style={{flex: 1}}>
+                    {sentFriendRequests.length === 0 ? (
+                        <View style={styles.shadowPanel}>
+                            <Text>You don't have any sent invitations</Text>
                         </View>
                     ) : (
-                        friendsEmails.slice().reverse().map((friend, index) => (
-                            <View style={styles.invitation} key={index}>
-                                <Text style={styles.text}>{index+1 + ". " + friend.friendEmail}</Text>
+                        sentFriendRequests.slice().reverse().map((invitation, index) => (
+                            <View style={styles.shadowPanel}>
+                                <View style={{ flexDirection: 'row', alignItems: 'center', height: 76 }}>
+                                    <Image
+                                        style={{ width: 50, height: 50 }}
+                                        source={{ uri: image != "none" ? image : 'https://cdn-icons-png.flaticon.com/128/848/848043.png' }}
+                                    />
+                                    <Text style={styles.textSend}>{invitation.receiverEmail}</Text>
+                                </View>
                             </View>
                         ))
                     )}
-                </ScrollView>
-            </View>
-            <View style={styles.subContainer}>
-                <View style={styles.mainHeader}>
-                    <Text style={styles.mainHeaderText}>
-                        YOUR INVITATIONS
-                    </Text>
                 </View>
-                <View style={styles.subSubContainer}>
-                        <View style={styles.invitationHeader}>
-                            <Text style={styles.header}>
-                                Sent
-                            </Text>
-                        </View>
-                        <View style={styles.invitations}>
-                            <ScrollView>
-                                {sentFriendRequests.length === 0 ? (
-                                    <View>
-                                        <Text style={styles.text}>You don't have any invitations</Text>
-                                    </View>
-                                ) : (
-                                    sentFriendRequests.slice().reverse().map((invitation, index) => (
-                                        <View style={styles.invitation} key={index}>
-                                            <Text style={styles.text}>To: {invitation.receiverEmail}</Text>
-                                        </View>
-                                    ))
-                                )}
-                            </ScrollView>
-                        </View>
-                    </View>
-                    <View style={styles.subSubContainer}>
-                    <View style={styles.invitationHeader}>
-                        <Text style={styles.header}>
-                            Received
-                        </Text>
-                    </View>
-                    <View style={styles.invitations}>
-                        <ScrollView>
-                            {receivedFriendRequests.length === 0 ? (
-                                <Text style={styles.text}>You don't have any invitations</Text>
-                            ) : (
-                                receivedFriendRequests.slice().reverse().map((invitation, index) => (
-                                    <View style={styles.invitationsOptions} key={index}>
-                                        <View style={styles.invitation}>
-                                            <Text style={styles.text}>From: {invitation.senderEmail}</Text>
-                                        </View>
-                                        <View style={styles.buttons}>
-                                            <TouchableOpacity style={styles.addButton} onPress={() => acceptFriendRequest(invitation.id)}>
-                                                <MaterialCommunityIcon name={"plus-box"} size={33}></MaterialCommunityIcon>
-                                            </TouchableOpacity>
-                                            <TouchableOpacity style={styles.rejectButton} onPress={() => declineFriendRequest(invitation.id)}>
-                                                <MaterialCommunityIcon name={"minus-box"} size={33}></MaterialCommunityIcon>
-                                            </TouchableOpacity>
-                                        </View>
-                                    </View>
-                                ))
-                            )}
-                        </ScrollView>
-                    </View>
-                </View>
-            </View>
+            }
+
+
             <View style={styles.container}>
+                {selectedTab === 'Friends' &&
+                    <View style={styles.addFriendButton}>
+                        <AddFriend onInvitationSent={handleInvitationSent}/>
+                    </View>
+                }
                 <BottomBar navigation={navigation}/>
-                <AddFriend onInvitationSent={handleInvitationSent}/>
             </View>
         </View>
+
 
 
     );
 }
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
-        marginTop: 55,
+        marginTop: 10,
+        flex:1,
     },
-
-    subContainer: {
-        flex: 2
-    },
-    subSubContainer: {
-        flex: 2.5
-    },
-    mainHeader: {
-        display: "flex",
-        flexDirection: "row",
-        justifyContent: "center",
-        marginBottom: 15,
-    },
-    mainHeaderText: {
-        fontWeight: "bold",
-        fontSize: 25
-    },
-    invitationHeader: {
-        display: "flex",
-        flexDirection: "row",
-        justifyContent: "flex-start",
-        marginLeft: 5,
-    },
-    header: {
-        fontWeight: "bold",
-        fontSize: 22,
-        marginBottom: 4,
-        marginTop: 3,
-    },
-    invitations:{
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "flex-start",
-        marginBottom: 35,
-        borderWidth: 2,
-        borderColor: '#ccc',
-        borderRadius: 5,
-        padding: 5,
+    topBar: {
+        marginTop: 15,
+        backgroundColor: 'white',
+        borderRadius: 10,
+        width: "96%",
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 5,
 
     },
-    invitation: {
-        display: "flex",
-        flexDirection: "row",
-        justifyContent: "flex-start",
-        marginLeft: 15,
-        marginBottom: 6,
-        marginTop: 0,
+    topName: {
+        fontSize: 33,
+        textAlign: 'center',
+        fontWeight: 'bold',
     },
-    invitationsOptions: {
-        display: "flex",
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
+    bar: {
+        alignItems: 'center',
     },
-    text: {
-        fontSize: 18,
+    buttonContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        margin: 10,
+        backgroundColor: 'white',
+        borderRadius: 10,
+        width: "96%",
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 5,
+
     },
-    buttonText: {
-        color: '#fff',
-        fontSize: 16,
+    button: {
+        flex:1,
+        alignItems: 'center',
+        backgroundColor: 'lightblue',
+        margin: 5,
+        borderRadius: 10,
+
     },
-    buttons: {
-        marginRight: 15,
-        marginTop: 5,
-        display: "flex",
-        flexDirection: "row",
+    buttonPanel: {
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+
+    },
+    innerContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+
+    },
+    textNextTo: {
+        marginRight: 10,
+        fontWeight: 'bold',
+    },
+    textInvitation: {
+        fontSize: 19,
+        textAlign: 'center',
+        marginLeft: 10,
+    },
+    textSend: {
+        fontSize: 19,
+        marginLeft: 20,
     },
     addButton: {
-        backgroundColor: '#83f134',
-        marginRight: 15,
+        backgroundColor: 'green',
+        borderRadius: 20,
+        padding: 5,
+        margin: 3,
+        marginRight: 14,
     },
     rejectButton: {
-        backgroundColor: '#ff0000',
 
+        backgroundColor: 'red',
+        borderRadius: 20,
+        padding: 5,
+        margin: 3,
+        marginRight: 14,
+        paddingLeft: 10,
     },
+    friendsText: {
+        alignSelf: 'center',
+        fontSize: 20,
+        fontWeight: 'bold',
+        borderRadius: 10,
+        width: "80%",
+        height: 40,
+        textAlign: 'center',
+    },
+    addFriendButton: {
+        marginTop: 10,
+        flex:1,
+        marginBottom: 93,
+    },
+    buttonText: {
+        fontSize: 18,
+    },
+    shadowPanel: {
+        backgroundColor: 'white',
+        borderRadius: 10,
+        width: "96%",
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 5,
+        alignSelf: 'center',
+        marginBottom: 10,
+    },
+    sadText: {
+        fontSize: 20,
+        textAlign: 'center',
+        fontWeight: 'bold',
+        padding: 10,
+    }
 })
 export default FriendsScreen;

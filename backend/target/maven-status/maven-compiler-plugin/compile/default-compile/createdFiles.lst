@@ -1,4 +1,6 @@
 com\WoofWalk\backend\enums\DogBreed.class
+com\WoofWalk\backend\controllers\EventController.class
+com\WoofWalk\backend\entities\Event.class
 com\WoofWalk\backend\dto\DogDto.class
 com\WoofWalk\backend\entities\Rating.class
 com\WoofWalk\backend\entities\User.class
@@ -29,6 +31,7 @@ com\WoofWalk\backend\entities\Location.class
 com\WoofWalk\backend\services\FriendRequestService.class
 com\WoofWalk\backend\repositories\DogRepository.class
 com\WoofWalk\backend\BackendApplication.class
+com\WoofWalk\backend\services\EventService.class
 com\WoofWalk\backend\config\SecurityConfig.class
 com\WoofWalk\backend\config\AWSConfig.class
 com\WoofWalk\backend\mappers\UserMapper.class
@@ -47,6 +50,7 @@ com\WoofWalk\backend\AWSSecretManagerService.class
 com\WoofWalk\backend\dto\UserDto.class
 com\WoofWalk\backend\dto\ProfilePictureDto.class
 com\WoofWalk\backend\config\LoadSeedData.class
+com\WoofWalk\backend\repositories\EventRepository.class
 com\WoofWalk\backend\services\MessageService.class
 com\WoofWalk\backend\enums\DogSize.class
 com\WoofWalk\backend\entities\FriendRequest.class
