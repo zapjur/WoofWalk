@@ -19,7 +19,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   const handleLoginPress = async () => {
     try {
       const authResult = await authorize({
-        audience: "https://dev-h5zqtrdr8n7sgz84.us.auth0.com/api/v2/",
+        audience: process.env.EXPO_PUBLIC_AUTH0_AUDIENCE,
       });
       console.log("Auth result: " + authResult?.accessToken);
       if (authResult && authResult.accessToken) {

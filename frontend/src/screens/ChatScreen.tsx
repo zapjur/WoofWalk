@@ -1,129 +1,149 @@
+import React, { useEffect, useState } from "react";
 import {
-    Button,
-    FlatList,
-    Image,
-    Modal,
-    ScrollView,
+    FlatList, Platform,
     StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+    View,
 } from "react-native";
-import React, {useEffect, useState} from "react";
-import {StackNavigationProp} from "@react-navigation/stack";
+import { Button, TextInput, Text, Appbar, Card } from 'react-native-paper';
+import { StackNavigationProp } from "@react-navigation/stack";
 import RootStackParamList from "../../RootStackParamList";
+import io from "socket.io-client";
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import * as SecureStore from "expo-secure-store";
-import { Client } from '@stomp/stompjs';
-import { TextDecoder, TextEncoder } from 'text-encoding';
-import apiClient from "../../axiosConfig";
-global.TextDecoder = TextDecoder;
-global.TextEncoder = TextEncoder;
-
-
 
 type MapScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Map'>;
 type UserScreenNavigationProp = StackNavigationProp<RootStackParamList, 'User'>
 type FriendsScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Friends'>
 type ChatScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Chat'>
+
 interface ChatScreenProps {
     navigation: MapScreenNavigationProp & UserScreenNavigationProp & FriendsScreenNavigationProp & ChatScreenNavigationProp;
 }
 
-const ChatScreen: React.FC<ChatScreenProps> = ({ navigation }) =>{
-    const [client, setClient] = useState<Client | null>(null);
+interface Message {
+    content: string;
+    type: 'private';
+    sender: string;
+}
+
+const baseURL = Platform.select({
+    ios: 'http://localhost:3000',
+    android: 'http://10.0.2.2:3000',
+});
+
+const ChatScreen: React.FC<ChatScreenProps> = ({ navigation }) => {
     const [message, setMessage] = useState<string>('');
     const [messages, setMessages] = useState<Message[]>([]);
+    const [recipient, setRecipient] = useState<string>('');
+    const [socket, setSocket] = useState<any>(null);
 
     useEffect(() => {
-
-        const fetchMessages = async () => {
-            try {
-                const response = await apiClient.get('/messages');
-                setMessages(response.data);
-            } catch (error) {
-                console.error('Error fetching messages', error);
-            }
-        };
-
-        fetchMessages();
-
-        const connectWebSocket = async () => {
+        const initializeSocket = async () => {
             const token = await SecureStore.getItemAsync('authToken');
-            if (!token) {
-                console.error('No token found');
-                return;
-            }
-
-            const stompClient = new Client({
-                brokerURL: `ws://localhost:8080/ws?token=${token}`,
-                connectHeaders: {
-                    Authorization: `Bearer ${token}`
-                },
-                debug: (str) => {
-                    console.log(str);
-                },
-                reconnectDelay: 5000,
-                heartbeatIncoming: 4000,
-                heartbeatOutgoing: 4000
-            });
-
-            stompClient.onConnect = () => {
-                console.log('Connected');
-                stompClient.subscribe('/user/queue/messages', (message) => {
-                    setMessages((prevMessages) => [
-                        ...prevMessages,
-                        JSON.parse(message.body)
-                    ]);
+            console.log('Token:', token);
+            console.log('Base URL:', baseURL);
+            if (token) {
+                const socketInstance = io(baseURL!, {
+                    auth: {
+                        token: `Bearer ${token}` // Corrected token format
+                    }
                 });
-            };
 
-            stompClient.onStompError = (frame) => {
-                console.error(`Broker reported error: ${frame.headers['message']}`);
-                console.error(`Additional details: ${frame.body}`);
-            };
+                socketInstance.on('connect', () => {
+                    console.log('connected to server');
+                });
 
-            stompClient.activate();
-            setClient(stompClient);
+                socketInstance.on('private_message', (msg: Message) => {
+                    setMessages((prevMessages) => [...prevMessages, { ...msg, type: 'private' }]);
+                });
+
+                setSocket(socketInstance);
+            } else {
+                console.error('No token found');
+            }
         };
 
-        connectWebSocket();
+        initializeSocket();
+
+        return () => {
+            if (socket) {
+                socket.disconnect();
+            }
+        };
     }, []);
 
-    const sendMessage = () => {
-        if (client && client.connected) {
-            client.publish({
-                destination: '/app/private',
-                body: JSON.stringify({ content: message, recipient: 'maciekjur123@gmail.com' })
-            });
+    const sendPrivateMessage = () => {
+        if (socket) {
+            socket.emit('private_message', { content: message, to: recipient });
             setMessage('');
+        } else {
+            console.error('Socket is not connected');
         }
     };
 
     return (
-        <View>
-            <Text>WebSocket Chat</Text>
-            <FlatList
-                data={messages}
-                renderItem={({ item }) => <Text>{item.sender}: {item.content}</Text>}
-                keyExtractor={(item, index) => index.toString()}
-            />
-            <TextInput
-                value={message}
-                onChangeText={setMessage}
-                placeholder="Type a message"
-            />
-            <Button title="Send" onPress={sendMessage} />
-        </View>
+        <SafeAreaProvider>
+            <SafeAreaView style={styles.container}>
+                <Appbar.Header>
+                    <Appbar.Content title="Private Chat" />
+                </Appbar.Header>
+                <View style={styles.inputContainer}>
+                    <TextInput
+                        label="Recipient ID"
+                        value={recipient}
+                        onChangeText={setRecipient}
+                        style={styles.input}
+                    />
+                    <TextInput
+                        label="Message"
+                        value={message}
+                        onChangeText={setMessage}
+                        style={styles.input}
+                    />
+                    <Button mode="contained" onPress={sendPrivateMessage} style={styles.button}>
+                        Send Private
+                    </Button>
+                </View>
+                <FlatList
+                    data={messages}
+                    renderItem={({ item }) => (
+                        <Card style={styles.messageCard}>
+                            <Card.Content>
+                                <Text>{item.sender}: {item.content}</Text>
+                            </Card.Content>
+                        </Card>
+                    )}
+                    keyExtractor={(item, index) => index.toString()}
+                    contentContainerStyle={styles.messageList}
+                />
+            </SafeAreaView>
+        </SafeAreaProvider>
     );
 };
 
-interface Message {
-    sender: string;
-    content: string;
-    recipient: string;
-    timestamp: number;
-}
-
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: '#f5f5f5',
+    },
+    inputContainer: {
+        padding: 10,
+        backgroundColor: '#fff',
+        marginBottom: 10,
+        borderRadius: 5,
+    },
+    input: {
+        marginBottom: 10,
+    },
+    button: {
+        marginVertical: 5,
+    },
+    messageList: {
+        padding: 10,
+    },
+    messageCard: {
+        marginBottom: 10,
+    },
+});
 
 export default ChatScreen;
