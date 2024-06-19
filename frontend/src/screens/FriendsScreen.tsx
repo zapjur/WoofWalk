@@ -110,7 +110,7 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
                     <Text style={styles.topName}>{selectedTab}</Text>
                 </View>
             </View>
-            <View style={{ borderBottomColor: 'fff', borderBottomWidth: 1, marginVertical: 10 }} />
+            <View style={{ borderBottomColor: 'gray', borderBottomWidth: 1, marginVertical: 10 }} />
             <View style={styles.buttonContainer}>
                 <TouchableOpacity style={styles.button} onPress={() => setSelectedTab('Friends')}>
                     <View style={styles.innerContainer}>
@@ -135,34 +135,25 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
             </View>
             <View style={{ borderBottomColor: 'gray', borderBottomWidth: 1, width: '80%', alignSelf: 'center', marginVertical: 10 }} />
             {selectedTab === 'Friends' &&
-                <View style={styles.shadowPanel}>
-                    <ScrollView>
-                        {friendsEmails.length === 0 ? (
-                            <View >
-                                <Text style={styles.sadText}>You don't have any friends yet :(</Text>
-                            </View>
-                        ) : (
-                            friendsEmails.slice().reverse().map((friend, index) => (
-                                <View key={index}>
-
+                <ScrollView contentContainerStyle={{flexGrow: 1, justifyContent: 'flex-start', alignItems: 'center'}}>
+                    {friendsEmails.length === 0 ? (
+                        <View style={styles.shadowPanel}>
+                            <Text style={styles.sadText}>You don't have any friends yet :(</Text>
+                        </View>
+                    ) : (
+                        friendsEmails.slice().reverse().map((friend, index) => (
+                            <View style={styles.shadowPanel}>
+                                <View style={{ flexDirection: 'row', alignItems: 'center',height: 82 }} key={index}>
                                     <Image
-                                        style={{width: 50, height: 50}}
+                                        style={styles.imageStyle}
                                         source={{ uri: image != "none" ? image : 'https://cdn-icons-png.flaticon.com/128/848/848043.png' }}
                                     />
-                                    <View style={styles.friendsText}>
-                                        <Text >{index+1 + ". " + friend.friendEmail}</Text>
-
-                                    </View>
-                                    <View style={{ borderBottomColor: 'white', borderBottomWidth: 1, width: '80%', alignSelf: 'center', marginVertical: 10 }} />
+                                    <Text style={styles.textSend}>{friend.friendEmail}</Text>
                                 </View>
-                            ))
-                        )}
-                    </ScrollView>
-
-
-                </View>
-
-
+                            </View>
+                        ))
+                    )}
+                </ScrollView>
             }
             {selectedTab === 'Requests' &&
                 <View>
@@ -178,10 +169,10 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
                                         <View style={styles.shadowPanel}>
                                             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }} key={index}>
                                                 <Image
-                                                    style={{width: 50, height: 50}}
+                                                    style={styles.imageStyle}
                                                     source={{ uri: image != "none" ? image : 'https://cdn-icons-png.flaticon.com/128/848/848043.png' }}
                                                 />
-                                                <Text style={styles.textInvitation}>{invitation.senderEmail}</Text>
+                                                <Text style={styles.textSend}>{invitation.senderEmail}</Text>
                                                 <View style={styles.buttonPanel}>
                                                     <TouchableOpacity style={styles.addButton} onPress={() => acceptFriendRequest(invitation.id)}>
                                                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -215,9 +206,9 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
                     ) : (
                         sentFriendRequests.slice().reverse().map((invitation, index) => (
                             <View style={styles.shadowPanel}>
-                                <View style={{ flexDirection: 'row', alignItems: 'center', height: 76 }}>
+                                <View style={{ flexDirection: 'row', alignItems: 'center', height: 82 }}>
                                     <Image
-                                        style={{ width: 50, height: 50 }}
+                                        style={styles.imageStyle}
                                         source={{ uri: image != "none" ? image : 'https://cdn-icons-png.flaticon.com/128/848/848043.png' }}
                                     />
                                     <Text style={styles.textSend}>{invitation.receiverEmail}</Text>
@@ -364,6 +355,17 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         fontWeight: 'bold',
         padding: 10,
+    },
+    imageStyle: {
+        width: 50,
+        height: 50,
+        borderRadius: 50,
+        marginLeft: 10,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 10,
     }
 })
 export default FriendsScreen;
