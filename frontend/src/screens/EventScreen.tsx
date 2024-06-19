@@ -1,13 +1,23 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, Image, ScrollView, SafeAreaView, Dimensions } from "react-native";
+import {
+    View,
+    Text,
+    StyleSheet,
+    Image,
+    ScrollView,
+    SafeAreaView,
+    TouchableOpacity
+} from "react-native";
 import {RouteProp, useNavigation} from "@react-navigation/native";
-
 import axios from "axios";
-
 import RootStackParamList from "../../RootStackParamList";
 
+import apiClient from "../../axiosConfig";
+import {useAuth0} from "react-native-auth0";
 
-const { width } = Dimensions.get('window');
+
+
+
 
 interface EventScreenProps {
     route: RouteProp<RootStackParamList, 'EventScreen'>;
@@ -15,11 +25,14 @@ interface EventScreenProps {
 
 
 
+
 const EventScreen: React.FC<EventScreenProps> = ({ route }) => {
     const { place, userLocation } = route.params;
+    const [isUserInterested, setIsUserInterested] = useState(false)
     const [distance, setDistance] = useState<string | null>(null);
     const googleMapsApiKey = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
     const navigation = useNavigation();
+    const {user} = useAuth0();
     useEffect(() => {
 
         if (userLocation) {
@@ -42,6 +55,26 @@ const EventScreen: React.FC<EventScreenProps> = ({ route }) => {
         }
     }, [userLocation, place.id]);
 
+    const handleInterestedInPress = () =>{
+        handleIsUserInterested()
+        setIsUserInterested(!isUserInterested);
+    }
+    const handleIsUserInterested = async () => {
+        if(user){
+
+            if(!isUserInterested){
+                console.log(user.email);
+                console.log(place.id);
+                await apiClient.post(`/events/addUser/${place.id}`,
+                    user.email
+                ).then(response =>
+                console.log("dodanie usera do eventu " + response.data)
+                ).catch(error =>
+                console.log(error)
+                )}
+        }
+    }
+
     useEffect(() => {
         navigation.setOptions({title: ''});
     }, []);
@@ -52,7 +85,33 @@ const EventScreen: React.FC<EventScreenProps> = ({ route }) => {
         <SafeAreaView style={styles.safeArea}>
             <ScrollView style={styles.container}>
                 <View style={styles.infoContainer}>
-                    <Text style={styles.nameText}>{place.name}</Text>
+                    <View style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
+                        <Text style={styles.nameText}>{place.name}</Text>
+                        {isUserInterested ? (
+                            <TouchableOpacity
+                                style={styles.interestedInButton}
+                                onPress={() => handleInterestedInPress()}>
+                                <View>
+                                    <Text>
+                                        Interested
+                                    </Text>
+                                </View>
+                            </TouchableOpacity>
+                        ):(
+                            <TouchableOpacity
+                                style={styles.notInterestedInButton}
+                                onPress={() => handleInterestedInPress()}
+                            >
+                                <View>
+                                    <Text>
+                                        Not interested
+                                    </Text>
+
+                                </View>
+                            </TouchableOpacity>
+                        )}
+                    </View>
+
                     <Image
                         source={{ uri: 'https://cdn-icons-png.flaticon.com/128/1968/1968779.png' }}
                         style={styles.placeImage}
@@ -85,6 +144,26 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: 'white',
     },
+    interestedInButton: {
+        backgroundColor: "#96f698",
+        width: 130,
+        height: 30,
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        borderRadius: 15,
+    },
+    notInterestedInButton: {
+        backgroundColor: "#ff8e8e",
+        width: 130,
+        height: 30,
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        borderRadius: 15,
+    },
     nameText: {
         fontWeight: 'bold',
         fontSize: 24,
@@ -96,7 +175,7 @@ const styles = StyleSheet.create({
     detailsContainer: {
         flexDirection: 'row',
         alignItems: 'flex-start',
-        justifyContent: 'space-evenly',
+        justifyContent: 'space-around',
         gap: 10,
         marginBottom: 10,
     },
@@ -105,10 +184,12 @@ const styles = StyleSheet.create({
         gap: 10,
     },
     placeImage: {
-        width: width - 32,
-        height: 400,
-        borderRadius: 10,
-        marginBottom: 10,
+        width: 300,
+        display: "flex",
+        alignSelf: "center",
+        height: 300,
+        borderRadius: 8,
+        marginBottom: 8,
     },
     imageScrollView: {
         width: '100%',
@@ -126,54 +207,7 @@ const styles = StyleSheet.create({
     detail: {
         alignItems: 'center',
     },
-    addButton: {
-        position: 'absolute',
-        right: 20,
-        bottom: 50,
-        backgroundColor: 'blue',
-        borderRadius: 25,
-        alignItems: 'center',
-        justifyContent: 'center',
-        width: 50,
-        height: 50,
-    },
-    modalContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: 'rgba(0,0,0,0.5)',
-    },
-    modalContent: {
-        width: '80%',
-        padding: 20,
-        backgroundColor: 'white',
-        borderRadius: 10,
-        alignItems: 'center',
-    },
-    modalTitle: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        marginBottom: 10,
-    },
-    input: {
-        borderWidth: 1,
-        borderColor: '#ccc',
-        padding: 10,
-        marginVertical: 10,
-        borderRadius: 5,
-        width: '100%',
-    },
-    imagePreviewContainer: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        marginVertical: 10,
-    },
-    imagePreview: {
-        width: 100,
-        height: 100,
-        marginRight: 10,
-        marginBottom: 10,
-    },
+
     opinionContainer: {
         flexDirection: 'column',
         gap: 10,

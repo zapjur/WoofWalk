@@ -117,12 +117,25 @@ const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
                             <Text style={styles.calloutTitle}>{place.name}</Text>
                         </View>
                         <Text>{place.description}</Text>
-                        <View style={styles.ratingContainer}>
-                            <StarRating rating={place.rating} fontSize={24} />
-                            <Text>
-                                ({place.ratingCount})
-                            </Text>
-                        </View>
+                        {place.category.toUpperCase() !== "EVENT" && (
+                            <View style={styles.ratingContainer}>
+                                <StarRating rating={place.rating} fontSize={24} />
+                                <Text>
+                                    ({place.ratingCount})
+                                </Text>
+                            </View>
+                        )}
+                        {place.category.toUpperCase() == "EVENT" && (
+                            <View style={{display: "flex", flexDirection: "row", alignItems: "center"}}>
+                                <Text style={{fontWeight: "bold"}}>
+                                    Date:
+                                </Text>
+                                <Text style={{marginLeft: 5}}>
+                                    { place.date}
+                                </Text>
+                            </View>
+
+                        )}
                     </View>
                 </Callout>
             </Marker>

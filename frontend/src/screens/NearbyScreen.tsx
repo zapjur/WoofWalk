@@ -96,7 +96,13 @@ const NearbyScreen: React.FC<NearbyScreenProps> = ({ navigation }) => {
 
     const handleNavigateToPlaceScreen = (place: Place) => {
         console.log('Navigating to:', place);
-        navigation.navigate('PlaceScreen', { place, userLocation: userLocation });
+        if(place.category.toUpperCase() !== 'EVENT'){
+            navigation.navigate('PlaceScreen', { place, userLocation: userLocation });
+        }
+        else {
+            navigation.navigate('EventScreen', {place, userLocation: userLocation})
+        }
+
     };
 
     return (
@@ -125,10 +131,18 @@ const NearbyScreen: React.FC<NearbyScreenProps> = ({ navigation }) => {
                                             <Text style={styles.distanceText}>Distance:</Text>
                                             <Text>{place.distance.toFixed(1)}km</Text>
                                         </View>
-                                        <View style={styles.ratingContainer}>
-                                            <StarRating rating={place.rating} fontSize={16}/>
-                                            <Text>({place.ratingCount})</Text>
-                                        </View>
+                                        {place.category.toUpperCase() !== "EVENT" && (
+                                            <View style={styles.ratingContainer}>
+                                                <StarRating rating={place.rating} fontSize={16}/>
+                                                <Text>({place.ratingCount})</Text>
+                                            </View>
+                                        )}
+                                        {place.category.toUpperCase() == "EVENT" && (
+                                            <View style={styles.distanceContainer}>
+                                                <Text style={styles.distanceText}>Date:</Text>
+                                                <Text>{place.date}</Text>
+                                            </View>
+                                        )}
                                     </TouchableOpacity>
                                 </View>
                             ))}
