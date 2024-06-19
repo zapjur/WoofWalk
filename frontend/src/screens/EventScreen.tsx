@@ -32,6 +32,8 @@ const EventScreen: React.FC<EventScreenProps> = ({ route }) => {
     const [distance, setDistance] = useState<string | null>(null);
     const googleMapsApiKey = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
     const navigation = useNavigation();
+    const [interestedUsers, setInterestedUsers] = useState<string []>([]);
+    const [refresh, setRefresh] = useState(false);
     const {user} = useAuth0();
     useEffect(() => {
 
@@ -61,24 +63,39 @@ const EventScreen: React.FC<EventScreenProps> = ({ route }) => {
     }
     const handleIsUserInterested = async () => {
         if(user){
-
             if(!isUserInterested){
-                console.log(user.email);
-                console.log(place.id);
-                await apiClient.post(`/events/addUser/${place.id}`,
-                    user.email
-                ).then(response =>
-                console.log("dodanie usera do eventu " + response.data)
-                ).catch(error =>
-                console.log(error)
-                )}
+                await apiClient.post(`/events/addUser/${place.id}`)
+                    .catch(error =>
+                console.log(error))
+
+                setRefresh(prev => !prev);
+            }
+            else{
+                await apiClient.post(`/events/deleteUser/${place.id}`)
+                    .catch(error =>
+                    console.log(error))
+
+                setRefresh(prev => !prev);
+            }
+            }
         }
-    }
 
     useEffect(() => {
         navigation.setOptions({title: ''});
     }, []);
 
+    useEffect(() => {
+        apiClient.get(`/events/isUserInterested/${place.id}`)
+            .then(response => setIsUserInterested(response.data))
+            .catch(error => console.log(error));
+    }, []);
+
+    useEffect(() => {
+        apiClient.get(`/events/getAllUsers/${place.id}`)
+            .then(response => setInterestedUsers(response.data))
+            .catch(error => console.log(error));
+
+    }, [refresh]);
 
 
     return (
@@ -106,7 +123,6 @@ const EventScreen: React.FC<EventScreenProps> = ({ route }) => {
                                     <Text>
                                         Not interested
                                     </Text>
-
                                 </View>
                             </TouchableOpacity>
                         )}
@@ -129,6 +145,22 @@ const EventScreen: React.FC<EventScreenProps> = ({ route }) => {
                     <Text style={styles.nameText}>About {place.name}</Text>
                     <Text style={styles.descriptionText}>{place.description}</Text>
                     <View style={styles.separator} />
+                    <Text style={styles.nameText}>Users interested in {place.name}</Text>
+                    <ScrollView style={styles.shadowPanel}>
+                        <View style={styles.container}>
+                            {interestedUsers.length > 0 ? (
+                                interestedUsers.map((userEmail, index) => (
+                                    <View key={index} style={styles.userContainer}>
+                                        <Text style={styles.userText}>{userEmail}</Text>
+                                    </View>
+
+                                ))
+
+                            ) : (
+                                <Text style={styles.userText}>Be a first interested user!</Text>
+                            )}
+                        </View>
+                    </ScrollView>
                 </View>
             </ScrollView>
         </SafeAreaView>
@@ -143,6 +175,26 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: 'white',
+    },
+    userContainer: {
+
+    },
+    userText: {
+        marginLeft: 20,
+        padding: 5
+    },
+    shadowPanel: {
+        backgroundColor: 'white',
+        borderRadius: 10,
+        width: "100%",
+        padding: 10,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 5,
+        alignSelf: 'center',
+        marginBottom: 10,
     },
     interestedInButton: {
         backgroundColor: "#96f698",
