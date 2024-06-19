@@ -1,17 +1,17 @@
 package com.WoofWalk.backend.services;
 
 
+
 import com.WoofWalk.backend.entities.Event;
 import com.WoofWalk.backend.entities.User;
 import com.WoofWalk.backend.repositories.EventRepository;
 import com.WoofWalk.backend.repositories.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -19,7 +19,7 @@ public class EventService {
 
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
-    private final static Logger logger = LoggerFactory.getLogger(EventService.class);
+
 
     public void createEvent(String name, Long placeId){
         Event event = new Event();
@@ -27,18 +27,54 @@ public class EventService {
         event.setPlaceID(placeId);
         eventRepository.save(event);
     }
-    public void addUserToEvent(long placeId, String userEmail){
-        logger.info("siema " + placeId + " " + userEmail);
+
+    public void addUserToEvent(long placeId, String sub){
 
         Event event = eventRepository.findByPlaceID(placeId)
-                .orElseThrow(() -> new EntityNotFoundException("no such event"));
-        logger.info(event.getName());
-        User user = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new EntityNotFoundException("no such user"));
-        logger.info( "User email " + user.getEmail());
-        Set<User> interestedUsers = event.getUsers();
-        interestedUsers.add(user);
-        event.setUsers(interestedUsers);
+                .orElseThrow(() -> new EntityNotFoundException("No such event"));
+
+        User user = userRepository.findBySub(sub)
+                .orElseThrow(() -> new EntityNotFoundException("No such user"));
+
+        Set<Event> events = user.getEvents();
+        events.add(event);
+        user.setEvents(events);
+        userRepository.save(user);
         eventRepository.save(event);
+    }
+
+    public void deleteUserFromEvent(long placeId, String sub) {
+
+        Event event = eventRepository.findByPlaceID(placeId)
+                .orElseThrow(() -> new EntityNotFoundException("No such event"));
+
+        User user = userRepository.findBySub(sub)
+                .orElseThrow(() -> new EntityNotFoundException("No such user"));
+
+        Set<Event> events = user.getEvents();
+        events.remove(event);
+        user.setEvents(events);
+        userRepository.save(user);
+        eventRepository.save(event);
+    }
+
+    public boolean isUserInterested(long placeId, String sub) {
+        Event event = eventRepository.findByPlaceID(placeId)
+                .orElseThrow(() -> new EntityNotFoundException("No such event"));
+
+        User user = userRepository.findBySub(sub)
+                .orElseThrow(() -> new EntityNotFoundException("No such user"));
+
+        Set<Event> events = user.getEvents();
+        return events.contains(event);
+    }
+
+    public Set<String> getAllUsers(long placeId) {
+        Event event = eventRepository.findByPlaceID(placeId)
+                .orElseThrow(() -> new EntityNotFoundException("No such event"));
+
+        return event.getUsers().stream()
+                .map(User::getEmail)
+                .collect(Collectors.toSet());
     }
 }
