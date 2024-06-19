@@ -8,7 +8,10 @@ type RootStackParamList = {
     AddPlace: undefined;
     Chat: undefined;
     DM: {email: string };
-    PlaceScreen: { place: Place; userLocation: userLocation | null };
+    PlaceScreen: {
+        place: Place;
+        userLocation: userLocation | null
+    };
     NearbyScreen: undefined;
 
 };

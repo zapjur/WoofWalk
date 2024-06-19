@@ -12,6 +12,7 @@ import com.WoofWalk.backend.repositories.RatingRepository;
 import com.WoofWalk.backend.repositories.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -122,6 +123,18 @@ public class LocationService {
             return null;
         }
         return s3Service.getFileUrl(location.getImages().get(0));
+    }
+
+    public double getRating(Long locationId) {
+        Location location = locationRepository.findById(locationId)
+                .orElseThrow(() -> new EntityNotFoundException("Location not found"));
+        return location.getRating();
+    }
+
+    public int getRatingCount(Long locationId) {
+        Location location = locationRepository.findById(locationId)
+                .orElseThrow(() -> new EntityNotFoundException("Location not found"));
+        return location.getRatingCount();
     }
 }
 
