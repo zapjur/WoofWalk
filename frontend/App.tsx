@@ -10,13 +10,14 @@ import { createStackNavigator } from '@react-navigation/stack';
 import RootStackParamList from "./RootStackParamList";
 import { Auth0Provider } from 'react-native-auth0';
 import AddPlaceScreen from "./src/screens/AddPlaceScreen";
-import ChatScreen from "./src/screens/ChatScreen";
 import DirectMessageScreen from "./src/screens/DirectMessageScreen";
 
 import PlaceScreen from "./src/screens/PlaceScreen";
 import NearbyScreen from "./src/screens/NearbyScreen";
 import {LocationProvider} from "./src/contexts/LocationContext";
 import EventScreen from "./src/screens/EventScreen";
+import ChatListScreen from "./src/screens/ChatListScreen";
+import ChatConversationScreen from "./src/screens/ChatConversationScreen";
 
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -35,8 +36,8 @@ const App: React.FC = () => {
                         <Stack.Screen name="PlaceScreen" component={PlaceScreen}/>
                         <Stack.Screen name="EventScreen" component={EventScreen}/>
                         <Stack.Screen name="NearbyScreen" component={NearbyScreen} options={{ headerShown: false }}/>
-                        <Stack.Screen name="Chat" component={ChatScreen} options={{ headerShown: false }}/>
-                        <Stack.Screen name="DM" component={DirectMessageScreen}/>
+                        <Stack.Screen name="ChatList" component={ChatListScreen} options={{ headerShown: false }}/>
+                        <Stack.Screen name="ChatConversation" component={ChatConversationScreen}/>
                     </Stack.Navigator>
                 </NavigationContainer>
             </LocationProvider>

@@ -28,6 +28,11 @@ public class UserService {
         return user.orElse(null);
     }
 
+    public String getUserSub(String email){
+        Optional<User> user = userRepository.findByEmail(email);
+        return user.map(User::getSub).orElse(null);
+    }
+
     public User createUserInDatabase(UserDto userDto, String token) {
         Optional<User> userOptional = userRepository.findByEmail(userDto.getEmail());
 

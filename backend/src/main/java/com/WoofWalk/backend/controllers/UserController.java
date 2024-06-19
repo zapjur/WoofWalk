@@ -32,6 +32,10 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping("/getUserSub")
+    public String getUserSub(@RequestParam("email") String email){
+        return userService.getUserSub(email);
+    }
 
     @PostMapping("/updateAddress")
     public UserDto updateUserAddress(@RequestBody UserDto userDto){

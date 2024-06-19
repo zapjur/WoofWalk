@@ -1,24 +1,16 @@
-import React, { useEffect, useState } from "react";
-import {
-    FlatList, Platform,
-    StyleSheet,
-    View,
-} from "react-native";
+import React, { useEffect, useState } from 'react';
+import { FlatList, Platform, StyleSheet, View } from 'react-native';
 import { Button, TextInput, Text, Appbar, Card } from 'react-native-paper';
-import { StackNavigationProp } from "@react-navigation/stack";
-import RootStackParamList from "../../RootStackParamList";
-import io from "socket.io-client";
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RouteProp, useRoute } from '@react-navigation/native';
+import RootStackParamList from '../../RootStackParamList';
+import io from 'socket.io-client';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-import * as SecureStore from "expo-secure-store";
+import * as SecureStore from 'expo-secure-store';
+import apiClient from "../../axiosConfig";
 
-type MapScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Map'>;
-type UserScreenNavigationProp = StackNavigationProp<RootStackParamList, 'User'>
-type FriendsScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Friends'>
-type ChatScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Chat'>
-
-interface ChatScreenProps {
-    navigation: MapScreenNavigationProp & UserScreenNavigationProp & FriendsScreenNavigationProp & ChatScreenNavigationProp;
-}
+type ChatConversationScreenNavigationProp = StackNavigationProp<RootStackParamList, 'ChatConversation'>;
+type ChatConversationScreenRouteProp = RouteProp<RootStackParamList, 'ChatConversation'>;
 
 interface Message {
     content: string;
@@ -31,21 +23,34 @@ const baseURL = Platform.select({
     android: 'http://10.0.2.2:3000',
 });
 
-const ChatScreen: React.FC<ChatScreenProps> = ({ navigation }) => {
+const ChatConversationScreen: React.FC = () => {
+    const route = useRoute<ChatConversationScreenRouteProp>();
+    const { recipient } = route.params;
+    const [recipientSub, setRecipentSub] = useState<string>('' as string);
     const [message, setMessage] = useState<string>('');
     const [messages, setMessages] = useState<Message[]>([]);
-    const [recipient, setRecipient] = useState<string>('');
     const [socket, setSocket] = useState<any>(null);
 
     useEffect(() => {
+
+        const getRecipientSub = async () => {
+            apiClient.get('/user/getUserSub', {params: {email: recipient}})
+                .then((response) => {
+                    setRecipentSub(response.data);
+                    console.log('Recipient sub:', response.data);
+                })
+                .catch((error) => {
+                    console.error('Error fetching recipient sub:', error);
+                });
+        };
+
+        getRecipientSub();
         const initializeSocket = async () => {
             const token = await SecureStore.getItemAsync('authToken');
-            console.log('Token:', token);
-            console.log('Base URL:', baseURL);
             if (token) {
                 const socketInstance = io(baseURL!, {
                     auth: {
-                        token: `Bearer ${token}` // Corrected token format
+                        token: `Bearer ${token}`
                     }
                 });
 
@@ -54,6 +59,7 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ navigation }) => {
                 });
 
                 socketInstance.on('private_message', (msg: Message) => {
+                    console.log('Private message received:', msg);
                     setMessages((prevMessages) => [...prevMessages, { ...msg, type: 'private' }]);
                 });
 
@@ -74,7 +80,9 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ navigation }) => {
 
     const sendPrivateMessage = () => {
         if (socket) {
-            socket.emit('private_message', { content: message, to: recipient });
+            const newMessage: Message = { content: message, type: 'private', sender: 'me' };
+            setMessages((prevMessages) => [...prevMessages, newMessage]);
+            socket.emit('private_message', { content: message, to: recipientSub });
             setMessage('');
         } else {
             console.error('Socket is not connected');
@@ -85,15 +93,9 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ navigation }) => {
         <SafeAreaProvider>
             <SafeAreaView style={styles.container}>
                 <Appbar.Header>
-                    <Appbar.Content title="Private Chat" />
+                    <Appbar.Content title={`Chat with ${recipient}`} />
                 </Appbar.Header>
                 <View style={styles.inputContainer}>
-                    <TextInput
-                        label="Recipient ID"
-                        value={recipient}
-                        onChangeText={setRecipient}
-                        style={styles.input}
-                    />
                     <TextInput
                         label="Message"
                         value={message}
@@ -101,7 +103,7 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ navigation }) => {
                         style={styles.input}
                     />
                     <Button mode="contained" onPress={sendPrivateMessage} style={styles.button}>
-                        Send Private
+                        Send
                     </Button>
                 </View>
                 <FlatList
@@ -146,4 +148,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default ChatScreen;
+export default ChatConversationScreen;

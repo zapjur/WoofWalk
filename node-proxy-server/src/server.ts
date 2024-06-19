@@ -26,7 +26,7 @@ let audience = '';
 const fetchAuthConfig = async () => {
     try {
         const response = await axios.get<AuthConfig>('http://localhost:8080/auth-config');
-        auth0Domain = response.data.domain.replace(/\/$/, ''); // Remove trailing slash if exists
+        auth0Domain = response.data.domain.replace(/\/$/, '');
         audience = response.data.audience;
         console.log('Fetched Auth0 configuration:', response.data);
     } catch (error) {
@@ -74,7 +74,7 @@ const initializeServer = async () => {
                 console.error('JWT verification error:', err);
                 return next(new Error('Authentication error: JWT verification failed'));
             }
-            socket.decoded = decoded; // Typing error fixed with declaration
+            (socket as any).decoded = decoded;
             console.log('JWT decoded:', decoded);
             next();
         });
@@ -86,17 +86,28 @@ const initializeServer = async () => {
 
     io.use(checkJwt);
 
+    const userSockets = new Map();
+
     io.on('connection', (socket: Socket) => {
         console.log('A user connected:', socket.id);
+        const userSub = (socket as any).decoded.sub;
+        userSockets.set(userSub, socket.id);
 
         socket.on('private_message', async ({ content, to }: { content: string; to: string }) => {
             console.log('Private message received:', content, 'to:', to);
-            socket.to(to).emit('private_message', { content, sender: socket.decoded.sub });
 
             try {
+                const recipientSocketId = userSockets.get(to);
+                if (recipientSocketId) {
+                    io.to(recipientSocketId).emit('private_message', { content, sender: userSub });
+                    console.log('Message sent to recipient:', recipientSocketId);
+                } else {
+                    console.log('Recipient not found:', to);
+                }
+
                 const token = socket.handshake.auth.token;
                 const timestamp = Date.now();
-                const messageData = { content, recipient: to, sender: socket.decoded.sub, timestamp };
+                const messageData = { content, recipient: to, sender: userSub, timestamp };
                 console.log('Message data to be sent:', messageData);
                 await axios.post('http://localhost:8080/messages/save', messageData, {
                     headers: {
@@ -105,12 +116,13 @@ const initializeServer = async () => {
                 });
                 console.log('Message saved to Spring Boot server');
             } catch (error) {
-                console.error('Error sending private message to Spring Boot server:', error);
+                console.error('Error fetching recipient sub or sending message:', error);
             }
         });
 
         socket.on('disconnect', () => {
             console.log('User disconnected:', socket.id);
+            userSockets.delete(userSub);
         });
     });
 
