@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, SafeAreaView, Modal, TextInput, Button, Alert, Dimensions } from "react-native";
-import { RouteProp } from "@react-navigation/native";
-import { LocationDetails } from "../types/types";
+import {RouteProp, useNavigation} from "@react-navigation/native";
+import { LocationDetails } from "../constants/types";
 import StarRating from "../components/StarRating";
 import apiClient from "../../axiosConfig";
 import axios from "axios";
@@ -9,6 +9,7 @@ import MaterialIcon from "react-native-vector-icons/MaterialIcons";
 import * as ImagePicker from 'expo-image-picker';
 import { useAuth0 } from "react-native-auth0";
 import RootStackParamList from "../../RootStackParamList";
+import {useLocation} from "../contexts/LocationContext";
 
 const { width } = Dimensions.get('window');
 
@@ -26,11 +27,11 @@ const PlaceScreen: React.FC<PlaceScreenProps> = ({ route }) => {
     const [rating, setRating] = useState('');
     const [images, setImages] = useState<string[]>([]);
     const [locationDetails, setLocationDetails] = useState<LocationDetails | null>(null);
-
+    const [refreshOpinions, setRefreshOpinions] = useState(false);
+    const { setRefreshKey } = useLocation();
     const googleMapsApiKey = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
-
     const userEmail = useAuth0().user?.email;
-
+    const navigation = useNavigation();
     useEffect(() => {
         apiClient.get(`/locations/details/${place.id}`)
             .then(response => {
@@ -40,6 +41,21 @@ const PlaceScreen: React.FC<PlaceScreenProps> = ({ route }) => {
             .catch(error => {
                 console.error('Error fetching location details:', error);
             });
+
+        apiClient.get(`/locations/ratingCount/${place.id}`).
+            then(response => {
+                place.ratingCount = response.data;
+        }).catch(error => {
+            console.error('Error fetching rating count:', error);
+        });
+
+        apiClient.get(`/locations/rating/${place.id}`).
+        then(response => {
+            place.rating = response.data;
+        }).catch(error => {
+            console.error('Error fetching rating:', error);
+        });
+
 
         if (userLocation) {
             const calculateDistance = async () => {
@@ -60,7 +76,11 @@ const PlaceScreen: React.FC<PlaceScreenProps> = ({ route }) => {
 
             calculateDistance();
         }
-    }, [userLocation, place.id]);
+    }, [userLocation, place.id, refreshOpinions]);
+
+    useEffect(() => {
+        navigation.setOptions({title: ''});
+    }, []);
 
     const selectImage = async () => {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -119,6 +139,9 @@ const PlaceScreen: React.FC<PlaceScreenProps> = ({ route }) => {
                 setOpinion('');
                 setRating('');
                 setImages([]);
+                setRefreshOpinions(true);
+                setRefreshKey(oldKey => oldKey + 1);
+
             } else {
                 Alert.alert('Failed to submit review');
             }
@@ -145,21 +168,25 @@ const PlaceScreen: React.FC<PlaceScreenProps> = ({ route }) => {
                         </ScrollView>
                     ) : (
                         <Image
-                            source={{ uri: 'https://cdn-icons-png.flaticon.com/128/848/848043.png' }}
+                            source={{ uri: 'https://cdn-icons-png.flaticon.com/128/3875/3875433.png' }}
                             style={styles.placeImage}
                         />
                     )}
                     <View style={styles.detailsContainer}>
                         <View style={styles.detail}>
+                            <Text style={styles.detailsText}>Distance</Text>
+                            <Text>{distance}</Text>
+                        </View>
+                        <View style={styles.detail}>
                             <Text style={styles.detailsText}>Rating</Text>
                             <View style={styles.ratingContainer}>
-                                <StarRating rating={place.rating} fontSize={24} />
+                                <StarRating rating={place.rating} fontSize={20} />
                                 <Text>({place.ratingCount})</Text>
                             </View>
                         </View>
                         <View style={styles.detail}>
-                            <Text style={styles.detailsText}>Distance</Text>
-                            <Text>{distance}</Text>
+                            <Text style={styles.detailsText}>Category</Text>
+                            <Text>{place.category.charAt(0)+place.category.slice(1).toLowerCase()}</Text>
                         </View>
                     </View>
                     <Text style={styles.nameText}>About {place.name}</Text>
@@ -261,7 +288,7 @@ const styles = StyleSheet.create({
     ratingContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 10,
+        gap: 4,
     },
     detailsText: {
         fontWeight: 'bold',

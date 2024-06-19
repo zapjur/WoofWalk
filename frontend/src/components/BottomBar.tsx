@@ -2,12 +2,12 @@ import React from 'react';
 import { View, TouchableOpacity, StyleSheet, Text } from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
-import {useAuth0} from "react-native-auth0";
 import RootStackParamList from "../../RootStackParamList";
 import {StackNavigationProp} from "@react-navigation/stack";
 import { useLocation } from "../contexts/LocationContext";
 
 type BottomBarNavigationProp = StackNavigationProp<RootStackParamList>;
+
 
 interface BottomBarProps {
     navigation: BottomBarNavigationProp;
@@ -26,6 +26,11 @@ const BottomBar: React.FC<BottomBarProps> = ({ navigation }) => {
     const handleFriendsButtonPress = () =>{
         navigation.navigate('Friends');
     }
+
+    const handleChatButtonPress = () =>{
+        navigation.navigate('Chat');
+    }
+
     const handleNearbyButtonPress = () =>{
         navigation.navigate('NearbyScreen');
     }
@@ -41,7 +46,7 @@ const BottomBar: React.FC<BottomBarProps> = ({ navigation }) => {
                 <MaterialCommunityIcon name="google-nearby" size={30} color="#007bff" />
                 <Text style={styles.buttonText}>Nearby</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.button}>
+            <TouchableOpacity style={styles.button} onPress={handleChatButtonPress}>
                 <MaterialIcon name="chat" size={30} color="#007bff" />
                 <Text style={styles.buttonText}>Chat</Text>
             </TouchableOpacity>

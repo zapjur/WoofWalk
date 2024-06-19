@@ -1,7 +1,6 @@
-import React, { useEffect, useState, useRef } from 'react';
-import {StyleSheet, View, Text, Alert, TouchableOpacity, Platform} from 'react-native';
+import React, { useEffect, useState, useRef, useMemo } from 'react';
+import { StyleSheet, View, Text, TouchableOpacity, Image } from 'react-native';
 import MapView, { Marker, Callout, Region } from 'react-native-maps';
-import * as Location from 'expo-location';
 import apiClient from "../../axiosConfig";
 import { useAuth0 } from "react-native-auth0";
 import BottomBar from "../components/BottomBar";
@@ -9,10 +8,14 @@ import AddPlaceButton from "../components/AddPlaceButton";
 import { StackNavigationProp } from "@react-navigation/stack";
 import Icon from 'react-native-vector-icons/FontAwesome';
 import StarRating from "../components/StarRating";
-import MaterialIcon from "react-native-vector-icons/MaterialIcons";
-import { Place } from "../types/types";
+import { Place } from "../constants/types";
 import RootStackParamList from "../../RootStackParamList";
-import {useLocation} from "../contexts/LocationContext";
+import { useLocation } from "../contexts/LocationContext";
+import { icons } from "../constants/types";
+import ModalSelector from "react-native-modal-selector";
+import {categories} from "../constants/types";
+import ClusteredMapView from "react-native-map-clustering";
+
 
 type MapScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Map'>;
 
@@ -24,23 +27,28 @@ const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
     const { userLocation, places, getUserLocation } = useLocation();
     const [mapRegion, setMapRegion] = useState<Region | undefined>(undefined);
     const { user, error } = useAuth0();
+    const [opinionAdded, setOpinionAdded] = useState(false);
+    const [modalVisible, setModalVisible] = useState(false);
+    const [sortingBy, setSortingBy] = useState('');
+
     const mapRef = useRef<MapView>(null);
+    const data = [
+        ...categories,
+        { key: -1, label: 'CLEAR', value: '' },
+    ];
 
     useEffect(() => {
+
         createUser();
         if (userLocation) {
-            setMapRegion({
+            const region = {
                 ...userLocation,
                 latitudeDelta: 0.0922,
                 longitudeDelta: 0.0421,
-            });
-
+            };
+            setMapRegion(region);
             if (mapRef.current) {
-                mapRef.current.animateToRegion({
-                    ...userLocation,
-                    latitudeDelta: 0.0922,
-                    longitudeDelta: 0.0421,
-                }, 1000);
+                mapRef.current.animateToRegion(region, 1000);
             }
         }
     }, [userLocation]);
@@ -52,22 +60,71 @@ const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
                     email: user.email,
                     nickname: user.nickname
                 };
-                const response = await apiClient.post("/user/createUser", userData);
+                await apiClient.post("/user/createUser", userData);
             }
-        }
-        catch (e) {
+        } catch (e) {
             console.log(e);
         }
     };
 
+    const iconMap = useMemo(() => {
+        const map: { [key: string]: string } = {};
+        icons.forEach(icon => {
+            map[icon.label.toUpperCase()] = icon.value;
+        });
+        return map;
+    }, []);
+
+    const getIcon = (key: string) => iconMap[key.toUpperCase()];
+
+
     const handleNavigateToPlace = (place: Place) => {
         console.log('Navigating to:', place);
-        navigation.navigate('PlaceScreen', { place, userLocation: userLocation });
+        navigation.navigate('PlaceScreen', {
+            place,
+            userLocation,
+            });
+
     };
+
+    const renderMarkers = useMemo(() => {
+        let sortedPlaces = places;
+        if(sortingBy != ''){
+            sortedPlaces = places.filter(place => place.category.toUpperCase() == sortingBy.toUpperCase());
+        }
+        setOpinionAdded(false);
+        return sortedPlaces.map(place => (
+            <Marker
+                key={place.id}
+                coordinate={{ latitude: place.latitude, longitude: place.longitude }}
+                title={place.name}
+                description={place.description}
+            >
+                <Image
+                    source={{ uri: getIcon(place.category) }}
+                    style={{ width: 40, height: 40 }}
+                />
+                <Callout tooltip onPress={() => handleNavigateToPlace(place)}>
+                    <View style={styles.calloutContainer}>
+                        <View style={styles.nameContainer}>
+                            <Text style={styles.calloutTitle}>{place.name}</Text>
+                        </View>
+                        <Text>{place.description}</Text>
+                        <View style={styles.ratingContainer}>
+                            <StarRating rating={place.rating} fontSize={24} />
+                            <Text>
+                                ({place.ratingCount})
+                            </Text>
+                        </View>
+                    </View>
+                </Callout>
+            </Marker>
+        ));
+    }, [places, sortingBy, opinionAdded]);
 
     return (
         <View style={styles.container}>
-            <MapView
+            <ClusteredMapView
                 ref={mapRef}
                 style={styles.map}
                 initialRegion={{
@@ -85,37 +142,31 @@ const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
                         pinColor="blue"
                     />
                 )}
-                {places.map(place => (
-                    <Marker
-                        key={place.id}
-                        coordinate={{ latitude: place.latitude, longitude: place.longitude }}
-                        title={place.name}
-                        description={place.description}
-                    >
-                        <Callout tooltip>
-                            <View style={styles.calloutContainer}>
-                                <View style={styles.nameContainer}>
-                                    <Text style={styles.calloutTitle}>{place.name}</Text>
-                                    <TouchableOpacity style={styles.buttonPageScreen} onPress={() => handleNavigateToPlace(place)}>
-                                        <MaterialIcon name="open-in-full" size={16} color="black" />
-                                    </TouchableOpacity>
-                                </View>
-                                <Text>{place.description}</Text>
-                                <View style={styles.ratingContainer}>
-                                    <StarRating rating={place.rating} fontSize={24} />
-                                    <Text>
-                                        ({place.ratingCount})
-                                    </Text>
-                                </View>
-                            </View>
-                        </Callout>
-                    </Marker>
-                ))}
-            </MapView>
+                {renderMarkers}
+            </ClusteredMapView>
             <TouchableOpacity style={styles.locationButton} onPress={getUserLocation}>
                 <Icon name="location-arrow" size={24} color="white" />
             </TouchableOpacity>
             <AddPlaceButton />
+            <ModalSelector
+                visible={modalVisible}
+                data={data}
+                onModalClose={() => setModalVisible(false)}
+                onChange={(option) => setSortingBy(option.value)}
+            />
+            <View style={styles.sortContainer}>
+                {sortingBy != '' && (
+                    <View style={styles.sortingByContainer}>
+                        <Text>Sorted by: {sortingBy}</Text>
+                    </View>
+                )}
+                <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.sort}>
+                    <Image
+                        source={{ uri: 'https://cdn-icons-png.flaticon.com/128/9630/9630141.png' }}
+                        style={styles.sortIcon}
+                    />
+                </TouchableOpacity>
+            </View>
             <BottomBar navigation={navigation} />
         </View>
     );
@@ -127,6 +178,24 @@ const styles = StyleSheet.create({
         width: '100%',
         height: '100%',
     },
+    sortContainer: {
+        position: "absolute",
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center",
+        right: 10,
+        top: 50,
+    },
+    sortingByContainer: {
+        backgroundColor: "#c2cafd",
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center",
+        height: 35,
+        marginRight: 5,
+        padding: 5,
+        borderRadius: 10,
+    },
     container: {
         flex: 1
     },
@@ -135,7 +204,7 @@ const styles = StyleSheet.create({
         maxWidth: 200,
         padding: 10,
         backgroundColor: 'white',
-        borderRadius: 10,
+        borderRadius: 5,
     },
     calloutTitle: {
         fontWeight: 'bold',
@@ -171,7 +240,16 @@ const styles = StyleSheet.create({
     buttonPageScreen: {
         width: 20,
         height: 20,
-    }
+        zIndex: 10,
+    },
+    sort: {
+        marginRight: 10,
+    },
+    sortIcon: {
+        width: 42,
+        height: 42,
+    },
+
 });
 
 export default MapScreen;
