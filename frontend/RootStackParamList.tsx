@@ -13,6 +13,10 @@ type RootStackParamList = {
         userLocation: userLocation | null
     };
     NearbyScreen: undefined;
+    EventScreen: {
+        place: Place;
+        userLocation: userLocation | null
+    }
 
 };
 

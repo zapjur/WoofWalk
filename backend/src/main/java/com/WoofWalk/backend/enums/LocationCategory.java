@@ -11,5 +11,6 @@ public enum LocationCategory {
     CAFE,
     RESTAURANT,
     MEADOW,
-    OTHER
+    OTHER,
+    EVENT,
 }

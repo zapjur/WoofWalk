@@ -7,6 +7,7 @@ export interface Place {
     rating: number;
     ratingCount: number;
     category: string;
+    date: string;
 }
 
 export interface NearestPlace extends Place {
@@ -41,6 +42,7 @@ export const icons = [
     { key: 9, label: "Cafe", value: "https://cdn-icons-png.flaticon.com/128/9620/9620447.png" },
     { key: 10, label: "Restaurant", value: "https://cdn-icons-png.flaticon.com/128/948/948036.png" },
     { key: 11, label: "Meadow", value: "https://cdn-icons-png.flaticon.com/128/7591/7591243.png" },
+    { key: 12, label: "Event", value: "https://cdn-icons-png.flaticon.com/128/1968/1968779.png" },
 ]
 
 export const categories = [
@@ -55,5 +57,5 @@ export const categories = [
     { key: 9, label: "Cafe", value: "CAFE" },
     { key: 10, label: "Restaurant", value: "RESTAURANT" },
     { key: 11, label: "Meadow", value: "MEADOW" },
-
+    { key: 12, label: "Event", value: "EVENT" }
 ];

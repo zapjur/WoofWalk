@@ -49,4 +49,12 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<Dog> dogs;
 
+    @ManyToMany
+    @JoinTable(
+            name = "user_events",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "event_id")
+    )
+    private Set<Event> events;
+
 }
