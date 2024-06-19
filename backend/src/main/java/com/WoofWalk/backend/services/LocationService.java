@@ -28,6 +28,7 @@ public class LocationService {
     private final RatingRepository ratingRepository;
     private final LocationRepository locationRepository;
     private final UserRepository userRepository;
+    private final EventService eventService;
     private final S3Service s3Service;
     private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LocationService.class);
 
@@ -43,7 +44,14 @@ public class LocationService {
         Location location = LocationMapper.toEntity(locationDto);
         location.setRating(0.0);
         location.setRatingCount(0);
-        return locationRepository.save(location);
+        Location locationInDB =  locationRepository.save(location);
+
+        if(locationDto.getCategory().toString().equalsIgnoreCase("EVENT")){
+            Long locationID = locationInDB.getId();
+            String locationName = locationInDB.getName();
+            eventService.createEvent(locationName, locationID);
+        }
+        return locationInDB;
     }
 
     @Transactional

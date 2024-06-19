@@ -17,18 +17,20 @@ public class LocationDto {
         private int ratingCount;
         private double latitude;
         private double longitude;
+        private String date;
         private LocationCategory category;
 
-        public LocationDto(String name, String description, double rating, int ratingCount, double latitude, double longitude) {
+        public LocationDto(String name, String description, double rating, int ratingCount, double latitude, double longitude, String date) {
             this.name = name;
             this.description = description;
             this.rating = rating;
             this.ratingCount = ratingCount;
             this.latitude = latitude;
             this.longitude = longitude;
+            this.date = date;
         }
 
-        public LocationDto(Long id, String name, String description, double rating, int ratingCount, double latitude, double longitude) {
+        public LocationDto(Long id, String name, String description, double rating, int ratingCount, double latitude, double longitude, String date) {
             this.id = id;
             this.name = name;
             this.description = description;
@@ -36,5 +38,6 @@ public class LocationDto {
             this.ratingCount = ratingCount;
             this.latitude = latitude;
             this.longitude = longitude;
+            this.date = date;
         }
 }
