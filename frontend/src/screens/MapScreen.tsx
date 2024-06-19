@@ -199,15 +199,18 @@ const styles = StyleSheet.create({
         height: '100%',
     },
     sortContainer: {
-        position: "absolute",
+        position:"absolute",
+        right: 10,
+        top: 80,
+        padding: 5,
+        borderRadius: 10,
         display: "flex",
         flexDirection: "row",
         alignItems: "center",
-        right: 10,
-        top: 50,
+        backgroundColor: "rgba(206,204,224,0.7)"
     },
     sortingByContainer: {
-        backgroundColor: "#c2cafd",
+
         display: "flex",
         flexDirection: "row",
         alignItems: "center",
@@ -263,7 +266,7 @@ const styles = StyleSheet.create({
         zIndex: 10,
     },
     sort: {
-        marginRight: 10,
+
     },
     sortIcon: {
         width: 42,
