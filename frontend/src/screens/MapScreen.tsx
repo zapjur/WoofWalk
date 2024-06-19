@@ -26,7 +26,7 @@ interface MapScreenProps {
 const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
     const { userLocation, places, getUserLocation } = useLocation();
     const [mapRegion, setMapRegion] = useState<Region | undefined>(undefined);
-    const { user, error } = useAuth0();
+    const { user } = useAuth0();
     const [opinionAdded, setOpinionAdded] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
     const [sortingBy, setSortingBy] = useState('');
@@ -145,7 +145,7 @@ const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
     return (
         <View style={styles.container}>
             <ClusteredMapView
-                ref={mapRef}
+                ref = {mapRef}
                 style={styles.map}
                 initialRegion={{
                     latitude: 50.0614300,
