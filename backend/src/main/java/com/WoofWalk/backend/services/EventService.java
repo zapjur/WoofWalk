@@ -6,10 +6,19 @@ import com.WoofWalk.backend.entities.Event;
 import com.WoofWalk.backend.entities.User;
 import com.WoofWalk.backend.repositories.EventRepository;
 import com.WoofWalk.backend.repositories.UserRepository;
+import com.amazonaws.services.s3.model.S3Object;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -19,7 +28,8 @@ public class EventService {
 
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
-
+    private final S3Service s3Service;
+    private final static Logger logger = LoggerFactory.getLogger(EventService.class);
 
     public void createEvent(String name, Long placeId){
         Event event = new Event();
