@@ -271,7 +271,7 @@ const UserScreen: React.FC<UserScreenProps> = ({ navigation }) => {
                         style={styles.profileImage}
                     />
                     <TouchableOpacity style={styles.cameraIcon} onPress={handleOpenPhotoModal}>
-                        <MaterialIcon name="camera-alt" size={24} color="#ffffff" />
+                        <Image source={{uri: "https://cdn-icons-png.flaticon.com/128/685/685655.png"}} style={styles.imageCamera}></Image>
                     </TouchableOpacity>
                 </View>
                 <Text style={styles.userName}>{user?.nickname}</Text>
@@ -280,12 +280,12 @@ const UserScreen: React.FC<UserScreenProps> = ({ navigation }) => {
                 <Text style={styles.infoHeaderText}>Personal Info</Text>
             </View>
             <View style={styles.infoSection}>
-                <MaterialIcon name="email" size={24} color="#007bff" />
+                <Image source={{uri: "https://cdn-icons-png.flaticon.com/128/2150/2150313.png"}} style={styles.image}></Image>
                 <Text style={styles.infoText}>{user?.email}</Text>
             </View>
             <View style={styles.infoSectionEdit}>
                 <View style={styles.infoSectionEditComponent}>
-                    <MaterialIcon name="phone" size={24} color="#007bff" />
+                    <Image source={{uri: "https://cdn-icons-png.flaticon.com/128/126/126509.png"}} style={styles.image}></Image>
                     {editingPhoneNumber ? (
                         <TextInput
                             style={styles.infoText}
@@ -300,18 +300,18 @@ const UserScreen: React.FC<UserScreenProps> = ({ navigation }) => {
                 <View style={styles.infoSectionEditComponent}>
                     {editingPhoneNumber ? (
                         <TouchableOpacity onPress={handleEditPhoneNumberSaveClick}>
-                            <MaterialIcon name={"save"} size={17}></MaterialIcon>
+                            <Image source={{uri: "https://cdn-icons-png.flaticon.com/128/2874/2874091.png"}} style={styles.image}></Image>
                         </TouchableOpacity>
                     ) : (
                         <TouchableOpacity onPress={handleEditPhoneNumberClick}>
-                            <MaterialIcon name={"edit"} size={17}></MaterialIcon>
+                            <Image source={{uri: "https://cdn-icons-png.flaticon.com/128/10573/10573603.png"}} style={styles.image}></Image>
                         </TouchableOpacity>
                     )}
                 </View>
             </View>
             <View style={styles.infoSectionEdit}>
                 <View style={styles.infoSectionEditComponent}>
-                    <MaterialIcon name="location-on" size={24} color="#007bff" />
+                    <Image source={{uri: "https://cdn-icons-png.flaticon.com/128/927/927667.png"}} style={styles.image}></Image>
                     {editingAddress ? (
                         <TextInput
                             style={styles.infoText}
@@ -325,11 +325,11 @@ const UserScreen: React.FC<UserScreenProps> = ({ navigation }) => {
                 <View style={styles.infoSectionEditComponent}>
                     {editingAddress ? (
                         <TouchableOpacity onPress={handleEditAddressSaveClick}>
-                            <MaterialIcon name={"save"} size={17}></MaterialIcon>
+                            <Image source={{uri: "https://cdn-icons-png.flaticon.com/128/2874/2874091.png"}} style={styles.image}></Image>
                         </TouchableOpacity>
                     ) : (
                         <TouchableOpacity onPress={handleEditAddressClick}>
-                            <MaterialIcon name={"edit"} size={17}></MaterialIcon>
+                            <Image source={{uri: "https://cdn-icons-png.flaticon.com/128/10573/10573603.png"}} style={styles.image}></Image>
                         </TouchableOpacity>
                     )}
                 </View>
@@ -342,7 +342,7 @@ const UserScreen: React.FC<UserScreenProps> = ({ navigation }) => {
                                 {dog.photo ? (
                                     <Image source={{uri: dog.photo}} style={styles.dogPhoto}/>
                                 ) : (
-                                    <MaterialIcon name="pets" size={40} color="#007bff" />
+                                    <Image source={{uri: "https://cdn-icons-png.flaticon.com/128/3199/3199867.png"}} style={styles.imageDog}></Image>
                                 )
                                 }
                                 <Text style={styles.dogName}>{dog.name}</Text>
@@ -362,15 +362,15 @@ const UserScreen: React.FC<UserScreenProps> = ({ navigation }) => {
             </View>
             <View style={styles.menuSection}>
                 <TouchableOpacity style={styles.menuItem} onPress={handleOpenNamesModal}>
-                    <MaterialIcon name="code" size={24} color="#007bff" />
+                    <Image source={{uri: "https://cdn-icons-png.flaticon.com/128/7303/7303889.png"}} style={styles.image}></Image>
                     <Text style={styles.menuText}>Creators</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.menuItem}>
-                    <MaterialIcon name="settings" size={24} color="#007bff" />
+                    <Image source={{uri: "https://cdn-icons-png.flaticon.com/128/13421/13421419.png"}} style={styles.image}></Image>
                     <Text style={styles.menuText}>Settings</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.menuItem} onPress={handleLogoutButtonPress}>
-                    <MaterialIcon name="logout" size={24} color="#007bff" />
+                    <Image source={{uri: "https://cdn-icons-png.flaticon.com/128/11871/11871752.png"}} style={styles.image}></Image>
                     <Text style={styles.menuText}>Log Out</Text>
                 </TouchableOpacity>
             </View>
@@ -390,6 +390,18 @@ const styles = StyleSheet.create({
         backgroundColor: '#f9f9f9',
         padding: 20,
         marginTop: 30,
+    },
+    image: {
+        height: 25,
+        width: 25,
+    },
+    imageDog: {
+        height: 35,
+        width: 35,
+    },
+    imageCamera: {
+        height: 30,
+        width: 30,
     },
     header: {
         flexDirection: 'row',
@@ -417,8 +429,8 @@ const styles = StyleSheet.create({
     cameraIcon: {
         position: 'absolute',
         bottom: 0,
-        right: 0,
-        backgroundColor: '#007bff',
+        right: -5,
+        backgroundColor: '#e0e0e0',
         padding: 5,
         borderRadius: 50,
     },
