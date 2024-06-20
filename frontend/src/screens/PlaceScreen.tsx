@@ -11,6 +11,7 @@ import { useAuth0 } from "react-native-auth0";
 import RootStackParamList from "../../RootStackParamList";
 import {useLocation} from "../contexts/LocationContext";
 
+
 const { width } = Dimensions.get('window');
 
 interface PlaceScreenProps {
@@ -35,7 +36,6 @@ const PlaceScreen: React.FC<PlaceScreenProps> = ({ route }) => {
     useEffect(() => {
         apiClient.get(`/locations/details/${place.id}`)
             .then(response => {
-                console.log('Location details:', response.data);
                 setLocationDetails(response.data);
             })
             .catch(error => {
@@ -74,7 +74,7 @@ const PlaceScreen: React.FC<PlaceScreenProps> = ({ route }) => {
                 }
             };
 
-            calculateDistance();
+            calculateDistance().catch(error => console.log(error));
         }
     }, [userLocation, place.id, refreshOpinions]);
 
@@ -116,7 +116,7 @@ const PlaceScreen: React.FC<PlaceScreenProps> = ({ route }) => {
             formData.append('opinion', opinion);
         }
         if (images.length > 0) {
-            images.forEach((imageUri, index) => {
+            images.forEach((imageUri) => {
                 const fileName = imageUri.split('/').pop();
                 const fileType = fileName?.split('.').pop();
                 formData.append('images', {

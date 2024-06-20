@@ -95,7 +95,7 @@ const NearbyScreen: React.FC<NearbyScreenProps> = ({ navigation }) => {
     };
 
     const handleNavigateToPlaceScreen = (place: Place) => {
-        console.log('Navigating to:', place);
+
         if(place.category.toUpperCase() !== 'EVENT'){
             navigation.navigate('PlaceScreen', { place, userLocation: userLocation });
         }

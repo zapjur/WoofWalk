@@ -340,7 +340,6 @@ const UserScreen: React.FC<UserScreenProps> = ({ navigation }) => {
                             </View>
                             <Text style={styles.dogBreed}>{capitalizeWords(dog.breed)}</Text>
                         </TouchableOpacity>
-
                     ))}
                 <View style={styles.addDogButtonContainer}>
                     <TouchableOpacity style={styles.addDogButton} onPress={handleOpenDogModal}>

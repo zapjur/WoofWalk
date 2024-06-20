@@ -79,7 +79,6 @@ const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
 
 
     const handleNavigateToPlace = (place: Place) => {
-        console.log('Navigating to:', place);
         if(place.category.toUpperCase() !== 'EVENT'){
             navigation.navigate('PlaceScreen', {
                 place,
@@ -134,7 +133,6 @@ const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
                                     { place.date}
                                 </Text>
                             </View>
-
                         )}
                     </View>
                 </Callout>

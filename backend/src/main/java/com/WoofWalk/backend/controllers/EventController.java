@@ -4,13 +4,17 @@ package com.WoofWalk.backend.controllers;
 import com.WoofWalk.backend.dto.UserDto;
 import com.WoofWalk.backend.services.EventService;
 import com.WoofWalk.backend.services.UserService;
+import com.amazonaws.services.s3.model.S3Object;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 
