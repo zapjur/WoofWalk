@@ -37,7 +37,7 @@ const NearbyScreen: React.FC<NearbyScreenProps> = ({ navigation }) => {
     }
 
     useEffect(() => {
-        findNearestPlaces();
+        findNearestPlaces().catch(error => console.log(error));
     }, [sortingBy]);
 
 
@@ -95,7 +95,7 @@ const NearbyScreen: React.FC<NearbyScreenProps> = ({ navigation }) => {
     };
 
     const handleNavigateToPlaceScreen = (place: Place) => {
-        console.log('Navigating to:', place);
+
         if(place.category.toUpperCase() !== 'EVENT'){
             navigation.navigate('PlaceScreen', { place, userLocation: userLocation });
         }
@@ -243,7 +243,7 @@ const styles = StyleSheet.create({
         paddingBottom: 80,
     },
     sort: {
-        marginRight: 10,
+
     },
     sortIcon: {
         width: 42,
@@ -251,13 +251,17 @@ const styles = StyleSheet.create({
     },
     sortContainer: {
         position:"absolute",
-        right: 10,
+        right: 16.5,
+        padding: 5,
+        top: 30,
+        borderRadius: 10,
         display: "flex",
         flexDirection: "row",
-        alignItems: "center"
+        alignItems: "center",
+        backgroundColor: "rgba(206,204,224,0.5)"
     },
     sortingByContainer: {
-        backgroundColor: "#c2cafd",
+
         display: "flex",
         flexDirection: "row",
         alignItems: "center",

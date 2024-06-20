@@ -11,6 +11,7 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -40,7 +41,7 @@ public class UserService {
         });
     }
 
-    private String getSubFromToken(String token) {
+    public String getSubFromToken(String token) {
         Jwt jwt = jwtDecoder.decode(token);
         return jwt.getClaimAsString("sub");
     }
@@ -88,5 +89,6 @@ public class UserService {
         user.setProfilePictureId(fileID);
         saveUser(user);
     }
+
 
 }

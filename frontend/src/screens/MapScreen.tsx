@@ -17,6 +17,7 @@ import {categories} from "../constants/types";
 import ClusteredMapView from "react-native-map-clustering";
 
 
+
 type MapScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Map'>;
 
 interface MapScreenProps {
@@ -26,7 +27,7 @@ interface MapScreenProps {
 const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
     const { userLocation, places, getUserLocation } = useLocation();
     const [mapRegion, setMapRegion] = useState<Region | undefined>(undefined);
-    const { user, error } = useAuth0();
+    const { user } = useAuth0();
     const [opinionAdded, setOpinionAdded] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
     const [sortingBy, setSortingBy] = useState('');
@@ -39,7 +40,7 @@ const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
 
     useEffect(() => {
 
-        createUser();
+        createUser().catch(error => console.log(error));
         if (userLocation) {
             const region = {
                 ...userLocation,
@@ -79,7 +80,6 @@ const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
 
 
     const handleNavigateToPlace = (place: Place) => {
-        console.log('Navigating to:', place);
         if(place.category.toUpperCase() !== 'EVENT'){
             navigation.navigate('PlaceScreen', {
                 place,
@@ -134,7 +134,6 @@ const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
                                     { place.date}
                                 </Text>
                             </View>
-
                         )}
                     </View>
                 </Callout>
@@ -145,7 +144,7 @@ const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
     return (
         <View style={styles.container}>
             <ClusteredMapView
-                ref={mapRef}
+                ref = {mapRef}
                 style={styles.map}
                 initialRegion={{
                     latitude: 50.0614300,
@@ -199,15 +198,18 @@ const styles = StyleSheet.create({
         height: '100%',
     },
     sortContainer: {
-        position: "absolute",
+        position:"absolute",
+        right: 10,
+        top: 80,
+        padding: 5,
+        borderRadius: 10,
         display: "flex",
         flexDirection: "row",
         alignItems: "center",
-        right: 10,
-        top: 50,
+        backgroundColor: "rgba(206,204,224,0.7)"
     },
     sortingByContainer: {
-        backgroundColor: "#c2cafd",
+
         display: "flex",
         flexDirection: "row",
         alignItems: "center",
@@ -263,7 +265,7 @@ const styles = StyleSheet.create({
         zIndex: 10,
     },
     sort: {
-        marginRight: 10,
+
     },
     sortIcon: {
         width: 42,
