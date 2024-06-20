@@ -7,7 +7,6 @@ import com.WoofWalk.backend.entities.User;
 import com.WoofWalk.backend.repositories.GroupChatRepository;
 import com.WoofWalk.backend.repositories.MessageRepository;
 import com.WoofWalk.backend.repositories.PrivateChatRepository;
-import com.WoofWalk.backend.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +21,7 @@ public class MessageService {
     private final MessageRepository messageRepository;
     private final PrivateChatRepository privateChatRepository;
     private final GroupChatRepository groupChatRepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
 
     public Message savePrivateMessage(Message message, Long privateChatId) {
         PrivateChat privateChat = privateChatRepository.findById(privateChatId)

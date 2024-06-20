@@ -93,7 +93,7 @@ const initializeServer = async () => {
         const userSub = (socket as any).decoded.sub;
         userSockets.set(userSub, socket.id);
 
-        socket.on('private_message', async ({ content, to }: { content: string; to: string }) => {
+        socket.on('private_message', async ({ content, to, chatId }: { content: string; to: string, chatId: string }) => {
             console.log('Private message received:', content, 'to:', to);
 
             try {
@@ -109,7 +109,7 @@ const initializeServer = async () => {
                 const timestamp = Date.now();
                 const messageData = { content, recipient: to, sender: userSub, timestamp };
                 console.log('Message data to be sent:', messageData);
-                await axios.post('http://localhost:8080/chat', messageData, {
+                await axios.post(`http://localhost:8080/chat/private/${chatId}`, messageData, {
                     headers: {
                         Authorization: token
                     }

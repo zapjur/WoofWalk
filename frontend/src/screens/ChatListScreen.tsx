@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { FlatList, SafeAreaView, StyleSheet, View } from 'react-native';
+import { FlatList, StyleSheet, View } from 'react-native';
 import { Button, TextInput, Text, Appbar, Card, Modal, Portal, Provider } from 'react-native-paper';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { useNavigation } from '@react-navigation/native';
@@ -45,8 +45,8 @@ const ChatListScreen: React.FC = () => {
         fetchGroupChats();
     }, []);
 
-    const openChat = (recipient: string) => {
-        navigation.navigate('ChatConversation', { recipient });
+    const openChat = (chatId: string, recipient: string) => {
+        navigation.navigate('ChatConversation', { chatId, recipient });
     };
 
     const handleAddPrivateChat = async () => {
@@ -56,7 +56,7 @@ const ChatListScreen: React.FC = () => {
                 setPrivateChats([...privateChats, response.data]);
                 setEmail('');
                 setModalVisible(false);
-                openChat(email);
+                openChat(response.data.id, email);
             } catch (error) {
                 console.error('Error adding new chat:', error);
             }
@@ -71,7 +71,7 @@ const ChatListScreen: React.FC = () => {
                 setGroupChats([...groupChats, response.data]);
                 setGroupEmails('');
                 setModalVisible(false);
-                //openChat(response.data.id);
+                //openChat(response.data.id, response.data.name);
             } catch (error) {
                 console.error('Error adding new group chat:', error);
             }
@@ -80,9 +80,10 @@ const ChatListScreen: React.FC = () => {
 
     const renderChatItem = ({ item }: { item: PrivateChat | GroupChat }) => {
         const name = showPrivateChats ? (item as PrivateChat).participant : (item as GroupChat).name;
-        const recipient = showPrivateChats ? (item as PrivateChat).participant : (item as GroupChat).id.toString();
+        const chatId = showPrivateChats ? (item as PrivateChat).id.toString() : (item as GroupChat).id.toString();
+        const recipient = showPrivateChats ? (item as PrivateChat).participant : (item as GroupChat).name;
         return (
-            <Card style={styles.contactCard} onPress={() => openChat(recipient)}>
+            <Card style={styles.contactCard} onPress={() => openChat(chatId, recipient)}>
                 <Card.Content>
                     <Text>{name}</Text>
                 </Card.Content>

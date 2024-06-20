@@ -25,14 +25,13 @@ const baseURL = Platform.select({
 
 const ChatConversationScreen: React.FC = () => {
     const route = useRoute<ChatConversationScreenRouteProp>();
-    const { recipient } = route.params;
-    const [recipientSub, setRecipentSub] = useState<string>('' as string);
+    const { chatId, recipient } = route.params;
     const [message, setMessage] = useState<string>('');
     const [messages, setMessages] = useState<Message[]>([]);
     const [socket, setSocket] = useState<any>(null);
+    const [recipientSub, setRecipentSub] = useState<string>('' as string);
 
     useEffect(() => {
-
         const getRecipientSub = async () => {
             apiClient.get('/user/getUserSub', {params: {email: recipient}})
                 .then((response) => {
@@ -76,13 +75,13 @@ const ChatConversationScreen: React.FC = () => {
                 socket.disconnect();
             }
         };
-    }, []);
+    }, [chatId, recipient]);
 
     const sendPrivateMessage = () => {
         if (socket) {
             const newMessage: Message = { content: message, type: 'private', sender: 'me' };
             setMessages((prevMessages) => [...prevMessages, newMessage]);
-            socket.emit('private_message', { content: message, to: recipientSub });
+            socket.emit('private_message', { content: message, to: recipientSub, chatId });
             setMessage('');
         } else {
             console.error('Socket is not connected');
@@ -92,9 +91,6 @@ const ChatConversationScreen: React.FC = () => {
     return (
         <SafeAreaProvider>
             <SafeAreaView style={styles.container}>
-                <Appbar.Header>
-                    <Appbar.Content title={`Chat with ${recipient}`} />
-                </Appbar.Header>
                 <View style={styles.inputContainer}>
                     <TextInput
                         label="Message"

@@ -17,7 +17,7 @@ type RootStackParamList = {
         place: Place;
         userLocation: userLocation | null
     };
-    ChatConversation: { recipient: string };
+    ChatConversation: { recipient: string, chatId: string};
 };
 
 export default RootStackParamList;

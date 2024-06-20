@@ -37,7 +37,7 @@ const App: React.FC = () => {
                         <Stack.Screen name="EventScreen" component={EventScreen}/>
                         <Stack.Screen name="NearbyScreen" component={NearbyScreen} options={{ headerShown: false }}/>
                         <Stack.Screen name="ChatList" component={ChatListScreen} options={{ headerShown: false }}/>
-                        <Stack.Screen name="ChatConversation" component={ChatConversationScreen}/>
+                        <Stack.Screen name="ChatConversation" component={ChatConversationScreen} options={{ headerShown: false }}/>
                     </Stack.Navigator>
                 </NavigationContainer>
             </LocationProvider>
