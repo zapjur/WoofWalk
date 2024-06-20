@@ -50,10 +50,7 @@ const ChatListScreen: React.FC = () => {
 
     return (
         <Provider>
-            <SafeAreaView style={styles.container}>
-                <Button mode="contained" onPress={() => setModalVisible(true)} style={styles.addButton}>
-                    Add New Chat
-                </Button>
+            <View style={styles.container}>
                 <FlatList
                     data={privateChats}
                     renderItem={({ item }) => (
@@ -66,6 +63,9 @@ const ChatListScreen: React.FC = () => {
                     keyExtractor={(item) => item.id.toString()}
                     contentContainerStyle={styles.contactList}
                 />
+                <Button mode="contained" onPress={() => setModalVisible(true)} style={styles.addButton}>
+                    Add New Chat
+                </Button>
                 <Portal>
                     <Modal visible={modalVisible} onDismiss={() => setModalVisible(false)} contentContainerStyle={styles.modalContainer}>
                         <TextInput
@@ -80,7 +80,7 @@ const ChatListScreen: React.FC = () => {
                     </Modal>
                 </Portal>
                 <BottomBar navigation={navigation} />
-            </SafeAreaView>
+            </View>
         </Provider>
     );
 };
@@ -89,12 +89,14 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#f5f5f5',
+        marginTop: '20%',
     },
     addButton: {
         position: 'absolute',
         bottom: 90,
         width: '80%',
         right: '10%',
+        zIndex: 20,
     },
     inputContainer: {
         padding: 10,
