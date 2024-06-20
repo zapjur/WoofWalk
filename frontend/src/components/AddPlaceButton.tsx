@@ -25,7 +25,7 @@ const styles = StyleSheet.create({
         bottom: 90,
         left: '50%',
         transform: [{ translateX: -100 }],
-        backgroundColor: '#007bff',
+        backgroundColor: '#60dc62',
         paddingVertical: 10,
         paddingHorizontal: 20,
         borderRadius: 25,

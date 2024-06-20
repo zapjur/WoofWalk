@@ -109,6 +109,10 @@ const PlaceScreen: React.FC<PlaceScreenProps> = ({ route }) => {
             Alert.alert('Please log in to submit a review');
             return;
         }
+        if(rating !== '1' && rating !== '2' && rating !== '3' && rating !== '4' && rating !== '5'){
+            Alert.alert("Invalid rating", "Please provide valid rating");
+            return;
+        }
         const formData = new FormData();
         formData.append('userEmail', userEmail);
         formData.append('rating', rating);

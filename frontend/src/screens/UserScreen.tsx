@@ -6,7 +6,7 @@ import {
     Image,
     TouchableOpacity,
     TextInput,
-    Linking, ScrollView,
+    Linking, ScrollView, Alert,
 } from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import BottomBar from "../components/BottomBar";
@@ -21,6 +21,7 @@ import PhotoModal from "../modals/PhotoModal";
 import AddDogModal from "../modals/AddDogModal";
 import { DogSummary } from "../constants/dogData";
 import DogModal from "../modals/DogModal";
+import { parsePhoneNumberFromString } from 'libphonenumber-js';
 
 
 
@@ -64,8 +65,6 @@ const UserScreen: React.FC<UserScreenProps> = ({ navigation }) => {
             }).then(response => {
                 setPhoneNumber(response.data.length !== 0 ? response.data : "Provide your phone number");
             });
-
-
         }
         setRefreshUserData(false);
     }, [refreshUserData]);
@@ -139,6 +138,16 @@ const UserScreen: React.FC<UserScreenProps> = ({ navigation }) => {
         setEditingAddress(true);
     };
 
+    const isValidPhoneNumber = (phoneNumber: string): boolean => {
+        const parsedNumber = parsePhoneNumberFromString(phoneNumber, 'PL');
+
+        if (!parsedNumber) {
+            return false;
+        }
+
+        return parsedNumber.isValid();
+    }
+
     const handleEditAddressSaveClick = async () => {
         if (user) {
             const userData = { email: user.email, address };
@@ -152,10 +161,17 @@ const UserScreen: React.FC<UserScreenProps> = ({ navigation }) => {
         setEditingPhoneNumber(true);
     };
 
-    const handleEditPhoneNumberSaveClick = () => {
+    const handleEditPhoneNumberSaveClick = async () => {
         if (user) {
-            const userData = { email: user.email, phoneNumber };
-            apiClient.post("/user/updatePhoneNumber", userData).catch(error => console.log(error));
+            const isPhoneNumberValid = isValidPhoneNumber(phoneNumber);
+            if(isPhoneNumberValid){
+                const userData = { email: user.email, phoneNumber };
+                await apiClient.post("/user/updatePhoneNumber", userData);
+
+            }
+            else{
+                Alert.alert("Incorrect phone number", "Please provide valid phone number");
+            }
             setRefreshUserData(true);
         }
         setEditingPhoneNumber(false);
@@ -292,6 +308,8 @@ const UserScreen: React.FC<UserScreenProps> = ({ navigation }) => {
                             keyboardType={"numeric"}
                             onChangeText={setPhoneNumber}
                             placeholder="Provide your phone number"
+                            returnKeyType="done"
+                            onSubmitEditing={handleEditPhoneNumberSaveClick}
                         />
                     ) : (
                         <Text style={styles.infoText}>{phoneNumber}</Text>
@@ -317,6 +335,8 @@ const UserScreen: React.FC<UserScreenProps> = ({ navigation }) => {
                             style={styles.infoText}
                             onChangeText={setAddress}
                             placeholder="Provide your address"
+                            returnKeyType="done"
+                            onSubmitEditing={handleEditAddressSaveClick}
                         />
                     ) : (
                         <Text style={styles.infoText}>{address}</Text>
@@ -496,7 +516,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         gap: 8,
-        backgroundColor: '#007bff',
+        backgroundColor: '#60dc62',
         borderRadius: 24,
         width: '80%',
         height: 30,

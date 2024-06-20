@@ -185,7 +185,7 @@ const EventScreen: React.FC<EventScreenProps> = ({ route }) => {
                     <Text style={styles.nameText}>About {place.name}</Text>
                     <Text style={styles.descriptionText}>{place.description}</Text>
                     <View style={styles.separator} />
-                    <Text style={styles.nameText}>Users interested in {place.name}</Text>
+                    <Text style={styles.nameText}>Users interested in {place.name} ({interestedUsers.length})</Text>
                     <ScrollView style={styles.shadowPanel}>
                         <View style={styles.container}>
                             {interestedUsers.length > 0 ? (

@@ -24,8 +24,8 @@ const NearbyScreen: React.FC<NearbyScreenProps> = ({ navigation }) => {
     const [modalVisible, setModalVisible] = useState(false);
 
     const data = [
+        { key: -1, label: 'ALL', value: '' },
         ...categories,
-        { key: -1, label: 'CLEAR', value: '' },
     ];
     if(!userLocation) {
         return (
@@ -151,7 +151,13 @@ const NearbyScreen: React.FC<NearbyScreenProps> = ({ navigation }) => {
                 </>
             ) : (
                 <View style={styles.container}>
-                    <Text>No data available.</Text>
+                    <View style={styles.noDataContainer}>
+                        <Image
+                            source={{uri: "https://cdn-icons-png.flaticon.com/128/324/324892.png"}}
+                            style={styles.noDataIcon}
+                        >
+                        </Image>
+                    </View>
                 </View>
             )}
             <ModalSelector
@@ -187,12 +193,22 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 16,
     },
+    noDataContainer: {
+        position: "absolute",
+        top: 300,
+        right: 125,
+    },
     header: {
         marginTop: 5,
         fontWeight: 'bold',
         fontSize: 18,
         marginLeft: 16,
     },
+    noDataIcon: {
+        height: 180,
+        width: 180,
+    },
+
     placeContainer: {
         marginBottom: 16,
         padding: 16,
