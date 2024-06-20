@@ -1,55 +1,87 @@
 import React, { useEffect, useState } from 'react';
-import {FlatList, Platform, StyleSheet, View} from 'react-native';
-import { Button, TextInput, Text, Appbar, Card } from 'react-native-paper';
+import { FlatList, SafeAreaView, StyleSheet, View } from 'react-native';
+import { Button, TextInput, Text, Appbar, Card, Modal, Portal, Provider } from 'react-native-paper';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { useNavigation } from '@react-navigation/native';
 import RootStackParamList from '../../RootStackParamList';
+import { PrivateChat } from "../constants/chatTypes";
+import apiClient from "../../axiosConfig";
+import BottomBar from "../components/BottomBar";
 
 type ChatListScreenNavigationProp = StackNavigationProp<RootStackParamList, 'ChatList'>;
 
 const ChatListScreen: React.FC = () => {
     const navigation = useNavigation<ChatListScreenNavigationProp>();
-    const [contacts, setContacts] = useState<string[]>([]);
     const [email, setEmail] = useState<string>('');
-    const [socket, setSocket] = useState<any>(null);
+    const [privateChats, setPrivateChats] = useState<PrivateChat[]>([]);
+    const [modalVisible, setModalVisible] = useState<boolean>(false);
 
     useEffect(() => {
+        const fetchPrivateChats = async () => {
+            try {
+                const response = await apiClient.get('/chat/private');
+                setPrivateChats(response.data);
+                console.log('Private chats:', response.data);
+            } catch (error) {
+                console.error('Error fetching private chats:', error);
+            }
+        };
 
+        fetchPrivateChats();
     }, []);
 
     const openChat = (recipient: string) => {
         navigation.navigate('ChatConversation', { recipient });
     };
 
+    const handleAddChat = async () => {
+        if (email) {
+            try {
+                const response = await apiClient.post('/chat/private/create', null, { params: { user2Email: email } });
+                setPrivateChats([...privateChats, response.data]);
+                setEmail('');
+                setModalVisible(false);
+                openChat(email);
+            } catch (error) {
+                console.error('Error adding new chat:', error);
+            }
+        }
+    };
+
     return (
-        <View style={styles.container}>
-            <Appbar.Header>
-                <Appbar.Content title="Chat List" />
-            </Appbar.Header>
-            <View style={styles.inputContainer}>
-                <TextInput
-                    label="Recipient Email"
-                    value={email}
-                    onChangeText={setEmail}
-                    style={styles.input}
-                />
-                <Button mode="contained" onPress={() => openChat(email)} style={styles.button}>
-                    Open Chat
+        <Provider>
+            <SafeAreaView style={styles.container}>
+                <Button mode="contained" onPress={() => setModalVisible(true)} style={styles.addButton}>
+                    Add New Chat
                 </Button>
-            </View>
-            <FlatList
-                data={contacts}
-                renderItem={({ item }) => (
-                    <Card style={styles.contactCard} onPress={() => openChat(item)}>
-                        <Card.Content>
-                            <Text>{item}</Text>
-                        </Card.Content>
-                    </Card>
-                )}
-                keyExtractor={(item, index) => index.toString()}
-                contentContainerStyle={styles.contactList}
-            />
-        </View>
+                <FlatList
+                    data={privateChats}
+                    renderItem={({ item }) => (
+                        <Card style={styles.contactCard} onPress={() => openChat(item.participant)}>
+                            <Card.Content>
+                                <Text>{item.participant}</Text>
+                            </Card.Content>
+                        </Card>
+                    )}
+                    keyExtractor={(item) => item.id.toString()}
+                    contentContainerStyle={styles.contactList}
+                />
+                <Portal>
+                    <Modal visible={modalVisible} onDismiss={() => setModalVisible(false)} contentContainerStyle={styles.modalContainer}>
+                        <TextInput
+                            label="Recipient Email"
+                            value={email}
+                            onChangeText={setEmail}
+                            style={styles.input}
+                        />
+                        <Button mode="contained" onPress={handleAddChat} style={styles.button}>
+                            Start Chat
+                        </Button>
+                    </Modal>
+                </Portal>
+                <BottomBar navigation={navigation} />
+            </SafeAreaView>
+        </Provider>
     );
 };
 
@@ -57,6 +89,12 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#f5f5f5',
+    },
+    addButton: {
+        position: 'absolute',
+        bottom: 90,
+        width: '80%',
+        right: '10%',
     },
     inputContainer: {
         padding: 10,
@@ -75,6 +113,12 @@ const styles = StyleSheet.create({
     },
     contactCard: {
         marginBottom: 10,
+    },
+    modalContainer: {
+        padding: 20,
+        backgroundColor: 'white',
+        marginHorizontal: 20,
+        borderRadius: 10,
     },
 });
 

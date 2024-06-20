@@ -1,3 +1,4 @@
+com/WoofWalk/backend/dto/MessageDto.class
 com/WoofWalk/backend/config/AWSConfig.class
 com/WoofWalk/backend/enums/DogAge.class
 com/WoofWalk/backend/dto/DogDto.class
@@ -6,6 +7,7 @@ com/WoofWalk/backend/dto/RatingDto.class
 com/WoofWalk/backend/config/SecurityConfig.class
 com/WoofWalk/backend/enums/DogSex.class
 com/WoofWalk/backend/dto/DogSummaryDto.class
+com/WoofWalk/backend/mappers/GroupChatMapper.class
 com/WoofWalk/backend/services/DogService.class
 com/WoofWalk/backend/mappers/DogMapper.class
 com/WoofWalk/backend/controllers/LocationController.class
@@ -19,7 +21,9 @@ com/WoofWalk/backend/services/UserService.class
 com/WoofWalk/backend/repositories/FriendRequestRepository.class
 com/WoofWalk/backend/repositories/UserRepository.class
 com/WoofWalk/backend/repositories/RatingRepository.class
+com/WoofWalk/backend/repositories/GroupChatRepository.class
 com/WoofWalk/backend/mappers/LocationMapper.class
+com/WoofWalk/backend/entities/PrivateChat.class
 com/WoofWalk/backend/dto/LocationDto.class
 com/WoofWalk/backend/entities/Event.class
 com/WoofWalk/backend/repositories/DogRepository.class
@@ -27,18 +31,23 @@ com/WoofWalk/backend/entities/Location.class
 com/WoofWalk/backend/dto/UserDto.class
 com/WoofWalk/backend/Validators/FriendRequestValidator.class
 com/WoofWalk/backend/services/LocationService.class
+com/WoofWalk/backend/mappers/PrivateChatMapper.class
 com/WoofWalk/backend/dto/DogFullDto.class
 com/WoofWalk/backend/dto/FriendRequestDto.class
 com/WoofWalk/backend/repositories/EventRepository.class
+com/WoofWalk/backend/mappers/MessageMapper.class
 com/WoofWalk/backend/controllers/MessageController.class
 com/WoofWalk/backend/enums/DogSize.class
 com/WoofWalk/backend/services/EventService.class
+com/WoofWalk/backend/dto/PrivateChatDto.class
 com/WoofWalk/backend/dto/LocationDetailsDto.class
 com/WoofWalk/backend/dto/ProfilePictureDto.class
 com/WoofWalk/backend/entities/Dog.class
 com/WoofWalk/backend/mappers/UserMapper.class
 com/WoofWalk/backend/AWSSecretManagerService.class
+com/WoofWalk/backend/dto/GroupChatDto.class
 com/WoofWalk/backend/config/LoadSeedData.class
+com/WoofWalk/backend/repositories/PrivateChatRepository.class
 com/WoofWalk/backend/BackendApplication.class
 com/WoofWalk/backend/repositories/LocationRepository.class
 com/WoofWalk/backend/enums/LocationCategory.class
@@ -46,6 +55,7 @@ com/WoofWalk/backend/entities/User.class
 com/WoofWalk/backend/services/S3Service.class
 com/WoofWalk/backend/enums/DogBreed.class
 com/WoofWalk/backend/controllers/EventController.class
+com/WoofWalk/backend/entities/GroupChat.class
 com/WoofWalk/backend/controllers/FriendRequestController.class
 com/WoofWalk/backend/repositories/MessageRepository.class
 com/WoofWalk/backend/entities/FriendRequest.class

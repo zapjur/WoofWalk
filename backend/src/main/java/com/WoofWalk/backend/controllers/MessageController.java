@@ -72,7 +72,7 @@ public class MessageController {
         User user1 = userService.getUserFromToken(jwtToken);
         User user2 = userService.findByEmail(user2Email);
         PrivateChat privateChat = messageService.createPrivateChat(user1, user2);
-        return ResponseEntity.ok(PrivateChatMapper.toDto(privateChat));
+        return ResponseEntity.ok(PrivateChatMapper.toDto(privateChat, user1));
     }
 
     @PostMapping("/group/create")
@@ -83,12 +83,12 @@ public class MessageController {
     }
 
     @GetMapping("/private")
-    public ResponseEntity<List<PrivateChatDto>> getPrivateChats(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<List<PrivateChatDto>> getConversations(@RequestHeader("Authorization") String token) {
         String jwtToken = token.replace("Bearer ", "");
         User user = userService.getUserFromToken(jwtToken);
         List<PrivateChatDto> privateChats = messageService.getPrivateChatsForUser(user)
                 .stream()
-                .map(PrivateChatMapper::toDto)
+                .map(privateChat -> PrivateChatMapper.toDto(privateChat, user))
                 .collect(Collectors.toList());
         return ResponseEntity.ok(privateChats);
     }

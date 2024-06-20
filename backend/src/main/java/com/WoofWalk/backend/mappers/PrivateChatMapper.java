@@ -7,12 +7,14 @@ import com.WoofWalk.backend.entities.User;
 import java.util.stream.Collectors;
 
 public class PrivateChatMapper {
-    public static PrivateChatDto toDto(PrivateChat privateChat) {
+    public static PrivateChatDto toDto(PrivateChat privateChat, User requestingUser) {
         PrivateChatDto dto = new PrivateChatDto();
         dto.setId(privateChat.getId());
-        dto.setParticipants(privateChat.getParticipants().stream()
+        dto.setParticipant(privateChat.getParticipants().stream()
                 .map(User::getEmail)
-                .collect(Collectors.toSet()));
+                .filter(email -> !email.equals(requestingUser.getEmail()))
+                .findFirst()
+                .orElse(null));
         return dto;
     }
 }
