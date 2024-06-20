@@ -65,7 +65,7 @@ public class UserController {
         try(S3Object s3Object = s3Service.downloadProfilePicture(email);){
 
             if(s3Object == null){
-                return ResponseEntity.notFound().build();
+                return ResponseEntity.noContent().build();
             }
             try (InputStream inputStream = s3Object.getObjectContent()) {
 

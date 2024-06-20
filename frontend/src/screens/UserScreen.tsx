@@ -6,7 +6,7 @@ import {
     Image,
     TouchableOpacity,
     TextInput,
-    Linking, ScrollView, Dimensions,
+    Linking, ScrollView,
 } from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import BottomBar from "../components/BottomBar";
@@ -21,6 +21,8 @@ import PhotoModal from "../modals/PhotoModal";
 import AddDogModal from "../modals/AddDogModal";
 import { DogSummary } from "../constants/dogData";
 import DogModal from "../modals/DogModal";
+
+
 
 type MapScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Map'>;
 type UserScreenNavigationProp = StackNavigationProp<RootStackParamList, 'User'>
@@ -74,12 +76,19 @@ const UserScreen: React.FC<UserScreenProps> = ({ navigation }) => {
                 params: { email: user.email },
                 responseType: 'blob'
             }).then(response => {
-                const blob = response.data;
-                const reader = new FileReader();
-                reader.onloadend = () => {
-                    if (reader.result) setImage(reader.result as string);
-                };
-                reader.readAsDataURL(blob);
+                if(response.status === 204){
+                    setImage("https://cdn-icons-png.flaticon.com/128/848/848043.png");
+                }
+                else{
+                    const blob = response.data;
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                        if (reader.result) setImage(reader.result as string);
+                    };
+                    reader.readAsDataURL(blob);
+                }
+            }).catch(error => {
+                console.log(error);
             });
         }
         setRefreshProfilePicture(false);
@@ -107,7 +116,7 @@ const UserScreen: React.FC<UserScreenProps> = ({ navigation }) => {
     };
 
     const handleOpenGithub = (url: string) => {
-        Linking.openURL(url);
+        Linking.openURL(url).catch(error => console.log(error));
     };
 
     const handleOpenNamesModal = () => {
@@ -146,7 +155,7 @@ const UserScreen: React.FC<UserScreenProps> = ({ navigation }) => {
     const handleEditPhoneNumberSaveClick = () => {
         if (user) {
             const userData = { email: user.email, phoneNumber };
-            apiClient.post("/user/updatePhoneNumber", userData);
+            apiClient.post("/user/updatePhoneNumber", userData).catch(error => console.log(error));
             setRefreshUserData(true);
         }
         setEditingPhoneNumber(false);

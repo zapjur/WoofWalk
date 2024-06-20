@@ -37,7 +37,7 @@ const NearbyScreen: React.FC<NearbyScreenProps> = ({ navigation }) => {
     }
 
     useEffect(() => {
-        findNearestPlaces();
+        findNearestPlaces().catch(error => console.log(error));
     }, [sortingBy]);
 
 

@@ -11,21 +11,13 @@ import {
 import {RouteProp, useNavigation} from "@react-navigation/native";
 import axios from "axios";
 import RootStackParamList from "../../RootStackParamList";
-
 import apiClient from "../../axiosConfig";
 import {useAuth0} from "react-native-auth0";
-
-
-
-
 
 
 interface EventScreenProps {
     route: RouteProp<RootStackParamList, 'EventScreen'>;
 }
-
-
-
 
 
 const EventScreen: React.FC<EventScreenProps> = ({ route }) => {
@@ -56,12 +48,12 @@ const EventScreen: React.FC<EventScreenProps> = ({ route }) => {
                     console.error('Error calculating distance:', error);
                 }
             };
-            calculateDistance();
+            calculateDistance().catch(error => console.log(error));
         }
     }, [userLocation, place.id]);
 
     const handleInterestedInPress = () =>{
-        handleIsUserInterested();
+        handleIsUserInterested().catch(error => console.log(error));
         setIsUserInterested(!isUserInterested);
     }
     const handleIsUserInterested = async () => {
@@ -94,35 +86,48 @@ const EventScreen: React.FC<EventScreenProps> = ({ route }) => {
         apiClient.get(`/events/getAllUsers/${place.id}`)
             .then(response =>{
                 setInterestedUsers(response.data);
-                getProfilePicture(response.data);
+                getProfilePicture(response.data).catch(error => console.log(error));
             })
             .catch(error => console.log(error));
 
     }, [refresh]);
 
     const getProfilePicture = async (Users: String[]) => {
-        if(user){
-
-            Users.map(userEmail =>{
+        if (user) {
+            Users.map(userEmail => {
                 apiClient.get("/user/profilePicture/download", {
                     params: { email: userEmail },
                     responseType: 'blob'
                 }).then(response => {
-                    const blob = response.data;
-                    const reader = new FileReader();
-                    reader.onloadend = () => {
-                        if (reader.result){
-                            setProfilePictures(prevProfilePictures => [
-                                ...prevProfilePictures,
-                                [userEmail, reader.result as string]
-                            ]);
-                        }
-                    };
-                    reader.readAsDataURL(blob);
+
+                    if(response.status === 204){
+                        setProfilePictures(prevProfilePictures => [
+                            ...prevProfilePictures,
+                            [userEmail, "https://cdn-icons-png.flaticon.com/128/848/848043.png"]
+                        ]);
+                    } else{
+                        const blob = response.data;
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                            try {
+                                if (reader.result) {
+                                    setProfilePictures(prevProfilePictures => [
+                                        ...prevProfilePictures,
+                                        [userEmail, reader.result as string]
+                                    ]);
+                                }
+                            } catch (error) {
+
+                                console.error('Error setting profile picture:', error);
+                            }
+                        };
+                        reader.readAsDataURL(blob);
+                    }
+                }).catch(error => {
+                    console.error('Error downloading profile picture:', error);
                 });
-            })
+            });
         }
-        return "https://cdn-icons-png.flaticon.com/128/848/848043.png";
     }
     const findValue = (email : String) => {
         const found = profilePictures.find(entry => entry[0] === email);
@@ -218,7 +223,8 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "flex-start",
-        marginBottom: 10,
+        marginBottom: 5,
+        marginTop: 5,
     },
     userText: {
         marginLeft: 20,

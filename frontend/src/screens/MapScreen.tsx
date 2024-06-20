@@ -17,6 +17,7 @@ import {categories} from "../constants/types";
 import ClusteredMapView from "react-native-map-clustering";
 
 
+
 type MapScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Map'>;
 
 interface MapScreenProps {
@@ -39,7 +40,7 @@ const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
 
     useEffect(() => {
 
-        createUser();
+        createUser().catch(error => console.log(error));
         if (userLocation) {
             const region = {
                 ...userLocation,
