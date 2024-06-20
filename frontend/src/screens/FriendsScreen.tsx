@@ -142,8 +142,8 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
                         </View>
                     ) : (
                         friendsEmails.slice().reverse().map((friend, index) => (
-                            <View style={styles.shadowPanel}>
-                                <View style={{ flexDirection: 'row', alignItems: 'center',height: 82 }} key={index}>
+                            <View style={styles.shadowPanel} key={index}>
+                                <View style={{ flexDirection: 'row', alignItems: 'center',height: 82 }}>
                                     <Image
                                         style={styles.imageStyle}
                                         source={{ uri: image != "none" ? image : 'https://cdn-icons-png.flaticon.com/128/848/848043.png' }}
@@ -165,32 +165,29 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
                                 </View>
                             ) : (
                                 receivedFriendRequests.slice().reverse().map((invitation, index) => (
-                                    <>
-                                        <View style={styles.shadowPanel}>
-                                            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }} key={index}>
-                                                <Image
-                                                    style={styles.imageStyle}
-                                                    source={{ uri: image != "none" ? image : 'https://cdn-icons-png.flaticon.com/128/848/848043.png' }}
-                                                />
-                                                <Text style={styles.textSend}>{invitation.senderEmail}</Text>
-                                                <View style={styles.buttonPanel}>
-                                                    <TouchableOpacity style={styles.addButton} onPress={() => acceptFriendRequest(invitation.id)}>
-                                                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                                            <MaterialCommunityIcon name={"account-multiple-check"} size={21}></MaterialCommunityIcon>
-                                                            <Text style={styles.buttonText}>Accept</Text>
-                                                        </View>
-                                                    </TouchableOpacity>
-                                                    <TouchableOpacity style={styles.rejectButton}  onPress={() => declineFriendRequest(invitation.id)}>
-                                                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                                            <MaterialCommunityIcon name={"account-multiple-remove"} size={21}></MaterialCommunityIcon>
-                                                            <Text style={styles.buttonText}>Reject</Text>
-                                                        </View>
-
-                                                    </TouchableOpacity>
-                                                </View>
+                                    <View style={styles.shadowPanel} key={index}>
+                                        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                                            <Image
+                                                style={styles.imageStyle}
+                                                source={{ uri: image != "none" ? image : 'https://cdn-icons-png.flaticon.com/128/848/848043.png' }}
+                                            />
+                                            <Text style={styles.textSend}>{invitation.senderEmail}</Text>
+                                            <View style={styles.buttonPanel}>
+                                                <TouchableOpacity style={styles.addButton} onPress={() => acceptFriendRequest(invitation.id)}>
+                                                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                                        <MaterialCommunityIcon name={"account-multiple-check"} size={21}></MaterialCommunityIcon>
+                                                        <Text style={styles.buttonText}>Accept</Text>
+                                                    </View>
+                                                </TouchableOpacity>
+                                                <TouchableOpacity style={styles.rejectButton}  onPress={() => declineFriendRequest(invitation.id)}>
+                                                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                                        <MaterialCommunityIcon name={"account-multiple-remove"} size={21}></MaterialCommunityIcon>
+                                                        <Text style={styles.buttonText}>Reject</Text>
+                                                    </View>
+                                                </TouchableOpacity>
                                             </View>
                                         </View>
-                                    </>
+                                    </View>
                                 ))
                             )}
                         </View>
@@ -205,7 +202,7 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
                         </View>
                     ) : (
                         sentFriendRequests.slice().reverse().map((invitation, index) => (
-                            <View style={styles.shadowPanel}>
+                            <View style={styles.shadowPanel} key={index}>
                                 <View style={{ flexDirection: 'row', alignItems: 'center', height: 82 }}>
                                     <Image
                                         style={styles.imageStyle}
