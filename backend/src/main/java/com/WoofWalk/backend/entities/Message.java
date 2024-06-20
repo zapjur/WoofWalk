@@ -23,4 +23,12 @@ public class Message {
     @Column(nullable = false)
     private long timestamp;
 
+    @ManyToOne
+    @JoinColumn(name = "private_chat_id")
+    private PrivateChat privateChat;
+
+    @ManyToOne
+    @JoinColumn(name = "group_chat_id")
+    private GroupChat groupChat;
+
 }

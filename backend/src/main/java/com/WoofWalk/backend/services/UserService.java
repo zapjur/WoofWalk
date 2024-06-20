@@ -11,6 +11,8 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +23,23 @@ public class UserService {
 
     public User saveUser(User user) {
         return userRepository.save(user);
+    }
+
+    public User findByEmail(String email) {
+        Optional<User> user = userRepository.findByEmail(email);
+        return user.orElse(null);
+    }
+
+    public Set<User> findUsersByEmails(Set<String> emails) {
+        return emails.stream()
+                .map(this::findByEmail)
+                .collect(Collectors.toSet());
+    }
+
+    public User getUserFromToken(String token) {
+        Jwt jwt = jwtDecoder.decode(token);
+        String sub = jwt.getClaimAsString("sub");
+        return findBySub(sub);
     }
 
     public User findBySub(String sub) {

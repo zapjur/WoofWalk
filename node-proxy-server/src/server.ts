@@ -109,7 +109,7 @@ const initializeServer = async () => {
                 const timestamp = Date.now();
                 const messageData = { content, recipient: to, sender: userSub, timestamp };
                 console.log('Message data to be sent:', messageData);
-                await axios.post('http://localhost:8080/messages/save', messageData, {
+                await axios.post('http://localhost:8080/chat', messageData, {
                     headers: {
                         Authorization: token
                     }
