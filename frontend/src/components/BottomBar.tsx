@@ -28,7 +28,7 @@ const BottomBar: React.FC<BottomBarProps> = ({ navigation }) => {
     }
 
     const handleChatButtonPress = () =>{
-        navigation.navigate('Chat');
+        navigation.navigate('ChatList');
     }
 
     const handleNearbyButtonPress = () =>{

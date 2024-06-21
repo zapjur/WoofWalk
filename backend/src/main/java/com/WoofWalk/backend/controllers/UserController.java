@@ -32,6 +32,10 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping("/getUserSub")
+    public String getUserSub(@RequestParam("email") String email){
+        return userService.getUserSub(email);
+    }
 
     @PostMapping("/updateAddress")
     public UserDto updateUserAddress(@RequestBody UserDto userDto){
@@ -102,5 +106,10 @@ public class UserController {
     @PostMapping("/profilePicture/delete")
     public ResponseEntity<String> deleteProfilePicture(@RequestBody UserDto userDto){
         return s3Service.deleteImage(userDto.getEmail());
+    }
+
+    @GetMapping("/getProfilePicture")
+    public ResponseEntity<String> getProfilePicture(@RequestParam("email") String email){
+        return ResponseEntity.ok(userService.getProfilePicture(email));
     }
 }

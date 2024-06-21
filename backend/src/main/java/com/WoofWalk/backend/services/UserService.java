@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -19,14 +20,37 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final JwtDecoder jwtDecoder;
+    private final S3Service s3Service;
 
     public User saveUser(User user) {
         return userRepository.save(user);
     }
 
+    public User findByEmail(String email) {
+        Optional<User> user = userRepository.findByEmail(email);
+        return user.orElse(null);
+    }
+
+    public Set<User> findUsersByEmails(Set<String> emails) {
+        return emails.stream()
+                .map(this::findByEmail)
+                .collect(Collectors.toSet());
+    }
+
+    public User getUserFromToken(String token) {
+        Jwt jwt = jwtDecoder.decode(token);
+        String sub = jwt.getClaimAsString("sub");
+        return findBySub(sub);
+    }
+
     public User findBySub(String sub) {
         Optional<User> user = userRepository.findBySub(sub);
         return user.orElse(null);
+    }
+
+    public String getUserSub(String email){
+        Optional<User> user = userRepository.findByEmail(email);
+        return user.map(User::getSub).orElse(null);
     }
 
     public User createUserInDatabase(UserDto userDto, String token) {
@@ -90,5 +114,16 @@ public class UserService {
         saveUser(user);
     }
 
+    public String getProfilePicture(String email){
+        Optional<User> userOptional = userRepository.findByEmail(email);
+        if(userOptional.isPresent()){
+            User user = userOptional.get();
+            String profilePictureId = user.getProfilePictureId();
+            if(profilePictureId != null) {
+                return s3Service.getFileUrl(profilePictureId);
+            }
+        }
+        return null;
+    }
 
 }

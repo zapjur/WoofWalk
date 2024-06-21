@@ -6,7 +6,7 @@ type RootStackParamList = {
     User: undefined;
     Friends: undefined;
     AddPlace: undefined;
-    Chat: undefined;
+    ChatList: undefined;
     DM: {email: string };
     PlaceScreen: {
         place: Place;
@@ -16,8 +16,8 @@ type RootStackParamList = {
     EventScreen: {
         place: Place;
         userLocation: userLocation | null
-    }
-
+    };
+    ChatConversation: { recipient: string, chatId: string};
 };
 
 export default RootStackParamList;

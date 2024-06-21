@@ -30,6 +30,7 @@ public class BackendApplication {
 		setSystemProperty("spring.security.oauth2.resourceserver.jwt.issuer-uri", secrets.get("auth0.issuerURI"));
 		setSystemProperty("aws.accessKeyId", secrets.get("aws.accessKeyId"));
 		setSystemProperty("aws.secretAccessKey", secrets.get("aws.secretAccessKey"));
+		setSystemProperty("auth0.audience", secrets.get("auth0.audience"));
 
 		SpringApplication.run(BackendApplication.class, args);
 	}

@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -56,5 +57,11 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "event_id")
     )
     private Set<Event> events;
+
+    @ManyToMany(mappedBy = "participants")
+    private Set<PrivateChat> privateChats = new HashSet<>();
+
+    @ManyToMany(mappedBy = "members")
+    private Set<GroupChat> groupChats = new HashSet<>();
 
 }
