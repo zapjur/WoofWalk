@@ -3,6 +3,7 @@ import {TouchableOpacity, Text, StyleSheet, View, Modal, TextInput, Alert} from 
 import {useAuth0} from "react-native-auth0";
 import apiClient from "../../axiosConfig";
 import axios from "axios";
+import MaterialCommunityIcon from "react-native-vector-icons/MaterialCommunityIcons";
 
 const AddFriendButton: React.FC<{ onInvitationSent: () => void }> = ({ onInvitationSent }) => {
     const {user} = useAuth0();
@@ -55,7 +56,7 @@ const AddFriendButton: React.FC<{ onInvitationSent: () => void }> = ({ onInvitat
     return (
         <View style={styles.container}>
             <TouchableOpacity style={styles.button} onPress={handleAddFriendPress}>
-                <Text style={styles.buttonText}>Add Your Friend</Text>
+                <MaterialCommunityIcon name={"account-plus"} size={33}></MaterialCommunityIcon>
             </TouchableOpacity>
             <Modal
                 animationType="slide"
@@ -94,11 +95,12 @@ const AddFriendButton: React.FC<{ onInvitationSent: () => void }> = ({ onInvitat
 const styles = StyleSheet.create({
     container: {
         flex:1,
+
     },
     button: {
         position: 'absolute',
+        bottom: 0,
         width: 200,
-        bottom: 90,
         left: '50%',
         transform: [{ translateX: -100 }],
         backgroundColor: '#007bff',
@@ -106,7 +108,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         borderRadius: 25,
         alignItems: 'center',
-        zIndex: 10,
+        zIndex: 60,
     },
     buttonText: {
         color: '#fff',
