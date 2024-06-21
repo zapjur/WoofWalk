@@ -33,7 +33,6 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
     const [selectedTab, setSelectedTab] = useState('Friends');
     const [image, setImage] = useState("none");
     const [profilePictures, setProfilePictures] = useState<[String, string][]>([]);
-
     useEffect(() => {
         if(user){
             const receiverEmail = user.email
@@ -74,7 +73,9 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
                 }));
                 setFriendsEmail(userFriends);
             })
+
             setRefresh(false);
+
         }
     }, [refresh]);
 
@@ -148,10 +149,7 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
             </View>
             <View style={{ borderBottomColor: 'gray', borderBottomWidth: 1, marginVertical: 10 }} />
             <View style={styles.buttonContainer}>
-                <TouchableOpacity style={styles.button} onPress={() =>{
-                    setSelectedTab('Friends')
-                    setRefresh(true);
-                }}>
+                <TouchableOpacity style={styles.button} onPress={() => setSelectedTab('Friends')}>
                     <View style={styles.innerContainer}>
                         <Text style={styles.textNextTo}>Friends</Text>
                         <MaterialCommunityIcon name={"account-group"} size={33}></MaterialCommunityIcon>
@@ -160,7 +158,7 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
 
                 <TouchableOpacity style={styles.button} onPress={() =>{
                     setSelectedTab('Requests');
-                    setRefresh(true);
+                    setRefresh(!refresh);
                     }}>
                     <View style={styles.innerContainer}>
                         <Text style={styles.textNextTo} >Requests</Text>
@@ -168,10 +166,7 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
                     </View>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.button} onPress={() =>{
-                    setSelectedTab('Sent');
-                    setRefresh(true);
-                }}>
+                <TouchableOpacity style={styles.button} onPress={() => setSelectedTab('Sent')}>
                     <View style={styles.innerContainer}>
                         <Text style={styles.textNextTo}>Sent</Text>
                         <MaterialCommunityIcon name={"email-fast"} size={33}></MaterialCommunityIcon>
@@ -187,6 +182,7 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
                         </View>
                     ) : (
                         friendsEmails.slice().reverse().map((friend, index) => (
+                            console.log("CHUJ1",friend.friendEmail),
                             <View style={styles.shadowPanel} key={index}>
                                 <View style={{ flexDirection: 'row', alignItems: 'center',height: 82 }}>
                                     <Image
@@ -210,6 +206,7 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
                                 </View>
                             ) : (
                                 receivedFriendRequests.slice().reverse().map((invitation, index) => (
+                                    console.log("CHUJ2",invitation.senderEmail),
                                     <View style={styles.shadowPanel} key={index}>
                                         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                                             <Image
@@ -247,6 +244,7 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
                         </View>
                     ) : (
                         sentFriendRequests.slice().reverse().map((invitation, index) => (
+                            console.log("CHUJ3",invitation.receiverEmail),
                             <View style={styles.shadowPanel} key={index}>
                                 <View style={{ flexDirection: 'row', alignItems: 'center', height: 82 }}>
                                     <Image
@@ -260,6 +258,7 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
                     )}
                 </View>
             }
+
 
             <View style={styles.container}>
                 {selectedTab === 'Friends' &&
