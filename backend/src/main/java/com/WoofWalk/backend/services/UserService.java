@@ -20,6 +20,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final JwtDecoder jwtDecoder;
+    private final S3Service s3Service;
 
     public User saveUser(User user) {
         return userRepository.save(user);
@@ -111,6 +112,18 @@ public class UserService {
                 () -> new EntityNotFoundException("user not found"));
         user.setProfilePictureId(fileID);
         saveUser(user);
+    }
+
+    public String getProfilePicture(String email){
+        Optional<User> userOptional = userRepository.findByEmail(email);
+        if(userOptional.isPresent()){
+            User user = userOptional.get();
+            String profilePictureId = user.getProfilePictureId();
+            if(profilePictureId != null) {
+                return s3Service.getFileUrl(profilePictureId);
+            }
+        }
+        return null;
     }
 
 }

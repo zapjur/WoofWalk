@@ -87,4 +87,9 @@ public class UserController {
     public ResponseEntity<String> deleteProfilePicture(@RequestBody UserDto userDto){
         return s3Service.deleteImage(userDto.getEmail());
     }
+
+    @GetMapping("/getProfilePicture")
+    public ResponseEntity<String> getProfilePicture(@RequestParam("email") String email){
+        return ResponseEntity.ok(userService.getProfilePicture(email));
+    }
 }

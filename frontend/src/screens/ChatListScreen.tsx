@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
-import { Button, TextInput, Text, Appbar, Card, Modal, Portal, Provider } from 'react-native-paper';
+import { Button, TextInput, Text, Card, Modal, Portal, Provider } from 'react-native-paper';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { useNavigation } from '@react-navigation/native';
 import RootStackParamList from '../../RootStackParamList';
 import { GroupChat, PrivateChat } from "../constants/chatTypes";
 import apiClient from "../../axiosConfig";
 import BottomBar from "../components/BottomBar";
+import theme from "../constants/theme";
 
 type ChatListScreenNavigationProp = StackNavigationProp<RootStackParamList, 'ChatList'>;
 
@@ -92,20 +93,30 @@ const ChatListScreen: React.FC = () => {
     };
 
     return (
-        <Provider>
+        <Provider theme={theme}>
             <View style={styles.container}>
                 <View style={styles.buttonContainer}>
                     <Button
                         mode={showPrivateChats ? 'contained' : 'outlined'}
                         onPress={() => setShowPrivateChats(true)}
-                        style={styles.switchButton}
+                        style={[
+                            styles.switchButton,
+                            showPrivateChats ? styles.activeSwitchButton : styles.inactiveSwitchButton
+                        ]}
+                        labelStyle={showPrivateChats ? styles.activeLabel : styles.inactiveLabel}
+                        rippleColor="rgba(0, 0, 0, 0.1)"
                     >
                         Private Chats
                     </Button>
                     <Button
                         mode={!showPrivateChats ? 'contained' : 'outlined'}
                         onPress={() => setShowPrivateChats(false)}
-                        style={styles.switchButton}
+                        style={[
+                            styles.switchButton,
+                            !showPrivateChats ? styles.activeSwitchButton : styles.inactiveSwitchButton
+                        ]}
+                        labelStyle={!showPrivateChats ? styles.activeLabel : styles.inactiveLabel}
+                        rippleColor="rgba(0, 0, 0, 0.1)"
                     >
                         Group Chats
                     </Button>
@@ -128,6 +139,10 @@ const ChatListScreen: React.FC = () => {
                                     value={email}
                                     onChangeText={setEmail}
                                     style={styles.input}
+                                    underlineColor="transparent"
+                                    mode="outlined"
+                                    outlineColor="#e5e5e5"
+                                    activeOutlineColor="#4c956c"
                                 />
                                 <Button mode="contained" onPress={handleAddPrivateChat} style={styles.button}>
                                     Start Private Chat
@@ -140,6 +155,10 @@ const ChatListScreen: React.FC = () => {
                                     value={groupEmails}
                                     onChangeText={setGroupEmails}
                                     style={styles.input}
+                                    underlineColor="transparent"
+                                    mode="outlined"
+                                    outlineColor="#e5e5e5"
+                                    activeOutlineColor="#4c956c"
                                 />
                                 <Button mode="contained" onPress={handleAddGroupChat} style={styles.button}>
                                     Start Group Chat
@@ -169,12 +188,26 @@ const styles = StyleSheet.create({
         flex: 1,
         marginHorizontal: 5,
     },
+    activeSwitchButton: {
+        backgroundColor: '#4c956c',
+    },
+    inactiveSwitchButton: {
+        borderColor: '#4c956c',
+        borderWidth: 1,
+    },
+    activeLabel: {
+        color: 'white',
+    },
+    inactiveLabel: {
+        color: '#4c956c',
+    },
     addButton: {
         position: 'absolute',
         bottom: 90,
         width: '80%',
         right: '10%',
         zIndex: 20,
+        backgroundColor: '#4c956c',
     },
     inputContainer: {
         padding: 10,
@@ -187,6 +220,7 @@ const styles = StyleSheet.create({
     },
     button: {
         marginVertical: 5,
+        backgroundColor: '#4c956c',
     },
     contactList: {
         padding: 10,
