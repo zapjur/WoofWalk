@@ -208,8 +208,12 @@ const AddDogModal: React.FC<AddDogModalProps> = ({ visible, onClose }) => {
                         <Image source={{ uri: photo }} style={styles.imagePreview} />
                     )}
                     <View style={styles.buttonContainer}>
-                        <Button title="Cancel" onPress={() => onClose(false)} />
-                        <Button title="Submit" onPress={handleSave} />
+                        <TouchableOpacity onPress={() => onClose(false)} style={styles.buttonCancel}>
+                            <Text style={styles.buttonText}>Cancel</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={handleSave} style={styles.buttonSubmit}>
+                            <Text style={styles.buttonText}>Submit</Text>
+                        </TouchableOpacity>
                     </View>
                 </View>
                 {renderModalSelector()}
@@ -246,6 +250,30 @@ const styles = StyleSheet.create({
         marginBottom: 10,
         paddingHorizontal: 10,
     },
+    buttonCancel: {
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: "#fc3d3d",
+        width: 70,
+        height: 40,
+        borderRadius: 20,
+    },
+    buttonText: {
+        fontSize: 15,
+        color: "white",
+    },
+    buttonSubmit: {
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: '#60dc62',
+        width: 70,
+        height: 40,
+        borderRadius: 20,
+    },
     selector: {
         marginBottom: 10,
         borderWidth: 1,
@@ -269,7 +297,7 @@ const styles = StyleSheet.create({
     },
     buttonContainer: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
+        justifyContent: 'space-evenly',
         marginTop: 20,
     },
     breedModalContainer: {

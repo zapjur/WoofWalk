@@ -8,6 +8,7 @@ import lombok.Setter;
 import java.util.List;
 
 import com.WoofWalk.backend.enums.LocationCategory;
+import org.hibernate.annotations.Type;
 
 @Entity
 @Getter
@@ -21,6 +22,7 @@ public class Location {
 
     @Column(name = "name", nullable = false)
     private String name;
+
 
     @Column(name = "description")
     private String description;

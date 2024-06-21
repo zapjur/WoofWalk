@@ -34,8 +34,8 @@ const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
 
     const mapRef = useRef<MapView>(null);
     const data = [
+        { key: -1, label: 'ALL', value: '' },
         ...categories,
-        { key: -1, label: 'CLEAR', value: '' },
     ];
 
     useEffect(() => {
@@ -241,7 +241,7 @@ const styles = StyleSheet.create({
         position: 'absolute',
         bottom: 85,
         right: 20,
-        backgroundColor: '#007bff',
+        backgroundColor: '#60dc62',
         borderRadius: 50,
         width: 50,
         height: 50,
