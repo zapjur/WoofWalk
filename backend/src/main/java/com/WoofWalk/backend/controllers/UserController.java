@@ -79,7 +79,7 @@ public class UserController {
             }
         }
     }
-    @GetMapping("/profilePicture/friends/download")
+    @GetMapping("/profilePicture/friends/downloadm")
     public ResponseEntity<ByteArrayResource> getFriendsImage(@RequestParam("email") String email) throws IOException {
         try(S3Object s3Object = s3Service.downloadProfilePicture(email);){
 

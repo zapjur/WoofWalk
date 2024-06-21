@@ -186,20 +186,23 @@ const EventScreen: React.FC<EventScreenProps> = ({ route }) => {
                     <Text style={styles.descriptionText}>{place.description}</Text>
                     <View style={styles.separator} />
                     <Text style={styles.nameText}>Users interested in {place.name}</Text>
-                    <ScrollView style={styles.shadowPanel}>
+                    <ScrollView >
                         <View style={styles.container}>
                             {interestedUsers.length > 0 ? (
                                 interestedUsers.map((email, index) => (
-                                    <View key={index} style={styles.userContainer}>
-                                        <Image
-                                            source={{uri: findValue(email)}}
-                                            style={styles.profilePicture}>
-                                        </Image>
-                                        <Text style={styles.userText}>{email}</Text>
+                                    <View style={styles.shadowPanel}>
+                                        <View key={index} style={styles.userContainer}>
+                                            <Image
+                                                source={{uri: findValue(email)}}
+                                                style={styles.profilePicture}>
+                                            </Image>
+                                            <Text style={styles.userText}>{email}</Text>
+                                        </View>
                                     </View>
+
                                 ))
                             ) : (
-                                <Text style={styles.userText}>Be a first interested user!</Text>
+                                    <Text style={styles.userText}>Be a first interested user!</Text>
                             )}
                         </View>
                     </ScrollView>

@@ -32,6 +32,7 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
     const {user} = useAuth0();
     const [selectedTab, setSelectedTab] = useState('Friends');
     const [image, setImage] = useState("none");
+    const [profilePictures, setProfilePictures] = useState<[String, string][]>([]);
 
     useEffect(() => {
         if(user){
@@ -74,24 +75,10 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
                 setFriendsEmail(userFriends);
             })
             setRefresh(false);
-            apiClient.get("user/profilePicture/friends/download",{
-                params: {
-                    email: user.email,
-                },
-                responseType: 'blob'
-            }).then(response => {
-                const blob = response.data;
-                const reader = new FileReader();
-                reader.onloadend = () => {
-                    if (reader.result) {
-                        setImage(reader.result as string);
-
-                    }
-                };
-                reader.readAsDataURL(blob);
-            })
         }
     }, [refresh]);
+
+
     const acceptFriendRequest = async (id: number) => {
         const response = await apiClient.post(`/friends/${id}/accept`);
         Alert.alert("Success", response.data);
@@ -103,6 +90,55 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
     const handleInvitationSent = () =>{
         setRefresh(true);
     }
+    const getUserImage = async (Users: String[]) => {
+        if (user) {
+            Users.map(userEmail => {
+                apiClient.get("/user/profilePicture/download", {
+                    params: { email: userEmail },
+                    responseType: 'blob'
+                }).then(response => {
+
+                    if(response.status === 204){
+                        setProfilePictures(prevProfilePictures => [
+                            ...prevProfilePictures,
+                            [userEmail, "https://cdn-icons-png.flaticon.com/128/848/848043.png"]
+                        ]);
+                    } else{
+                        const blob = response.data;
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                            try {
+                                if (reader.result) {
+                                    setProfilePictures(prevProfilePictures => [
+                                        ...prevProfilePictures,
+                                        [userEmail, reader.result as string]
+                                    ]);
+                                }
+                            } catch (error) {
+
+                                console.error('Error setting profile picture:', error);
+                            }
+                        };
+                        reader.readAsDataURL(blob);
+                    }
+                }).catch(error => {
+                    console.error('Error downloading profile picture:', error);
+                });
+            });
+        }
+    }
+
+    useEffect(() => {
+        getUserImage(friendsEmails.map(friend => friend.friendEmail));
+        getUserImage(receivedFriendRequests.map(invitation => invitation.senderEmail));
+        getUserImage(sentFriendRequests.map(invitation => invitation.receiverEmail));
+    }, [refresh]);
+
+    const findValue = (email : String) => {
+        const found = profilePictures.find(entry => entry[0] === email);
+        return found ? found[1] : 'https://cdn-icons-png.flaticon.com/128/848/848043.png'
+    }
+
     return(
         <View style={styles.container}>
             <View style={styles.bar}>
@@ -112,21 +148,30 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
             </View>
             <View style={{ borderBottomColor: 'gray', borderBottomWidth: 1, marginVertical: 10 }} />
             <View style={styles.buttonContainer}>
-                <TouchableOpacity style={styles.button} onPress={() => setSelectedTab('Friends')}>
+                <TouchableOpacity style={styles.button} onPress={() =>{
+                    setSelectedTab('Friends')
+                    setRefresh(true);
+                }}>
                     <View style={styles.innerContainer}>
                         <Text style={styles.textNextTo}>Friends</Text>
                         <MaterialCommunityIcon name={"account-group"} size={33}></MaterialCommunityIcon>
                     </View>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.button} onPress={() => setSelectedTab('Requests')}>
+                <TouchableOpacity style={styles.button} onPress={() =>{
+                    setSelectedTab('Requests');
+                    setRefresh(true);
+                    }}>
                     <View style={styles.innerContainer}>
                         <Text style={styles.textNextTo} >Requests</Text>
                         <MaterialCommunityIcon name={"human-greeting-variant"} size={33}></MaterialCommunityIcon>
                     </View>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.button} onPress={() => setSelectedTab('Sent')}>
+                <TouchableOpacity style={styles.button} onPress={() =>{
+                    setSelectedTab('Sent');
+                    setRefresh(true);
+                }}>
                     <View style={styles.innerContainer}>
                         <Text style={styles.textNextTo}>Sent</Text>
                         <MaterialCommunityIcon name={"email-fast"} size={33}></MaterialCommunityIcon>
@@ -146,7 +191,7 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
                                 <View style={{ flexDirection: 'row', alignItems: 'center',height: 82 }}>
                                     <Image
                                         style={styles.imageStyle}
-                                        source={{ uri: image != "none" ? image : 'https://cdn-icons-png.flaticon.com/128/848/848043.png' }}
+                                        source={{uri: findValue(friend.friendEmail)}}
                                     />
                                     <Text style={styles.textSend}>{friend.friendEmail}</Text>
                                 </View>
@@ -169,7 +214,7 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
                                         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                                             <Image
                                                 style={styles.imageStyle}
-                                                source={{ uri: image != "none" ? image : 'https://cdn-icons-png.flaticon.com/128/848/848043.png' }}
+                                                source={{uri: findValue(invitation.senderEmail)}}
                                             />
                                             <Text style={styles.textSend}>{invitation.senderEmail}</Text>
                                             <View style={styles.buttonPanel}>
@@ -206,7 +251,7 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
                                 <View style={{ flexDirection: 'row', alignItems: 'center', height: 82 }}>
                                     <Image
                                         style={styles.imageStyle}
-                                        source={{ uri: image != "none" ? image : 'https://cdn-icons-png.flaticon.com/128/848/848043.png' }}
+                                        source={{uri: findValue(invitation.receiverEmail)}}
                                     />
                                     <Text style={styles.textSend}>{invitation.receiverEmail}</Text>
                                 </View>
@@ -215,7 +260,6 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
                     )}
                 </View>
             }
-
 
             <View style={styles.container}>
                 {selectedTab === 'Friends' &&
