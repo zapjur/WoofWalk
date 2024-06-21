@@ -65,7 +65,7 @@ public class UserService {
         });
     }
 
-    private String getSubFromToken(String token) {
+    public String getSubFromToken(String token) {
         Jwt jwt = jwtDecoder.decode(token);
         return jwt.getClaimAsString("sub");
     }

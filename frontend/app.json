@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "frontend",
+    "name": "WoofWalk",
     "slug": "frontend",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/dog.png",
     "userInterfaceStyle": "light",
     "plugins": [
       [
@@ -22,7 +22,7 @@
       ]
     ],
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/dog.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -32,17 +32,17 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/dog.png",
         "backgroundColor": "#ffffff"
       },
       "package": "com.anonymous.frontend"
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/dog.png"
     },
     "extra": {
       "eas": {
-        "projectId": "134f1c30-c6b1-47ff-a0db-e4cb41ef9255"
+        "projectId": "033aae3e-d033-461f-918c-ba45385d4e3a"
       }
     }
   }

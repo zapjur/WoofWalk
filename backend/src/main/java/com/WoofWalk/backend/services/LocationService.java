@@ -76,7 +76,6 @@ public class LocationService {
                 }
 
             }
-
             Rating newRating = new Rating();
             newRating.setLocation(location);
             newRating.setUser(user);

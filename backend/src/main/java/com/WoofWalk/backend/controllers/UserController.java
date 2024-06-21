@@ -69,6 +69,25 @@ public class UserController {
         try(S3Object s3Object = s3Service.downloadProfilePicture(email);){
 
             if(s3Object == null){
+                return ResponseEntity.noContent().build();
+            }
+            try (InputStream inputStream = s3Object.getObjectContent()) {
+
+                byte[] bytes = inputStream.readAllBytes();
+                ByteArrayResource resource = new ByteArrayResource(bytes);
+
+                return ResponseEntity.ok()
+                        .contentType(MediaType.IMAGE_JPEG)
+                        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + email + "\"")
+                        .body(resource);
+            }
+        }
+    }
+    @GetMapping("/profilePicture/friends/downloadm")
+    public ResponseEntity<ByteArrayResource> getFriendsImage(@RequestParam("email") String email) throws IOException {
+        try(S3Object s3Object = s3Service.downloadProfilePicture(email);){
+
+            if(s3Object == null){
                 return ResponseEntity.notFound().build();
             }
             try (InputStream inputStream = s3Object.getObjectContent()) {
@@ -83,6 +102,7 @@ public class UserController {
             }
         }
     }
+
     @PostMapping("/profilePicture/delete")
     public ResponseEntity<String> deleteProfilePicture(@RequestBody UserDto userDto){
         return s3Service.deleteImage(userDto.getEmail());

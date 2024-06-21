@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, TouchableOpacity, StyleSheet, Text } from 'react-native';
+import {View, TouchableOpacity, StyleSheet, Text, Image} from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import RootStackParamList from "../../RootStackParamList";
@@ -39,24 +39,19 @@ const BottomBar: React.FC<BottomBarProps> = ({ navigation }) => {
         <View style={styles.container}>
 
             <TouchableOpacity style={styles.button} onPress={handleMapButtonPress}>
-                <MaterialIcon name="map" size={30} color="#007bff" />
-                <Text style={styles.buttonText}>Map</Text>
+                <Image source={{uri: "https://cdn-icons-png.flaticon.com/128/854/854929.png"}} style={styles.image}></Image>
             </TouchableOpacity>
             <TouchableOpacity style={styles.button} onPress={handleNearbyButtonPress}>
-                <MaterialCommunityIcon name="google-nearby" size={30} color="#007bff" />
-                <Text style={styles.buttonText}>Nearby</Text>
+                <Image source={{uri: "https://cdn-icons-png.flaticon.com/128/4020/4020798.png"}} style={styles.image}></Image>
             </TouchableOpacity>
             <TouchableOpacity style={styles.button} onPress={handleChatButtonPress}>
-                <MaterialIcon name="chat" size={30} color="#007bff" />
-                <Text style={styles.buttonText}>Chat</Text>
+                <Image source={{uri: "https://cdn-icons-png.flaticon.com/128/2665/2665393.png"}} style={styles.image}></Image>
             </TouchableOpacity>
             <TouchableOpacity style={styles.button} onPress={handleFriendsButtonPress}>
-                <MaterialIcon name="group" size={30} color="#007bff" />
-                <Text style={styles.buttonText}>Friends</Text>
+                <Image source={{uri: "https://cdn-icons-png.flaticon.com/128/7186/7186643.png"}} style={styles.image}></Image>
             </TouchableOpacity>
             <TouchableOpacity style={styles.button} onPress={handleUserProfileButtonPress}>
-                <MaterialIcon name="person" size={30} color="#007bff" />
-                <Text style={styles.buttonText}>Profile</Text>
+                <Image source={{uri: "https://cdn-icons-png.flaticon.com/128/1864/1864509.png"}} style={styles.image}></Image>
             </TouchableOpacity>
         </View>
     );
@@ -68,13 +63,17 @@ const styles = StyleSheet.create({
         bottom: 0,
         left: 0,
         right: 0,
-        height: 80,
+        height: 70,
         flexDirection: 'row',
         justifyContent: 'space-around',
         alignItems: 'center',
         backgroundColor: '#ffffff',
         borderTopWidth: 1,
         borderTopColor: '#cccccc',
+    },
+    image: {
+        width: 38,
+        height: 38,
     },
     button: {
         flex: 1,
