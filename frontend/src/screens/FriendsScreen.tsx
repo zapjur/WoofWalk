@@ -31,8 +31,10 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
     const [refresh, setRefresh] = useState(false);
     const {user} = useAuth0();
     const [selectedTab, setSelectedTab] = useState('Friends');
-    const [image, setImage] = useState("none");
     const [profilePictures, setProfilePictures] = useState<[String, string][]>([]);
+    const[refreshFriends, setRefreshFriends] = useState(0);
+    const[refreshRequest, setRefreshRequest] = useState(0);
+    const[refreshSent, setRefreshSent] = useState(0);
     useEffect(() => {
         if(user){
             const receiverEmail = user.email
@@ -79,6 +81,23 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
         }
     }, [refresh]);
 
+    useEffect(() => {
+        if (selectedTab === 'Friends') {
+            getUserImage(friendsEmails.map(friend => friend.friendEmail));
+        }
+    }, [friendsEmails]);
+
+    useEffect(() => {
+        if (selectedTab === 'Requests') {
+            getUserImage(receivedFriendRequests.map(invitation => invitation.senderEmail));
+        }
+    }, [receivedFriendRequests]);
+
+    useEffect(() => {
+        if (selectedTab === 'Sent') {
+            getUserImage(sentFriendRequests.map(invitation => invitation.receiverEmail));
+        }
+    }, [sentFriendRequests]);
 
     const acceptFriendRequest = async (id: number) => {
         const response = await apiClient.post(`/friends/${id}/accept`);
@@ -129,18 +148,6 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
         }
     }
 
-    useEffect(() => {
-        if(selectedTab == 'Friends'){
-            getUserImage(friendsEmails.map(friend => friend.friendEmail));
-        }
-        if(selectedTab === 'Requests'){
-            getUserImage(receivedFriendRequests.map(invitation => invitation.senderEmail));
-        }
-        if(selectedTab === 'Sent'){
-            getUserImage(sentFriendRequests.map(invitation => invitation.receiverEmail));
-        }
-
-    }, [refresh]);
 
     const findValue = (email : String) => {
         const found = profilePictures.find(entry => entry[0] === email);
@@ -156,7 +163,10 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
             </View>
             <View style={{ borderBottomColor: 'gray', borderBottomWidth: 1, marginVertical: 10 }} />
             <View style={styles.buttonContainer}>
-                <TouchableOpacity style={styles.button} onPress={() => setSelectedTab('Friends')}>
+                <TouchableOpacity style={styles.button} onPress={() => {
+                    setSelectedTab('Friends')
+                    setRefreshFriends(prevKey => prevKey + 1);
+                }}>
                     <View style={styles.innerContainer}>
                         <Text style={styles.textNextTo}>Friends</Text>
                         <MaterialCommunityIcon name={"account-group"} size={33}></MaterialCommunityIcon>
@@ -165,7 +175,7 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
 
                 <TouchableOpacity style={styles.button} onPress={() =>{
                     setSelectedTab('Requests');
-                    setRefresh(!refresh);
+                    setRefreshRequest(prevKey => prevKey + 1);
                     }}>
                     <View style={styles.innerContainer}>
                         <Text style={styles.textNextTo} >Requests</Text>
@@ -173,7 +183,10 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
                     </View>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.button} onPress={() => setSelectedTab('Sent')}>
+                <TouchableOpacity style={styles.button} onPress={() => {
+                    setSelectedTab('Sent')
+                    setRefreshSent(prevKey => prevKey + 1);
+                }}>
                     <View style={styles.innerContainer}>
                         <Text style={styles.textNextTo}>Sent</Text>
                         <MaterialCommunityIcon name={"email-fast"} size={33}></MaterialCommunityIcon>
@@ -181,6 +194,7 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
                 </TouchableOpacity>
             </View>
             <View style={{ borderBottomColor: 'gray', borderBottomWidth: 1, width: '80%', alignSelf: 'center', marginVertical: 10 }} />
+
             {selectedTab === 'Friends' &&
                 <ScrollView contentContainerStyle={{flexGrow: 1, justifyContent: 'flex-start', alignItems: 'center'}}>
                     {friendsEmails.length === 0 ? (
@@ -189,7 +203,7 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
                         </View>
                     ) : (
                         friendsEmails.slice().reverse().map((friend, index) => (
-                            console.log("CHUJ1",friend.friendEmail),
+                            console.log("1test"),
                             <View style={styles.shadowPanel} key={index}>
                                 <View style={{ flexDirection: 'row', alignItems: 'center',height: 82 }}>
                                     <Image
@@ -209,11 +223,11 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
                         <View >
                             {receivedFriendRequests.length === 0 ? (
                                 <View style={styles.shadowPanel}>
-                                    <Text>You don't have any invitations</Text>
+                                    <Text style={styles.sadText}>You don't have any invitations</Text>
                                 </View>
                             ) : (
                                 receivedFriendRequests.slice().reverse().map((invitation, index) => (
-                                    console.log("CHUJ2",invitation.senderEmail),
+                                    console.log("2test", refreshRequest),
                                     <View style={styles.shadowPanel} key={index}>
                                         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                                             <Image
@@ -247,11 +261,11 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
                 <View style={{flex: 1}}>
                     {sentFriendRequests.length === 0 ? (
                         <View style={styles.shadowPanel}>
-                            <Text>You don't have any sent invitations</Text>
+                            <Text style={styles.sadText} >You don't have any sent invitations</Text>
                         </View>
                     ) : (
                         sentFriendRequests.slice().reverse().map((invitation, index) => (
-                            console.log("CHUJ3",invitation.receiverEmail),
+                            console.log("3test", refreshSent),
                             <View style={styles.shadowPanel} key={index}>
                                 <View style={{ flexDirection: 'row', alignItems: 'center', height: 82 }}>
                                     <Image
@@ -265,7 +279,6 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
                     )}
                 </View>
             }
-
 
             <View style={styles.container}>
                 {selectedTab === 'Friends' &&
