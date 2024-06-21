@@ -66,10 +66,14 @@ const styles = StyleSheet.create({
     },
     closeButton: {
         marginTop: 20,
-        paddingVertical: 10,
-        paddingHorizontal: 20,
-        backgroundColor: '#007bff',
-        borderRadius: 5,
+        backgroundColor: "#fc3d3d",
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        width: 90,
+        height: 40,
+        borderRadius: 20,
     },
     closeButtonText: {
         color: '#ffffff',

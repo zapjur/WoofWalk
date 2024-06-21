@@ -1,4 +1,4 @@
-import React, {useRef, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {Alert, StyleSheet, Text, TextInput, TouchableOpacity, View} from 'react-native';
 import MapView, {Region} from 'react-native-maps';
 import apiClient from "../../axiosConfig";
@@ -28,6 +28,11 @@ const AddPlaceScreen: React.FC = () => {
     const [month, setMonth] = useState('');
     const [year, setYear] = useState('');
 
+    useEffect(() => {
+        navigation.setOptions({
+            title: 'Add new location'
+        })
+    }, []);
 
     const isDateValid = (Day: string, Month: string, Year: string) => {
         if (!/^\d*$/.test(Day)) {
@@ -140,6 +145,7 @@ const AddPlaceScreen: React.FC = () => {
                     style={styles.input}
                     value={name}
                     onChangeText={setName}
+                    returnKeyType="done"
                     placeholder="Enter place name"
                 />
                 <Text style={styles.label}>Description</Text>
@@ -149,6 +155,7 @@ const AddPlaceScreen: React.FC = () => {
                     onChangeText={setDescription}
                     placeholder="Enter place description"
                     multiline
+                    returnKeyType="done"
                 />
 
                 {category == "EVENT" && (
@@ -269,7 +276,7 @@ const styles = StyleSheet.create({
         marginBottom: 10,
     },
     button: {
-        backgroundColor: '#007bff',
+        backgroundColor: '#60dc62',
         paddingVertical: 10,
         paddingHorizontal: 20,
         borderRadius: 25,

@@ -1,8 +1,8 @@
-import { Modal, Text, View, StyleSheet, Button, Image } from "react-native";
+import {Modal, Text, View, StyleSheet, Button, Image, TouchableOpacity} from "react-native";
 import React, { useEffect, useState } from "react";
 import apiClient from "../../axiosConfig";
 import { Dog } from "../constants/dogData";
-import MaterialIcon from "react-native-vector-icons/MaterialIcons";
+
 
 interface DogModalProps {
     visible: boolean;
@@ -58,8 +58,8 @@ const DogModal: React.FC<DogModalProps> = ({ visible, onClose, dogId }) => {
                         <Image source={{ uri: dog.photo }} style={styles.dogPhoto} />
                     ) : (
                         <Image
-                            source={{ uri: 'https://cdn-icons-png.flaticon.com/128/848/848043.png' }}
-                            style={styles.dogPhoto}
+                            source={{ uri: "https://cdn-icons-png.flaticon.com/128/3199/3199867.png" }}
+                            style={styles.dogNoPhoto}
                         />
                     )}
                     <View style={styles.infoContainer}>
@@ -78,7 +78,10 @@ const DogModal: React.FC<DogModalProps> = ({ visible, onClose, dogId }) => {
                         <Text style={styles.infoTitle}>Sex:</Text>
                         <Text style={styles.infoText}>{capitalizeWords(dog.sex)}</Text>
                     </View>
-                    <Button title="Close" onPress={onClose} />
+                    <TouchableOpacity onPress={onClose} style={styles.buttonContainer}>
+                        <Text style={styles.buttonText}>Close</Text>
+                    </TouchableOpacity>
+
                 </View>
             </View>
         </Modal>
@@ -107,9 +110,31 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         marginBottom: 20,
     },
+    buttonContainer: {
+        alignSelf: "center",
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: "#fc3d3d",
+        width: 70,
+        height: 40,
+        borderRadius: 20,
+    },
+    buttonText: {
+        fontSize: 15,
+        color: "white",
+    },
     dogPhoto: {
         width: '100%',
         height: 300,
+        borderRadius: 16,
+        marginBottom: 16,
+    },
+    dogNoPhoto: {
+        width: 250,
+        alignSelf: "center",
+        height: 250,
         borderRadius: 16,
         marginBottom: 16,
     },
