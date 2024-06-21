@@ -130,9 +130,16 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
     }
 
     useEffect(() => {
-        getUserImage(friendsEmails.map(friend => friend.friendEmail));
-        getUserImage(receivedFriendRequests.map(invitation => invitation.senderEmail));
-        getUserImage(sentFriendRequests.map(invitation => invitation.receiverEmail));
+        if(selectedTab == 'Friends'){
+            getUserImage(friendsEmails.map(friend => friend.friendEmail));
+        }
+        if(selectedTab === 'Requests'){
+            getUserImage(receivedFriendRequests.map(invitation => invitation.senderEmail));
+        }
+        if(selectedTab === 'Sent'){
+            getUserImage(sentFriendRequests.map(invitation => invitation.receiverEmail));
+        }
+
     }, [refresh]);
 
     const findValue = (email : String) => {
