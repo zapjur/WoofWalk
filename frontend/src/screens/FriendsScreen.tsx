@@ -203,7 +203,6 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
                         </View>
                     ) : (
                         friendsEmails.slice().reverse().map((friend, index) => (
-                            console.log("1test"),
                             <View style={styles.shadowPanel} key={index}>
                                 <View style={{ flexDirection: 'row', alignItems: 'center',height: 82 }}>
                                     <Image
@@ -227,7 +226,6 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
                                 </View>
                             ) : (
                                 receivedFriendRequests.slice().reverse().map((invitation, index) => (
-                                    console.log("2test", refreshRequest),
                                     <View style={styles.shadowPanel} key={index}>
                                         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                                             <Image
@@ -265,7 +263,6 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
                         </View>
                     ) : (
                         sentFriendRequests.slice().reverse().map((invitation, index) => (
-                            console.log("3test", refreshSent),
                             <View style={styles.shadowPanel} key={index}>
                                 <View style={{ flexDirection: 'row', alignItems: 'center', height: 82 }}>
                                     <Image
