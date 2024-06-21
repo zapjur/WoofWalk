@@ -34,8 +34,8 @@ const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
 
     const mapRef = useRef<MapView>(null);
     const data = [
+        { key: -1, label: 'ALL', value: '' },
         ...categories,
-        { key: -1, label: 'CLEAR', value: '' },
     ];
 
     useEffect(() => {

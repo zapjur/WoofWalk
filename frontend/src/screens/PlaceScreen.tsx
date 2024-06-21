@@ -212,7 +212,7 @@ const PlaceScreen: React.FC<PlaceScreenProps> = ({ route }) => {
                 </View>
             </ScrollView>
             <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
-                <MaterialIcon name="add" size={24} color="white" />
+                <Image source={{uri: "https://cdn-icons-png.flaticon.com/128/10015/10015328.png"}} style={styles.icon}></Image>
             </TouchableOpacity>
             <Modal
                 animationType="slide"
@@ -236,14 +236,28 @@ const PlaceScreen: React.FC<PlaceScreenProps> = ({ route }) => {
                             onChangeText={setOpinion}
                             placeholder="Write your opinion"
                         />
-                        <Button title="Select Images" onPress={selectImage} />
                         <View style={styles.imagePreviewContainer}>
                             {images.map((img, index) => (
                                 <Image key={index} source={{ uri: img }} style={styles.imagePreview} />
                             ))}
                         </View>
-                        <Button title="Submit" onPress={submitReview} />
-                        <Button title="Cancel" onPress={() => setModalVisible(false)} />
+                        <View style={styles.buttonContainer}>
+                            <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.buttonCancel}>
+                                <Text style={{color: "white"}}>
+                                    Cancel
+                                </Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={selectImage} style={styles.buttonImages}>
+                                <Text style={{color: "white"}}>
+                                    Select Images
+                                </Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={submitReview}  style={styles.buttonSubmit}>
+                                <Text style={{color: "white"}}>
+                                    Submit
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
                     </View>
                 </View>
             </Modal>
@@ -275,6 +289,7 @@ const styles = StyleSheet.create({
         gap: 10,
         marginBottom: 10,
     },
+
     infoContainer: {
         padding: 16,
         gap: 10,
@@ -305,12 +320,46 @@ const styles = StyleSheet.create({
         position: 'absolute',
         right: 20,
         bottom: 50,
-        backgroundColor: 'blue',
-        borderRadius: 25,
-        alignItems: 'center',
-        justifyContent: 'center',
-        width: 50,
-        height: 50,
+    },
+    buttonContainer: {
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "space-evenly",
+    },
+    buttonCancel: {
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: "#fc3d3d",
+        width: 70,
+        height: 40,
+        borderRadius: 20,
+    },
+    buttonSubmit: {
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: '#60dc62',
+        width: 70,
+        height: 40,
+        borderRadius: 20,
+    },
+    buttonImages: {
+        alignSelf: "center",
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: '#6aefd9',
+        width: 120,
+        height: 40,
+        borderRadius: 20,
+    },
+    icon: {
+        width: 60,
+        height: 60,
     },
     modalContainer: {
         flex: 1,
@@ -323,7 +372,7 @@ const styles = StyleSheet.create({
         padding: 20,
         backgroundColor: 'white',
         borderRadius: 10,
-        alignItems: 'center',
+
     },
     modalTitle: {
         fontSize: 20,
