@@ -2,6 +2,7 @@ package com.WoofWalk.backend.controllers;
 
 
 import com.WoofWalk.backend.dto.UserDto;
+import com.WoofWalk.backend.dto.UserInfoDto;
 import com.WoofWalk.backend.services.EventService;
 import com.WoofWalk.backend.services.UserService;
 import com.amazonaws.services.s3.model.S3Object;
@@ -52,9 +53,8 @@ public class EventController {
     }
 
     @GetMapping("/getAllUsers/{placeId}")
-    public ResponseEntity<Set<String>> getAllUsers(@PathVariable long placeId){
-        Set<String> interestedUsers = eventService.getAllUsers(placeId);
-        return new ResponseEntity<>(interestedUsers, HttpStatus.OK);
+    public ResponseEntity<List<UserInfoDto>> getAllUsers(@PathVariable long placeId){
+        List<UserInfoDto> userInfo = eventService.getAllUsers(placeId);
+        return new ResponseEntity<>(userInfo, HttpStatus.OK);
     }
-
 }

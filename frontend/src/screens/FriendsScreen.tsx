@@ -1,7 +1,7 @@
 import {StackNavigationProp} from "@react-navigation/stack";
 import RootStackParamList from "../../RootStackParamList";
 import React, {useEffect, useState} from "react";
-import {Text, View, StyleSheet, TouchableOpacity, ScrollView, Alert, Button, Modal, Image} from "react-native";
+import {Text, View, StyleSheet, TouchableOpacity, ScrollView, Alert, Image} from "react-native";
 import AddFriend from "../components/AddFriend";
 import BottomBar from "../components/BottomBar";
 import MaterialCommunityIcon from "react-native-vector-icons/MaterialCommunityIcons";
@@ -11,7 +11,7 @@ type MapScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Map'>;
 type UserScreenNavigationProp = StackNavigationProp<RootStackParamList, 'User'>
 type FriendsScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Friends'>
 
-type ChatScreenNavigationProp = StackNavigationProp<RootStackParamList, 'ChatList'>
+
 
 interface FriendsScreenProp {
     navigation: MapScreenNavigationProp & UserScreenNavigationProp & FriendsScreenNavigationProp;
@@ -19,13 +19,16 @@ interface FriendsScreenProp {
 interface receivedInvitation{
     id: number,
     senderEmail: string,
+    imageUri: string,
 }
 interface sentInvitation{
     id: number,
     receiverEmail: string,
+    imageUri: string,
 }
 interface friend{
-    friendEmail: string
+    friendEmail: string,
+    imageUri: string
 }
 const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
     const [receivedFriendRequests, setReceivedFriendRequests] = useState<receivedInvitation[]>([]);
@@ -34,128 +37,79 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
     const [refresh, setRefresh] = useState(false);
     const {user} = useAuth0();
     const [selectedTab, setSelectedTab] = useState('Friends');
-    const [profilePictures, setProfilePictures] = useState<[String, string][]>([]);
-    const[refreshFriends, setRefreshFriends] = useState(0);
-    const[refreshRequest, setRefreshRequest] = useState(0);
-    const[refreshSent, setRefreshSent] = useState(0);
+
     useEffect(() => {
         if(user){
-            const receiverEmail = user.email
-            apiClient.get("/friends/receivedFriendRequests",{
-                params: {
-                    receiverEmail: receiverEmail,
-                }
-            }).then(response => {
-                const receivedRequests: receivedInvitation[] = response.data.map((item: any) => ({
-                    id: item.id,
-                    senderEmail: item.senderEmail
-                }));
-                setReceivedFriendRequests(receivedRequests);
-            }).catch(error => {
-                console.error("Error while fetching data:", error);
-            });
-            const senderEmail = user.email;
-            apiClient.get("/friends/sentFriendRequests", {
-                params: {
-                    senderEmail: senderEmail,
-                }
-            }).then(response => {
-                const sentRequests: sentInvitation[] = response.data.map((item: any) => ({
-                    id: item.id,
-                    receiverEmail: item.receiverEmail
-                }));
-                setSentFriendRequests(sentRequests);
-            }).catch(error => {
-                console.error("Błąd podczas pobierania wysłanych zaproszeń:", error);
-            });
-            apiClient.get("/friends/getAllFriends",{
-                params: {
-                    email: user.email
-                }
-            }).then(response => {
-                const userFriends: friend[] = response.data.map((item: any) => ({
-                    friendEmail: item.email
-                }));
-                setFriendsEmail(userFriends);
-            })
+            if(selectedTab === 'Friends'){
+                apiClient.get("/friends/getAllFriends",{
+                    params: {
+                        email: user.email
+                    }
+                }).then(response => {
+                    const userFriends: friend[] = response.data.map((item: any) => ({
+                        friendEmail: item.email,
+                        imageUri: item.imageUri
+                    }));
+                    setFriendsEmail(userFriends);
+                })
+            }
+            if(selectedTab === 'Requests'){
+                const receiverEmail = user.email
+                apiClient.get("/friends/receivedFriendRequests",{
+                    params: {
+                        receiverEmail: receiverEmail,
+                    }
+                }).then(response => {
+                    const receivedRequests: receivedInvitation[] = response.data.map((item: any) => ({
+                        id: item.id,
+                        senderEmail: item.senderEmail,
+                        imageUri: item.imageUri,
+                    }));
+                    setReceivedFriendRequests(receivedRequests);
+                }).catch(error => {
+                    console.error("Error while fetching data:", error);
+                });
+            }
+            if(selectedTab === 'Sent'){
+                const senderEmail = user.email;
+                apiClient.get("/friends/sentFriendRequests", {
+                    params: {
+                        senderEmail: senderEmail,
+                    }
+                }).then(response => {
+                    const sentRequests: sentInvitation[] = response.data.map((item: any) => ({
+                        id: item.id,
+                        receiverEmail: item.receiverEmail,
+                        imageUri: item.imageUri,
+                    }));
+                    setSentFriendRequests(sentRequests);
+                }).catch(error => {
+                    console.error("Error while fetching invitations:", error);
+                });
+            }
 
-            setRefresh(false);
 
         }
-    }, [refresh]);
+    }, [refresh, selectedTab]);
 
-    useEffect(() => {
-        if (selectedTab === 'Friends') {
-            getUserImage(friendsEmails.map(friend => friend.friendEmail));
-        }
-    }, [friendsEmails]);
 
-    useEffect(() => {
-        if (selectedTab === 'Requests') {
-            getUserImage(receivedFriendRequests.map(invitation => invitation.senderEmail));
-        }
-    }, [receivedFriendRequests]);
-
-    useEffect(() => {
-        if (selectedTab === 'Sent') {
-            getUserImage(sentFriendRequests.map(invitation => invitation.receiverEmail));
-        }
-    }, [sentFriendRequests]);
 
     const acceptFriendRequest = async (id: number) => {
         const response = await apiClient.post(`/friends/${id}/accept`);
+        setRefresh(!refresh);
         Alert.alert("Success", response.data);
     }
     const declineFriendRequest = async (id: number)=> {
         const response = await apiClient.post(`/friends/${id}/decline`);
+        setRefresh(!refresh);
         Alert.alert("Success", response.data);
     }
     const handleInvitationSent = () =>{
-        setRefresh(true);
-    }
-    const getUserImage = async (Users: String[]) => {
-        if (user) {
-            Users.map(userEmail => {
-                apiClient.get("/user/profilePicture/download", {
-                    params: { email: userEmail },
-                    responseType: 'blob'
-                }).then(response => {
-
-                    if(response.status === 204){
-                        setProfilePictures(prevProfilePictures => [
-                            ...prevProfilePictures,
-                            [userEmail, "https://cdn-icons-png.flaticon.com/128/848/848043.png"]
-                        ]);
-                    } else{
-                        const blob = response.data;
-                        const reader = new FileReader();
-                        reader.onloadend = () => {
-                            try {
-                                if (reader.result) {
-                                    setProfilePictures(prevProfilePictures => [
-                                        ...prevProfilePictures,
-                                        [userEmail, reader.result as string]
-                                    ]);
-                                }
-                            } catch (error) {
-
-                                console.error('Error setting profile picture:', error);
-                            }
-                        };
-                        reader.readAsDataURL(blob);
-                    }
-                }).catch(error => {
-                    console.error('Error downloading profile picture:', error);
-                });
-            });
-        }
+        setRefresh(!refresh);
     }
 
 
-    const findValue = (email : String) => {
-        const found = profilePictures.find(entry => entry[0] === email);
-        return found ? found[1] : 'https://cdn-icons-png.flaticon.com/128/848/848043.png'
-    }
+
 
     return(
         <View style={styles.container}>
@@ -168,7 +122,7 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
             <View style={styles.buttonContainer}>
                 <TouchableOpacity style={styles.button} onPress={() => {
                     setSelectedTab('Friends')
-                    setRefreshFriends(prevKey => prevKey + 1);
+
                 }}>
                     <View style={styles.innerContainer}>
                         <Text style={styles.textNextTo}>Friends</Text>
@@ -178,7 +132,7 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
 
                 <TouchableOpacity style={styles.button} onPress={() =>{
                     setSelectedTab('Requests');
-                    setRefreshRequest(prevKey => prevKey + 1);
+
                     }}>
                     <View style={styles.innerContainer}>
                         <Text style={styles.textNextTo} >Requests</Text>
@@ -188,7 +142,7 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
 
                 <TouchableOpacity style={styles.button} onPress={() => {
                     setSelectedTab('Sent')
-                    setRefreshSent(prevKey => prevKey + 1);
+
                 }}>
                     <View style={styles.innerContainer}>
                         <Text style={styles.textNextTo}>Sent</Text>
@@ -208,10 +162,17 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
                         friendsEmails.slice().reverse().map((friend, index) => (
                             <View style={styles.shadowPanel} key={index}>
                                 <View style={{ flexDirection: 'row', alignItems: 'center',height: 82 }}>
-                                    <Image
-                                        style={styles.imageStyle}
-                                        source={{uri: findValue(friend.friendEmail)}}
-                                    />
+                                    {friend.imageUri !== null ? (
+                                        <Image
+                                            style={styles.imageStyle}
+                                            source={{uri: friend.imageUri}}
+                                        />
+                                    ):(
+                                        <Image
+                                            style={styles.imageStyle}
+                                            source={{uri: "https://cdn-icons-png.flaticon.com/128/848/848043.png"}}
+                                        />
+                                    )}
                                     <Text style={styles.textSend}>{friend.friendEmail}</Text>
                                 </View>
                             </View>
@@ -231,10 +192,17 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
                                 receivedFriendRequests.slice().reverse().map((invitation, index) => (
                                     <View style={styles.shadowPanel} key={index}>
                                         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                                            <Image
-                                                style={styles.imageStyle}
-                                                source={{uri: findValue(invitation.senderEmail)}}
-                                            />
+                                            {invitation.imageUri !== null ?  (
+                                                <Image
+                                                    style={styles.imageStyle}
+                                                    source={{uri: invitation.imageUri}}
+                                                />
+                                            ):(
+                                                <Image
+                                                    style={styles.imageStyle}
+                                                    source={{uri: "https://cdn-icons-png.flaticon.com/128/848/848043.png"}}
+                                                />
+                                            )}
                                             <Text style={styles.textSend}>{invitation.senderEmail}</Text>
                                             <View style={styles.buttonPanel}>
                                                 <TouchableOpacity style={styles.addButton} onPress={() => acceptFriendRequest(invitation.id)}>
@@ -268,10 +236,17 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
                         sentFriendRequests.slice().reverse().map((invitation, index) => (
                             <View style={styles.shadowPanel} key={index}>
                                 <View style={{ flexDirection: 'row', alignItems: 'center', height: 82 }}>
-                                    <Image
-                                        style={styles.imageStyle}
-                                        source={{uri: findValue(invitation.receiverEmail)}}
-                                    />
+                                    {invitation.imageUri !== null ?  (
+                                        <Image
+                                            style={styles.imageStyle}
+                                            source={{uri: invitation.imageUri}}
+                                        />
+                                    ):(
+                                        <Image
+                                            style={styles.imageStyle}
+                                            source={{uri: "https://cdn-icons-png.flaticon.com/128/848/848043.png"}}
+                                        />
+                                    )}
                                     <Text style={styles.textSend}>{invitation.receiverEmail}</Text>
                                 </View>
                             </View>
