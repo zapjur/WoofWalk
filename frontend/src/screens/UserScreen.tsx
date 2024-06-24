@@ -71,20 +71,16 @@ const UserScreen: React.FC<UserScreenProps> = ({ navigation }) => {
 
     useEffect(() => {
         if(user){
-            apiClient.get("/user/profilePicture/download", {
-                params: { email: user.email },
-                responseType: 'blob'
+            apiClient.get("/user/getProfilePicture", {
+                params: {
+                    email: user.email
+                },
             }).then(response => {
                 if(response.status === 204){
                     setImage("https://cdn-icons-png.flaticon.com/128/848/848043.png");
                 }
                 else{
-                    const blob = response.data;
-                    const reader = new FileReader();
-                    reader.onloadend = () => {
-                        if (reader.result) setImage(reader.result as string);
-                    };
-                    reader.readAsDataURL(blob);
+                    setImage(response.data);
                 }
             }).catch(error => {
                 console.log(error);

@@ -18,6 +18,10 @@ import {useAuth0} from "react-native-auth0";
 interface EventScreenProps {
     route: RouteProp<RootStackParamList, 'EventScreen'>;
 }
+interface InterestedUser {
+    email: string,
+    imageUri: string,
+}
 
 
 const EventScreen: React.FC<EventScreenProps> = ({ route }) => {
@@ -26,10 +30,9 @@ const EventScreen: React.FC<EventScreenProps> = ({ route }) => {
     const [distance, setDistance] = useState<string | null>(null);
     const googleMapsApiKey = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
     const navigation = useNavigation();
-    const [interestedUsers, setInterestedUsers] = useState<String []>([]);
+    const [interestedUsers, setInterestedUsers] = useState<InterestedUser []>([]);
     const [refresh, setRefresh] = useState(false);
     const {user} = useAuth0();
-    const [profilePictures, setProfilePictures] = useState<[String, string][]>([]);
     useEffect(() => {
 
         if (userLocation) {
@@ -86,53 +89,14 @@ const EventScreen: React.FC<EventScreenProps> = ({ route }) => {
         apiClient.get(`/events/getAllUsers/${place.id}`)
             .then(response =>{
                 setInterestedUsers(response.data);
-                getProfilePicture(response.data).catch(error => console.log(error));
+                console.log(response.data);
+                console.log(interestedUsers.length);
             })
             .catch(error => console.log(error));
 
     }, [refresh]);
 
-    const getProfilePicture = async (Users: String[]) => {
-        if (user) {
-            Users.map(userEmail => {
-                apiClient.get("/user/profilePicture/download", {
-                    params: { email: userEmail },
-                    responseType: 'blob'
-                }).then(response => {
 
-                    if(response.status === 204){
-                        setProfilePictures(prevProfilePictures => [
-                            ...prevProfilePictures,
-                            [userEmail, "https://cdn-icons-png.flaticon.com/128/848/848043.png"]
-                        ]);
-                    } else{
-                        const blob = response.data;
-                        const reader = new FileReader();
-                        reader.onloadend = () => {
-                            try {
-                                if (reader.result) {
-                                    setProfilePictures(prevProfilePictures => [
-                                        ...prevProfilePictures,
-                                        [userEmail, reader.result as string]
-                                    ]);
-                                }
-                            } catch (error) {
-
-                                console.error('Error setting profile picture:', error);
-                            }
-                        };
-                        reader.readAsDataURL(blob);
-                    }
-                }).catch(error => {
-                    console.error('Error downloading profile picture:', error);
-                });
-            });
-        }
-    }
-    const findValue = (email : String) => {
-        const found = profilePictures.find(entry => entry[0] === email);
-        return found ? found[1] : 'https://cdn-icons-png.flaticon.com/128/848/848043.png'
-    }
 
     return (
         <SafeAreaView style={styles.safeArea}>
@@ -169,10 +133,17 @@ const EventScreen: React.FC<EventScreenProps> = ({ route }) => {
                         style={styles.placeImage}
                     />
                     <View style={styles.detailsContainer}>
-                        <View style={styles.detail}>
-                            <Text style={styles.detailsText}>Distance</Text>
-                            <Text>{distance}</Text>
-                        </View>
+                        {distance != null ? (
+                            <View style={styles.detail}>
+                                <Text style={styles.detailsText}>Distance</Text>
+                                <Text>{distance}</Text>
+                            </View>
+                        ):(
+                            <View style={styles.detail}>
+                                <Text style={styles.detailsText}>Distance</Text>
+                                <Text>No data</Text>
+                            </View>
+                        )}
                         <View style={styles.detail}>
                             <Text style={styles.detailsText}>Date</Text>
                             <Text>{place.date}</Text>
@@ -189,14 +160,22 @@ const EventScreen: React.FC<EventScreenProps> = ({ route }) => {
                     <ScrollView style={styles.shadowPanel}>
                         <View style={styles.container}>
                             {interestedUsers.length > 0 ? (
-                                interestedUsers.map((email, index) => (
-                                    <View style={styles.shadowPanel}>
-                                        <View key={index} style={styles.userContainer}>
-                                            <Image
-                                                source={{uri: findValue(email)}}
-                                                style={styles.profilePicture}>
-                                            </Image>
-                                            <Text style={styles.userText}>{email}</Text>
+                                interestedUsers.map((user, index) => (
+                                    <View key={index} style={styles.shadowPanel}>
+                                        <View  style={styles.userContainer}>
+                                            {user.imageUri !== null ? (
+                                                <Image
+                                                    source={{uri: user.imageUri}}
+                                                    style={styles.profilePicture}>
+                                                </Image>
+                                            ):(
+                                                <Image
+                                                    source={{uri: "https://cdn-icons-png.flaticon.com/128/848/848043.png"}}
+                                                    style={styles.profilePicture}>
+                                                </Image>
+                                            )
+                                            }
+                                            <Text style={styles.userText}>{user.email}</Text>
                                         </View>
                                     </View>
 
