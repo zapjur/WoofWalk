@@ -32,6 +32,7 @@ const PlaceScreen: React.FC<PlaceScreenProps> = ({ route }) => {
     const { setRefreshKey } = useLocation();
     const googleMapsApiKey = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
     const userEmail = useAuth0().user?.email;
+    const maxOpinionLength = 255;
     const navigation = useNavigation();
     useEffect(() => {
         apiClient.get(`/locations/details/${place.id}`)
@@ -154,6 +155,11 @@ const PlaceScreen: React.FC<PlaceScreenProps> = ({ route }) => {
             Alert.alert('Error submitting review');
         }
     };
+    const handleOpinionChange = (opinion: string) =>{
+        if(opinion.length <= maxOpinionLength){
+            setOpinion(opinion);
+        }
+    }
 
     return (
         <SafeAreaView style={styles.safeArea}>
@@ -233,16 +239,28 @@ const PlaceScreen: React.FC<PlaceScreenProps> = ({ route }) => {
                         <TextInput
                             style={styles.input}
                             value={opinion}
-                            onChangeText={setOpinion}
+                            multiline={true}
+                            onChangeText={handleOpinionChange}
                             placeholder="Write your opinion"
                         />
+                        <View style={styles.counterContainer}>
+                            <Text style={styles.counterText}>
+                                {opinion.length}/{maxOpinionLength}
+                            </Text>
+                        </View>
+
                         <View style={styles.imagePreviewContainer}>
                             {images.map((img, index) => (
                                 <Image key={index} source={{ uri: img }} style={styles.imagePreview} />
                             ))}
                         </View>
                         <View style={styles.buttonContainer}>
-                            <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.buttonCancel}>
+                            <TouchableOpacity onPress={() => {
+                                setModalVisible(false);
+                                setOpinion('');
+                                setRating('')}
+                            } style={styles.buttonCancel}
+                            >
                                 <Text style={{color: "white"}}>
                                     Cancel
                                 </Text>
@@ -289,7 +307,9 @@ const styles = StyleSheet.create({
         gap: 10,
         marginBottom: 10,
     },
-
+    counterContainer: {
+        alignSelf: "flex-end",
+    },
     infoContainer: {
         padding: 16,
         gap: 10,
@@ -312,6 +332,9 @@ const styles = StyleSheet.create({
     detailsText: {
         fontWeight: 'bold',
         fontSize: 16,
+    },
+    counterText: {
+        color: '#9b9797'
     },
     detail: {
         alignItems: 'center',
@@ -379,6 +402,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         marginBottom: 10,
     },
+
     input: {
         borderWidth: 1,
         borderColor: '#ccc',

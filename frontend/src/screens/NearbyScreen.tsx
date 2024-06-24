@@ -29,8 +29,15 @@ const NearbyScreen: React.FC<NearbyScreenProps> = ({ navigation }) => {
     ];
     if(!userLocation) {
         return (
-            <View>
-                <Text>We don't have your location!</Text>
+            <View style={styles.container}>
+                <View style={styles.noDataContainer}>
+                    <Image
+                        source={{uri: "https://cdn-icons-png.flaticon.com/128/7130/7130497.png"}}
+                        style={styles.noDataIcon}
+                    >
+                    </Image>
+                </View>
+                <BottomBar navigation={navigation} />
             </View>
         )
 
