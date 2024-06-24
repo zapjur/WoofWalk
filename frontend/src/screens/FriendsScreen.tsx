@@ -159,7 +159,7 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
                             <Text style={styles.sadText}>You don't have any friends yet :(</Text>
                         </View>
                     ) : (
-                        friendsEmails.slice().reverse().map((friend, index) => (
+                        friendsEmails.map((friend, index) => (
                             <View style={styles.shadowPanel} key={index}>
                                 <View style={{ flexDirection: 'row', alignItems: 'center',height: 82 }}>
                                     {friend.imageUri !== null ? (
@@ -189,7 +189,7 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
                                     <Text style={styles.sadText}>You don't have any invitations</Text>
                                 </View>
                             ) : (
-                                receivedFriendRequests.slice().reverse().map((invitation, index) => (
+                                receivedFriendRequests.map((invitation, index) => (
                                     <View style={styles.shadowPanel} key={index}>
                                         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                                             {invitation.imageUri !== null ?  (
@@ -233,7 +233,7 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
                             <Text style={styles.sadText} >You don't have any sent invitations</Text>
                         </View>
                     ) : (
-                        sentFriendRequests.slice().reverse().map((invitation, index) => (
+                        sentFriendRequests.map((invitation, index) => (
                             <View style={styles.shadowPanel} key={index}>
                                 <View style={{ flexDirection: 'row', alignItems: 'center', height: 82 }}>
                                     {invitation.imageUri !== null ?  (
@@ -271,7 +271,7 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
 }
 const styles = StyleSheet.create({
     container: {
-        marginTop: 10,
+        marginTop: '10%',
         flex:1,
     },
     topBar: {
