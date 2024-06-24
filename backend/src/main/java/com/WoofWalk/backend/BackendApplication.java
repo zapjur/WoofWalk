@@ -24,9 +24,9 @@ public class BackendApplication {
 
 		System.out.println("Secrets JSON: " + secrets.toString());
 
-		setSystemProperty("spring.datasource.url", secrets.get("render.databaseURL"));
-		setSystemProperty("spring.datasource.username", secrets.get("render.databaseUsername"));
-		setSystemProperty("spring.datasource.password", secrets.get("render.databasePassword"));
+		setSystemProperty("spring.datasource.url", secrets.get("rds.databaseURL"));
+		setSystemProperty("spring.datasource.username", secrets.get("rds.databaseUsername"));
+		setSystemProperty("spring.datasource.password", secrets.get("rds.databasePassword"));
 		setSystemProperty("spring.security.oauth2.resourceserver.jwt.issuer-uri", secrets.get("auth0.issuerURI"));
 		setSystemProperty("aws.accessKeyId", secrets.get("aws.accessKeyId"));
 		setSystemProperty("aws.secretAccessKey", secrets.get("aws.secretAccessKey"));
