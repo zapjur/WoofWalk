@@ -1,12 +1,13 @@
 import React from "react";
-import { View, TouchableOpacity, Text, StyleSheet } from "react-native";
+import { View, TouchableOpacity, Text, StyleSheet, Image } from "react-native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import RootStackParamList from "../../RootStackParamList";
 import { useAuth0 } from "react-native-auth0";
 import * as SecureStore from "expo-secure-store";
+
 type LoginScreenNavigationProp = StackNavigationProp<
-  RootStackParamList,
-  "Login"
+    RootStackParamList,
+    "Login"
 >;
 
 interface LoginScreenProps {
@@ -15,7 +16,7 @@ interface LoginScreenProps {
 
 const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   const { authorize } = useAuth0();
-  const { user, error } = useAuth0();
+
   const handleLoginPress = async () => {
     try {
       const authResult = await authorize({
@@ -34,25 +35,66 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <TouchableOpacity style={styles.loginButton} onPress={handleLoginPress}>
-        <Text style={styles.buttonText}>Login</Text>
-      </TouchableOpacity>
-    </View>
+      <View style={styles.container}>
+        <View style={styles.titleContainer}>
+          <Text style={styles.title}>WoofWalk</Text>
+          <Text style={styles.subTitle}>Your Guide to Dog-Friendly Spots!</Text>
+        </View>
+
+        <Image
+            source={{ uri: "https://cdn-icons-png.flaticon.com/128/9012/9012070.png" }}
+            style={styles.image}
+        />
+        <TouchableOpacity style={styles.loginButton} onPress={handleLoginPress}>
+          <Text style={styles.buttonText}>Login</Text>
+        </TouchableOpacity>
+      </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#c9f6d4",
+    padding: 20,
+  },
+  titleContainer: {
+    marginBottom: 40,
+    display: "flex",
+    flexDirection: "column",
     justifyContent: "center",
     alignItems: "center",
   },
+  image: {
+    width: 140,
+    height: 140,
+    marginBottom: 180,
+  },
+  title: {
+    fontSize: 56,
+    fontWeight: "bold",
+    color: "#4c956c",
+
+  },
+  subTitle: {
+    fontSize: 26,
+    fontWeight: "bold",
+    color: "#4c956c",
+
+  },
   loginButton: {
-    backgroundColor: "blue",
+    backgroundColor: "#4c956c",
     paddingVertical: 15,
-    paddingHorizontal: 30,
-    borderRadius: 5,
+    paddingHorizontal: 60,
+    borderRadius: 30,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.8,
+    shadowRadius: 2,
+    elevation: 5,
   },
   buttonText: {
     color: "white",

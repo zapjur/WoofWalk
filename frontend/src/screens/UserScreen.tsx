@@ -403,9 +403,9 @@ const UserScreen: React.FC<UserScreenProps> = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f9f9f9',
         padding: 20,
         marginTop: 30,
+
     },
     image: {
         height: 25,
@@ -512,7 +512,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         gap: 8,
-        backgroundColor: '#60dc62',
+        backgroundColor: '#4c956c',
         borderRadius: 24,
         width: '80%',
         height: 30,

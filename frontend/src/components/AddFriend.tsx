@@ -56,7 +56,7 @@ const AddFriendButton: React.FC<{ onInvitationSent: () => void }> = ({ onInvitat
     return (
         <View style={styles.container}>
             <TouchableOpacity style={styles.button} onPress={handleAddFriendPress}>
-                <MaterialCommunityIcon name={"account-plus"} size={33}></MaterialCommunityIcon>
+                <MaterialCommunityIcon name={"account-plus"} size={30} color={"white"}></MaterialCommunityIcon>
             </TouchableOpacity>
             <Modal
                 animationType="slide"
@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
         width: 200,
         left: '50%',
         transform: [{ translateX: -100 }],
-        backgroundColor: '#007bff',
+        backgroundColor: '#4c956c',
         paddingVertical: 10,
         paddingHorizontal: 20,
         borderRadius: 25,
@@ -145,7 +145,7 @@ const styles = StyleSheet.create({
     },
     modalHeader: {
       fontWeight: "bold",
-      fontSize: 40,
+      fontSize: 30,
     },
     buttonContainer: {
         display: "flex",
@@ -156,16 +156,16 @@ const styles = StyleSheet.create({
         marginTop: 20,
         paddingVertical: 10,
         paddingHorizontal: 20,
-        backgroundColor: '#ea1828',
-        borderRadius: 5,
+        backgroundColor: '#ea4545',
+        borderRadius: 20,
     },
     submitButton: {
 
         marginTop: 20,
         paddingVertical: 10,
         paddingHorizontal: 20,
-        backgroundColor: '#007bff',
-        borderRadius: 5,
+        backgroundColor: '#4c956c',
+        borderRadius: 20,
     },
     closeButtonText: {
         color: '#ffffff',
