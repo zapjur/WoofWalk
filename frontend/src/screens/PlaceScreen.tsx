@@ -183,10 +183,17 @@ const PlaceScreen: React.FC<PlaceScreenProps> = ({ route }) => {
                         />
                     )}
                     <View style={styles.detailsContainer}>
-                        <View style={styles.detail}>
-                            <Text style={styles.detailsText}>Distance</Text>
-                            <Text>{distance}</Text>
-                        </View>
+                        {distance != null ? (
+                            <View style={styles.detail}>
+                                <Text style={styles.detailsText}>Distance</Text>
+                                <Text>{distance}</Text>
+                            </View>
+                        ):(
+                            <View style={styles.detail}>
+                                <Text style={styles.detailsText}>Distance</Text>
+                                <Text>No data</Text>
+                            </View>
+                        )}
                         <View style={styles.detail}>
                             <Text style={styles.detailsText}>Rating</Text>
                             <View style={styles.ratingContainer}>
@@ -218,7 +225,7 @@ const PlaceScreen: React.FC<PlaceScreenProps> = ({ route }) => {
                 </View>
             </ScrollView>
             <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
-                <Image source={{uri: "https://cdn-icons-png.flaticon.com/128/10015/10015328.png"}} style={styles.icon}></Image>
+                <Image source={{uri: "https://cdn-icons-png.flaticon.com/128/14025/14025467.png"}} style={styles.icon}></Image>
             </TouchableOpacity>
             <Modal
                 animationType="slide"
@@ -354,7 +361,7 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "center",
-        backgroundColor: "#fc3d3d",
+        backgroundColor: "#ea4545",
         width: 70,
         height: 40,
         borderRadius: 20,
@@ -364,7 +371,7 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "center",
-        backgroundColor: '#60dc62',
+        backgroundColor: '#4c956c',
         width: 70,
         height: 40,
         borderRadius: 20,
@@ -375,7 +382,7 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "center",
-        backgroundColor: '#6aefd9',
+        backgroundColor: '#e5b53b',
         width: 120,
         height: 40,
         borderRadius: 20,

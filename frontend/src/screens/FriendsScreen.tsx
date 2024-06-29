@@ -88,7 +88,6 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
                 });
             }
 
-
         }
     }, [refresh, selectedTab]);
 
@@ -109,8 +108,6 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
     }
 
 
-
-
     return(
         <View style={styles.container}>
             <View style={styles.bar}>
@@ -126,7 +123,7 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
                 }}>
                     <View style={styles.innerContainer}>
                         <Text style={styles.textNextTo}>Friends</Text>
-                        <MaterialCommunityIcon name={"account-group"} size={33}></MaterialCommunityIcon>
+                        <MaterialCommunityIcon name={"account-group"} size={33} color={"white"}></MaterialCommunityIcon>
                     </View>
                 </TouchableOpacity>
 
@@ -136,7 +133,7 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
                     }}>
                     <View style={styles.innerContainer}>
                         <Text style={styles.textNextTo} >Requests</Text>
-                        <MaterialCommunityIcon name={"human-greeting-variant"} size={33}></MaterialCommunityIcon>
+                        <MaterialCommunityIcon name={"human-greeting-variant"} size={33} color={"white"}></MaterialCommunityIcon>
                     </View>
                 </TouchableOpacity>
 
@@ -146,7 +143,7 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
                 }}>
                     <View style={styles.innerContainer}>
                         <Text style={styles.textNextTo}>Sent</Text>
-                        <MaterialCommunityIcon name={"email-fast"} size={33}></MaterialCommunityIcon>
+                        <MaterialCommunityIcon name={"email-fast"} size={33} color={"white"}></MaterialCommunityIcon>
                     </View>
                 </TouchableOpacity>
             </View>
@@ -159,23 +156,25 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
                             <Text style={styles.sadText}>You don't have any friends yet :(</Text>
                         </View>
                     ) : (
-                        friendsEmails.map((friend, index) => (
-                            <View style={styles.shadowPanel} key={index}>
-                                <View style={{ flexDirection: 'row', alignItems: 'center',height: 82 }}>
-                                    {friend.imageUri !== null ? (
-                                        <Image
-                                            style={styles.imageStyle}
-                                            source={{uri: friend.imageUri}}
-                                        />
-                                    ):(
-                                        <Image
-                                            style={styles.imageStyle}
-                                            source={{uri: "https://cdn-icons-png.flaticon.com/128/848/848043.png"}}
-                                        />
-                                    )}
-                                    <Text style={styles.textSend}>{friend.friendEmail}</Text>
+                        friendsEmails
+                            .sort((a, b) => a.friendEmail.localeCompare(b.friendEmail))
+                            .map((friend, index) => (
+                                <View style={styles.shadowPanel} key={index}>
+                                    <View style={{ flexDirection: 'row', alignItems: 'center', height: 82 }}>
+                                        {friend.imageUri !== null ? (
+                                            <Image
+                                                style={styles.imageStyle}
+                                                source={{ uri: friend.imageUri }}
+                                            />
+                                        ) : (
+                                            <Image
+                                                style={styles.imageStyle}
+                                                source={{ uri: "https://cdn-icons-png.flaticon.com/128/848/848043.png" }}
+                                            />
+                                        )}
+                                        <Text style={styles.textSend}>{friend.friendEmail}</Text>
+                                    </View>
                                 </View>
-                            </View>
                         ))
                     )}
                 </ScrollView>
@@ -189,37 +188,39 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
                                     <Text style={styles.sadText}>You don't have any invitations</Text>
                                 </View>
                             ) : (
-                                receivedFriendRequests.map((invitation, index) => (
-                                    <View style={styles.shadowPanel} key={index}>
-                                        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                                            {invitation.imageUri !== null ?  (
-                                                <Image
-                                                    style={styles.imageStyle}
-                                                    source={{uri: invitation.imageUri}}
-                                                />
-                                            ):(
-                                                <Image
-                                                    style={styles.imageStyle}
-                                                    source={{uri: "https://cdn-icons-png.flaticon.com/128/848/848043.png"}}
-                                                />
-                                            )}
-                                            <Text style={styles.textSend}>{invitation.senderEmail}</Text>
-                                            <View style={styles.buttonPanel}>
-                                                <TouchableOpacity style={styles.addButton} onPress={() => acceptFriendRequest(invitation.id)}>
-                                                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                                        <MaterialCommunityIcon name={"account-multiple-check"} size={21}></MaterialCommunityIcon>
-                                                        <Text style={styles.buttonText}>Accept</Text>
-                                                    </View>
-                                                </TouchableOpacity>
-                                                <TouchableOpacity style={styles.rejectButton}  onPress={() => declineFriendRequest(invitation.id)}>
-                                                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                                        <MaterialCommunityIcon name={"account-multiple-remove"} size={21}></MaterialCommunityIcon>
-                                                        <Text style={styles.buttonText}>Reject</Text>
-                                                    </View>
-                                                </TouchableOpacity>
+                                receivedFriendRequests
+                                    .sort((a, b) => a.senderEmail.localeCompare(b.senderEmail))
+                                    .map((invitation, index) => (
+                                        <View style={styles.shadowPanel} key={index}>
+                                            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                                                {invitation.imageUri !== null ? (
+                                                    <Image
+                                                        style={styles.imageStyle}
+                                                        source={{ uri: invitation.imageUri }}
+                                                    />
+                                                ) : (
+                                                    <Image
+                                                        style={styles.imageStyle}
+                                                        source={{ uri: "https://cdn-icons-png.flaticon.com/128/848/848043.png" }}
+                                                    />
+                                                )}
+                                                <Text style={styles.textSend}>{invitation.senderEmail}</Text>
+                                                <View style={styles.buttonPanel}>
+                                                    <TouchableOpacity style={styles.addButton} onPress={() => acceptFriendRequest(invitation.id)}>
+                                                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                                            <MaterialCommunityIcon name={"account-multiple-check"} size={21}></MaterialCommunityIcon>
+                                                            <Text style={styles.buttonText}>Accept</Text>
+                                                        </View>
+                                                    </TouchableOpacity>
+                                                    <TouchableOpacity style={styles.rejectButton} onPress={() => declineFriendRequest(invitation.id)}>
+                                                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                                            <MaterialCommunityIcon name={"account-multiple-remove"} size={21}></MaterialCommunityIcon>
+                                                            <Text style={styles.buttonText}>Reject</Text>
+                                                        </View>
+                                                    </TouchableOpacity>
+                                                </View>
                                             </View>
                                         </View>
-                                    </View>
                                 ))
                             )}
                         </View>
@@ -241,7 +242,7 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
                                             style={styles.imageStyle}
                                             source={{uri: invitation.imageUri}}
                                         />
-                                    ):(
+                                    ): (
                                         <Image
                                             style={styles.imageStyle}
                                             source={{uri: "https://cdn-icons-png.flaticon.com/128/848/848043.png"}}
@@ -311,9 +312,9 @@ const styles = StyleSheet.create({
     button: {
         flex:1,
         alignItems: 'center',
-        backgroundColor: 'lightblue',
+        backgroundColor: '#74b291',
         margin: 5,
-        borderRadius: 10,
+        borderRadius: 20,
 
     },
     buttonPanel: {
@@ -329,7 +330,7 @@ const styles = StyleSheet.create({
     },
     textNextTo: {
         marginRight: 10,
-        fontWeight: 'bold',
+        color: "white",
     },
     textInvitation: {
         fontSize: 19,
