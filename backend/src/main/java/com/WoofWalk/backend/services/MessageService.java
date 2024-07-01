@@ -9,10 +9,13 @@ import com.WoofWalk.backend.repositories.MessageRepository;
 import com.WoofWalk.backend.repositories.PrivateChatRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import software.amazon.awssdk.services.secretsmanager.endpoints.internal.Value;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -68,5 +71,12 @@ public class MessageService {
 
     public List<PrivateChat> getPrivateChatsForUser(User user) {
         return privateChatRepository.findByParticipantsContaining(user);
+    }
+
+    public Map<String, String> getGroupChatUserSubs(Long groupChatId) {
+        GroupChat groupChat = groupChatRepository.findById(groupChatId)
+                .orElseThrow(() -> new RuntimeException("Group chat not found"));
+        return groupChat.getMembers().stream()
+                .collect(Collectors.toMap(User::getEmail, User::getSub));
     }
 }

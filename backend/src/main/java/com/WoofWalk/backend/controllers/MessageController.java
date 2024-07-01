@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -66,6 +67,14 @@ public class MessageController {
         return ResponseEntity.ok(messages);
     }
 
+    @GetMapping("/group/userSubs/{groupChatId}")
+    public ResponseEntity<Map<String, String>> getGroupChatUserSubs(@PathVariable Long groupChatId) {
+        logger.info("Fetching user subs in group chat with ID: {}", groupChatId);
+        Map<String, String> userSubs = messageService.getGroupChatUserSubs(groupChatId);
+        logger.info("User subs in group chat with ID {}: {}", groupChatId, userSubs);
+        return ResponseEntity.ok(userSubs);
+    }
+
     @PostMapping("/private/create")
     public ResponseEntity<PrivateChatDto> createPrivateChat(@RequestHeader("Authorization") String token, @RequestParam String user2Email) {
         String jwtToken = token.replace("Bearer ", "");
@@ -76,8 +85,11 @@ public class MessageController {
     }
 
     @PostMapping("/group/create")
-    public ResponseEntity<GroupChatDto> createGroupChat(@RequestParam String name, @RequestBody Set<String> emails) {
+    public ResponseEntity<GroupChatDto> createGroupChat(@RequestHeader("Authorization") String token, @RequestParam String name, @RequestBody Set<String> emails) {
+        String jwtToken = token.replace("Bearer ", "");
+        User user1 = userService.getUserFromToken(jwtToken);
         Set<User> members = userService.findUsersByEmails(emails);
+        members.add(user1);
         GroupChat groupChat = messageService.createGroupChat(name, members);
         return ResponseEntity.ok(GroupChatMapper.toDto(groupChat));
     }

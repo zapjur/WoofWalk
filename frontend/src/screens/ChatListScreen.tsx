@@ -14,11 +14,12 @@ type ChatListScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Cha
 const ChatListScreen: React.FC = () => {
     const navigation = useNavigation<ChatListScreenNavigationProp>();
     const [email, setEmail] = useState<string>('');
-    const [groupEmails, setGroupEmails] = useState<string>('');
+    const [groupEmails, setGroupEmails] = useState<string>('Members');
     const [privateChats, setPrivateChats] = useState<PrivateChat[]>([]);
     const [groupChats, setGroupChats] = useState<GroupChat[]>([]);
     const [modalVisible, setModalVisible] = useState<boolean>(false);
     const [showPrivateChats, setShowPrivateChats] = useState<boolean>(true);
+    const [groupChatName, setGroupChatName] = useState<string>('Name');
 
     useEffect(() => {
         const fetchPrivateChats = async () => {
@@ -50,6 +51,10 @@ const ChatListScreen: React.FC = () => {
         navigation.navigate('ChatConversation', { chatId, recipient });
     };
 
+    const openGroupChat = (groupChatId: string, members: string[]) => {
+        navigation.navigate('GroupChatConversation', { groupChatId, members });
+    }
+
     const handleAddPrivateChat = async () => {
         if (email) {
             try {
@@ -68,7 +73,7 @@ const ChatListScreen: React.FC = () => {
         if (groupEmails) {
             const emails = groupEmails.split(',').map(email => email.trim());
             try {
-                const response = await apiClient.post('/chat/group/create', { emails });
+                const response = await apiClient.post('/chat/group/create',  emails , { params: { name: groupChatName } });
                 setGroupChats([...groupChats, response.data]);
                 setGroupEmails('');
                 setModalVisible(false);
@@ -80,11 +85,21 @@ const ChatListScreen: React.FC = () => {
     };
 
     const renderChatItem = ({ item }: { item: PrivateChat | GroupChat }) => {
+        const isPrivateChat = showPrivateChats;
         const name = showPrivateChats ? (item as PrivateChat).participant : (item as GroupChat).name;
         const chatId = showPrivateChats ? (item as PrivateChat).id.toString() : (item as GroupChat).id.toString();
         const recipient = showPrivateChats ? (item as PrivateChat).participant : (item as GroupChat).name;
+
+        const handlePress = () => {
+            if (isPrivateChat) {
+                openChat(chatId, recipient);
+            } else {
+                openGroupChat(chatId, (item as GroupChat).members);
+            }
+        };
+
         return (
-            <Card style={styles.contactCard} onPress={() => openChat(chatId, recipient)}>
+            <Card style={styles.contactCard} onPress={handlePress}>
                 <Card.Content>
                     <Text>{name}</Text>
                 </Card.Content>
@@ -150,6 +165,16 @@ const ChatListScreen: React.FC = () => {
                             </>
                         ) : (
                             <>
+                                <TextInput
+                                    label="Group Name"
+                                    value={groupChatName}
+                                    onChangeText={setGroupChatName}
+                                    style={styles.input}
+                                    underlineColor="transparent"
+                                    mode="outlined"
+                                    outlineColor="#e5e5e5"
+                                    activeOutlineColor="#4c956c"
+                                />
                                 <TextInput
                                     label="Group Members Emails (comma separated)"
                                     value={groupEmails}
