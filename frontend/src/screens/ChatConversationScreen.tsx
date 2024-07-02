@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { FlatList, Platform, StyleSheet, View } from 'react-native';
 import { TextInput, Text, Card, IconButton, Provider, Avatar } from 'react-native-paper';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -9,7 +9,7 @@ import * as SecureStore from 'expo-secure-store';
 import apiClient from "../../axiosConfig";
 import BottomBar from "../components/BottomBar";
 import theme from "../constants/theme";
-import {useAuth0} from "react-native-auth0";
+import { useAuth0 } from "react-native-auth0";
 
 type ChatConversationScreenNavigationProp = StackNavigationProp<RootStackParamList, 'ChatConversation'>;
 type ChatConversationScreenRouteProp = RouteProp<RootStackParamList, 'ChatConversation'>;
@@ -35,7 +35,9 @@ const ChatConversationScreen: React.FC = () => {
     const [userProfilePicture, setUserProfilePicture] = useState<string>('');
     const [recipientProfilePicture, setRecipientProfilePicture] = useState<string>('');
     const navigation = useNavigation<ChatConversationScreenNavigationProp>();
-    const {user} = useAuth0();
+    const { user } = useAuth0();
+
+    const flatListRef = useRef<FlatList>(null);
 
     useEffect(() => {
         const getRecipientSub = async () => {
@@ -53,6 +55,11 @@ const ChatConversationScreen: React.FC = () => {
             try {
                 const response = await apiClient.get(`/chat/private/${chatId}`);
                 setMessages(response.data);
+                setTimeout(() => {
+                    if (flatListRef.current) {
+                        flatListRef.current.scrollToEnd({ animated: true });
+                    }
+                }, 1000);
             } catch (error) {
                 console.error('Error fetching messages:', error);
             }
@@ -60,10 +67,10 @@ const ChatConversationScreen: React.FC = () => {
 
         const fetchUserProfilePicture = async () => {
             try {
-                if(!user?.email) return;
+                if (!user?.email) return;
                 const response = await apiClient.get('/user/getProfilePicture', { params: { email: user.email } });
                 console.log('User profile picture:', response.data);
-                if(!response.data) {
+                if (!response.data) {
                     setUserProfilePicture('https://cdn-icons-png.flaticon.com/128/848/848043.png');
                     return;
                 }
@@ -77,7 +84,7 @@ const ChatConversationScreen: React.FC = () => {
             try {
                 const response = await apiClient.get('/user/getProfilePicture', { params: { email: recipient } });
                 console.log('Recipent profile picture:', response.data);
-                if(!response.data) {
+                if (!response.data) {
                     setRecipientProfilePicture('https://cdn-icons-png.flaticon.com/128/848/848043.png');
                     return;
                 }
@@ -125,9 +132,15 @@ const ChatConversationScreen: React.FC = () => {
         };
     }, [chatId, recipient]);
 
+    useEffect(() => {
+        if (flatListRef.current) {
+            flatListRef.current.scrollToEnd({ animated: true });
+        }
+    }, [messages]);
+
     const sendPrivateMessage = () => {
         if (socket) {
-            const newMessage: Message = { content: message, type: 'private', sender: user?.email || ''};
+            const newMessage: Message = { content: message, type: 'private', sender: user?.email || '' };
             setMessages((prevMessages) => [...prevMessages, newMessage]);
             socket.emit('private_message', { content: message, to: recipientSub, chatId });
             setMessage('');
@@ -140,12 +153,13 @@ const ChatConversationScreen: React.FC = () => {
         <Provider theme={theme}>
             <View style={styles.container}>
                 <FlatList
+                    ref={flatListRef}
                     data={messages}
                     renderItem={({ item }) => (
                         <Card style={styles.messageCard}>
                             <Card.Title
                                 title={item.sender == recipientSub ? recipient : user?.email}
-                                titleStyle={{fontWeight: 'bold', fontSize: 12}}
+                                titleStyle={{ fontWeight: 'bold', fontSize: 12 }}
                                 left={() =>
                                     <Avatar.Image
                                         size={40}

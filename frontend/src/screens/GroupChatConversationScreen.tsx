@@ -9,7 +9,7 @@ import * as SecureStore from 'expo-secure-store';
 import apiClient from "../../axiosConfig";
 import BottomBar from "../components/BottomBar";
 import theme from "../constants/theme";
-import {useAuth0} from "react-native-auth0";
+import { useAuth0 } from "react-native-auth0";
 
 type GroupChatConversationScreenNavigationProp = StackNavigationProp<RootStackParamList, 'GroupChatConversation'>;
 type GroupChatConversationScreenRouteProp = RouteProp<RootStackParamList, 'GroupChatConversation'>;
@@ -38,12 +38,18 @@ const GroupChatConversationScreen: React.FC = () => {
     const [userProfilePictures, setUserProfilePictures] = useState<Map<string, string>>(new Map());
 
     const socketRef = useRef<any>(null);
+    const flatListRef = useRef<FlatList>(null);
 
     useEffect(() => {
         const fetchMessages = async () => {
             try {
                 const response = await apiClient.get(`/chat/group/${groupChatId}`);
                 setMessages(response.data);
+                setTimeout(() => {
+                    if (flatListRef.current) {
+                        flatListRef.current.scrollToEnd({ animated: true });
+                    }
+                }, 1000);
             } catch (error) {
                 console.error('Error fetching messages:', error);
             }
@@ -76,7 +82,7 @@ const GroupChatConversationScreen: React.FC = () => {
         };
 
         fetchUserSubs();
-        fetchUserProfilePictures()
+        fetchUserProfilePictures();
         fetchMessages();
 
         const initializeSocket = async () => {
@@ -114,6 +120,12 @@ const GroupChatConversationScreen: React.FC = () => {
         };
     }, [groupChatId]);
 
+    useEffect(() => {
+        if (flatListRef.current) {
+            flatListRef.current.scrollToEnd({ animated: true });
+        }
+    }, [messages]);
+
     const sendGroupMessage = () => {
         if (socketRef.current) {
             socketRef.current.emit('group_message', { content: message, groupId: groupChatId });
@@ -127,6 +139,7 @@ const GroupChatConversationScreen: React.FC = () => {
         <Provider theme={theme}>
             <View style={styles.container}>
                 <FlatList
+                    ref={flatListRef}
                     data={messages}
                     renderItem={({ item }) => (
                         <Card style={styles.messageCard}>
