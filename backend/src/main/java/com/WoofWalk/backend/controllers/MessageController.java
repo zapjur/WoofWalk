@@ -1,12 +1,10 @@
 package com.WoofWalk.backend.controllers;
 
 import com.WoofWalk.backend.dto.GroupChatDto;
+import com.WoofWalk.backend.dto.GroupMessageDto;
 import com.WoofWalk.backend.dto.MessageDto;
 import com.WoofWalk.backend.dto.PrivateChatDto;
-import com.WoofWalk.backend.entities.GroupChat;
-import com.WoofWalk.backend.entities.Message;
-import com.WoofWalk.backend.entities.PrivateChat;
-import com.WoofWalk.backend.entities.User;
+import com.WoofWalk.backend.entities.*;
 import com.WoofWalk.backend.mappers.GroupChatMapper;
 import com.WoofWalk.backend.mappers.MessageMapper;
 import com.WoofWalk.backend.mappers.PrivateChatMapper;
@@ -41,10 +39,10 @@ public class MessageController {
     }
 
     @PostMapping("/group/{groupChatId}")
-    public ResponseEntity<MessageDto> saveGroupMessage(@RequestBody Message message, @PathVariable Long groupChatId) {
+    public ResponseEntity<GroupMessageDto> saveGroupMessage(@RequestBody GroupMessageDto message, @PathVariable Long groupChatId) {
         logger.info("Received group message to save: {}", message.toString());
-        Message savedMessage = messageService.saveGroupMessage(message, groupChatId);
-        return ResponseEntity.ok(MessageMapper.toDto(savedMessage));
+        GroupMessage savedMessage = messageService.saveGroupMessage(message, groupChatId);
+        return ResponseEntity.ok(MessageMapper.groupMessageToDto(savedMessage));
     }
 
     @GetMapping("/private/{privateChatId}")
@@ -58,11 +56,11 @@ public class MessageController {
     }
 
     @GetMapping("/group/{groupChatId}")
-    public ResponseEntity<List<MessageDto>> getMessagesInGroupChat(@PathVariable Long groupChatId) {
+    public ResponseEntity<List<GroupMessageDto>> getMessagesInGroupChat(@PathVariable Long groupChatId) {
         logger.info("Fetching messages in group chat with ID: {}", groupChatId);
-        List<MessageDto> messages = messageService.getMessagesInGroupChat(groupChatId)
+        List<GroupMessageDto> messages = messageService.getMessagesInGroupChat(groupChatId)
                 .stream()
-                .map(MessageMapper::toDto)
+                .map(MessageMapper::groupMessageToDto)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(messages);
     }

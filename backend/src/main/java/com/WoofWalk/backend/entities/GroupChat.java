@@ -29,5 +29,5 @@ public class GroupChat {
     private Set<User> members = new HashSet<>();
 
     @OneToMany(mappedBy = "groupChat")
-    private Set<Message> messages = new HashSet<>();
+    private Set<GroupMessage> messages = new HashSet<>();
 }

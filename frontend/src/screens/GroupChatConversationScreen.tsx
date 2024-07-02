@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { FlatList, Platform, StyleSheet, View } from 'react-native';
 import { TextInput, Text, Card, IconButton, Provider, Avatar } from 'react-native-paper';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -32,9 +32,11 @@ const GroupChatConversationScreen: React.FC = () => {
     const [messages, setMessages] = useState<Message[]>([]);
     const [socket, setSocket] = useState<any>(null);
     const navigation = useNavigation<GroupChatConversationScreenNavigationProp>();
-    const {user} = useAuth0();
+    const { user } = useAuth0();
     const [userProfilePicture, setUserProfilePicture] = useState<string>('');
-    const [userSubs, setUserSubs] = useState<Map<string, string> | null>(null);
+    const [userSubs, setUserSubs] = useState<Map<string, string>>(new Map());
+
+    const socketRef = useRef<any>(null);
 
     useEffect(() => {
         const fetchMessages = async () => {
@@ -49,8 +51,11 @@ const GroupChatConversationScreen: React.FC = () => {
         const fetchUserSubs = async () => {
             try {
                 const response = await apiClient.get(`/chat/group/userSubs/${groupChatId}`);
-                setUserSubs(response.data);
-                console.log('User subs:', response.data);
+                const subsMap = new Map<string, string>(
+                    Object.entries(response.data).map(([key, value]) => [key, String(value)])
+                );
+                setUserSubs(subsMap);
+                console.log('User subs:', subsMap);
             } catch (error) {
                 console.error('Error fetching user subs:', error);
             }
@@ -78,6 +83,7 @@ const GroupChatConversationScreen: React.FC = () => {
                     setMessages((prevMessages) => [...prevMessages, { ...msg, type: 'group' }]);
                 });
 
+                socketRef.current = socketInstance;
                 setSocket(socketInstance);
             } else {
                 console.error('No token found');
@@ -87,17 +93,15 @@ const GroupChatConversationScreen: React.FC = () => {
         initializeSocket();
 
         return () => {
-            if (socket) {
-                socket.disconnect();
+            if (socketRef.current) {
+                socketRef.current.disconnect();
             }
         };
     }, [groupChatId]);
 
     const sendGroupMessage = () => {
-        if (socket) {
-            const newMessage: Message = { content: message, type: 'group', sender: user?.email || ''};
-            setMessages((prevMessages) => [...prevMessages, newMessage]);
-            socket.emit('group_message', { content: message, groupId: groupChatId });
+        if (socketRef.current) {
+            socketRef.current.emit('group_message', { content: message, groupId: groupChatId });
             setMessage('');
         } else {
             console.error('Socket is not connected');
@@ -112,12 +116,12 @@ const GroupChatConversationScreen: React.FC = () => {
                     renderItem={({ item }) => (
                         <Card style={styles.messageCard}>
                             <Card.Title
-                                title={item.sender}
-                                titleStyle={{fontWeight: 'bold', fontSize: 12}}
+                                title={userSubs?.get(item.sender) || item.sender}
+                                titleStyle={{ fontWeight: 'bold', fontSize: 12 }}
                                 left={() =>
                                     <Avatar.Image
                                         size={40}
-                                        source={{ uri: item.sender == user?.email ? userProfilePicture : 'https://cdn-icons-png.flaticon.com/128/848/848043.png' }}
+                                        source={{ uri: item.sender === user?.email ? userProfilePicture : 'https://cdn-icons-png.flaticon.com/128/848/848043.png' }}
                                         style={{ backgroundColor: '#fff' }}
                                     />}
                             />

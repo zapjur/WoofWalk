@@ -17,6 +17,7 @@
 /Users/piotrzapior/Documents/Github/WoofWalk/backend/src/main/java/com/WoofWalk/backend/dto/DogSummaryDto.java
 /Users/piotrzapior/Documents/Github/WoofWalk/backend/src/main/java/com/WoofWalk/backend/dto/FriendRequestDto.java
 /Users/piotrzapior/Documents/Github/WoofWalk/backend/src/main/java/com/WoofWalk/backend/dto/GroupChatDto.java
+/Users/piotrzapior/Documents/Github/WoofWalk/backend/src/main/java/com/WoofWalk/backend/dto/GroupMessageDto.java
 /Users/piotrzapior/Documents/Github/WoofWalk/backend/src/main/java/com/WoofWalk/backend/dto/LocationDetailsDto.java
 /Users/piotrzapior/Documents/Github/WoofWalk/backend/src/main/java/com/WoofWalk/backend/dto/LocationDto.java
 /Users/piotrzapior/Documents/Github/WoofWalk/backend/src/main/java/com/WoofWalk/backend/dto/MessageDto.java
@@ -28,6 +29,7 @@
 /Users/piotrzapior/Documents/Github/WoofWalk/backend/src/main/java/com/WoofWalk/backend/entities/Event.java
 /Users/piotrzapior/Documents/Github/WoofWalk/backend/src/main/java/com/WoofWalk/backend/entities/FriendRequest.java
 /Users/piotrzapior/Documents/Github/WoofWalk/backend/src/main/java/com/WoofWalk/backend/entities/GroupChat.java
+/Users/piotrzapior/Documents/Github/WoofWalk/backend/src/main/java/com/WoofWalk/backend/entities/GroupMessage.java
 /Users/piotrzapior/Documents/Github/WoofWalk/backend/src/main/java/com/WoofWalk/backend/entities/Location.java
 /Users/piotrzapior/Documents/Github/WoofWalk/backend/src/main/java/com/WoofWalk/backend/entities/Message.java
 /Users/piotrzapior/Documents/Github/WoofWalk/backend/src/main/java/com/WoofWalk/backend/entities/PrivateChat.java
@@ -49,6 +51,7 @@
 /Users/piotrzapior/Documents/Github/WoofWalk/backend/src/main/java/com/WoofWalk/backend/repositories/EventRepository.java
 /Users/piotrzapior/Documents/Github/WoofWalk/backend/src/main/java/com/WoofWalk/backend/repositories/FriendRequestRepository.java
 /Users/piotrzapior/Documents/Github/WoofWalk/backend/src/main/java/com/WoofWalk/backend/repositories/GroupChatRepository.java
+/Users/piotrzapior/Documents/Github/WoofWalk/backend/src/main/java/com/WoofWalk/backend/repositories/GroupMessageRepository.java
 /Users/piotrzapior/Documents/Github/WoofWalk/backend/src/main/java/com/WoofWalk/backend/repositories/LocationRepository.java
 /Users/piotrzapior/Documents/Github/WoofWalk/backend/src/main/java/com/WoofWalk/backend/repositories/MessageRepository.java
 /Users/piotrzapior/Documents/Github/WoofWalk/backend/src/main/java/com/WoofWalk/backend/repositories/PrivateChatRepository.java

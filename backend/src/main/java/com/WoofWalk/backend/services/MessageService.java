@@ -1,10 +1,10 @@
 package com.WoofWalk.backend.services;
 
-import com.WoofWalk.backend.entities.GroupChat;
-import com.WoofWalk.backend.entities.Message;
-import com.WoofWalk.backend.entities.PrivateChat;
-import com.WoofWalk.backend.entities.User;
+import com.WoofWalk.backend.dto.GroupMessageDto;
+import com.WoofWalk.backend.entities.*;
+import com.WoofWalk.backend.mappers.MessageMapper;
 import com.WoofWalk.backend.repositories.GroupChatRepository;
+import com.WoofWalk.backend.repositories.GroupMessageRepository;
 import com.WoofWalk.backend.repositories.MessageRepository;
 import com.WoofWalk.backend.repositories.PrivateChatRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +24,7 @@ public class MessageService {
     private final MessageRepository messageRepository;
     private final PrivateChatRepository privateChatRepository;
     private final GroupChatRepository groupChatRepository;
-    private final UserService userService;
+    private final GroupMessageRepository groupMessageRepository;
 
     public Message savePrivateMessage(Message message, Long privateChatId) {
         PrivateChat privateChat = privateChatRepository.findById(privateChatId)
@@ -33,11 +33,12 @@ public class MessageService {
         return messageRepository.save(message);
     }
 
-    public Message saveGroupMessage(Message message, Long groupChatId) {
+    public GroupMessage saveGroupMessage(GroupMessageDto message, Long groupChatId) {
         GroupChat groupChat = groupChatRepository.findById(groupChatId)
                 .orElseThrow(() -> new RuntimeException("Group chat not found"));
-        message.setGroupChat(groupChat);
-        return messageRepository.save(message);
+        GroupMessage groupMessage = MessageMapper.groupMessageDtoToEntity(message);
+        groupMessage.setGroupChat(groupChat);
+        return groupMessageRepository.save(groupMessage);
     }
 
     public List<Message> getMessagesInPrivateChat(Long privateChatId) {
@@ -46,10 +47,10 @@ public class MessageService {
         return messageRepository.findByPrivateChat(privateChat);
     }
 
-    public List<Message> getMessagesInGroupChat(Long groupChatId) {
+    public List<GroupMessage> getMessagesInGroupChat(Long groupChatId) {
         GroupChat groupChat = groupChatRepository.findById(groupChatId)
                 .orElseThrow(() -> new RuntimeException("Group chat not found"));
-        return messageRepository.findByGroupChat(groupChat);
+        return groupMessageRepository.findByGroupChat(groupChat);
     }
 
     public PrivateChat createPrivateChat(User user1, User user2) {
@@ -77,6 +78,6 @@ public class MessageService {
         GroupChat groupChat = groupChatRepository.findById(groupChatId)
                 .orElseThrow(() -> new RuntimeException("Group chat not found"));
         return groupChat.getMembers().stream()
-                .collect(Collectors.toMap(User::getEmail, User::getSub));
+                .collect(Collectors.toMap(User::getSub, User::getEmail));
     }
 }
