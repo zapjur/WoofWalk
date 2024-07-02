@@ -1,5 +1,0 @@
-# Created at 2024-06-26T18:21:07.502
-Boot Manifest-JAR contains absolute paths in classpath 'D:\Studia\WWW_itp\WWW_studia\WoofWalk\backend\target\test-classes'
-Hint: <argLine>-Djdk.net.URLClassPath.disableClassPathURLCheck=true</argLine>
-'other' has different root
-

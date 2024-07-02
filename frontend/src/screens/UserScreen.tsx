@@ -28,7 +28,7 @@ import { parsePhoneNumberFromString } from 'libphonenumber-js';
 type MapScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Map'>;
 type UserScreenNavigationProp = StackNavigationProp<RootStackParamList, 'User'>
 type FriendsScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Friends'>
-type ChatScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Chat'>
+type ChatScreenNavigationProp = StackNavigationProp<RootStackParamList, 'ChatList'>
 interface UserScreenProps {
     navigation: MapScreenNavigationProp & UserScreenNavigationProp & FriendsScreenNavigationProp & ChatScreenNavigationProp;
 }
@@ -72,20 +72,16 @@ const UserScreen: React.FC<UserScreenProps> = ({ navigation }) => {
 
     useEffect(() => {
         if(user){
-            apiClient.get("/user/profilePicture/download", {
-                params: { email: user.email },
-                responseType: 'blob'
+            apiClient.get("/user/getProfilePicture", {
+                params: {
+                    email: user.email
+                },
             }).then(response => {
                 if(response.status === 204){
                     setImage("https://cdn-icons-png.flaticon.com/128/848/848043.png");
                 }
                 else{
-                    const blob = response.data;
-                    const reader = new FileReader();
-                    reader.onloadend = () => {
-                        if (reader.result) setImage(reader.result as string);
-                    };
-                    reader.readAsDataURL(blob);
+                    setImage(response.data);
                 }
             }).catch(error => {
                 console.log(error);
@@ -419,9 +415,9 @@ const UserScreen: React.FC<UserScreenProps> = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f9f9f9',
         padding: 20,
         marginTop: 30,
+
     },
     image: {
         height: 25,
@@ -528,7 +524,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         gap: 8,
-        backgroundColor: '#60dc62',
+        backgroundColor: '#4c956c',
         borderRadius: 24,
         width: '80%',
         height: 30,

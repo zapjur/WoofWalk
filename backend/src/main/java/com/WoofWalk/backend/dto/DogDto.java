@@ -13,6 +13,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class DogDto {
+
     private Long id;
     private String userEmail;
     private String name;

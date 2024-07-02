@@ -32,6 +32,10 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping("/getUserSub")
+    public String getUserSub(@RequestParam("email") String email){
+        return userService.getUserSub(email);
+    }
 
     @PostMapping("/updateAddress")
     public UserDto updateUserAddress(@RequestBody UserDto userDto){
@@ -79,7 +83,7 @@ public class UserController {
             }
         }
     }
-    @GetMapping("/profilePicture/friends/downloadm")
+    @GetMapping("/profilePicture/friends/download")
     public ResponseEntity<ByteArrayResource> getFriendsImage(@RequestParam("email") String email) throws IOException {
         try(S3Object s3Object = s3Service.downloadProfilePicture(email);){
 
@@ -102,5 +106,17 @@ public class UserController {
     @PostMapping("/profilePicture/delete")
     public ResponseEntity<String> deleteProfilePicture(@RequestBody UserDto userDto){
         return s3Service.deleteImage(userDto.getEmail());
+    }
+
+    @GetMapping("/getProfilePicture")
+    public ResponseEntity<String> getProfilePicture(@RequestParam("email") String email){
+        String imgUri =  userService.getProfilePicture(email);
+        if(imgUri == null){
+            return  ResponseEntity.noContent().build();
+        }
+        else{
+            return ResponseEntity.ok(imgUri);
+        }
+
     }
 }

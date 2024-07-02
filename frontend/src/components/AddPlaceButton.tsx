@@ -29,7 +29,7 @@ const styles = StyleSheet.create({
         bottom: 87,
         left: '46%',
         transform: [{ translateX: -100 }],
-        backgroundColor: '#60dc62',
+        backgroundColor: '#4c956c',
         paddingVertical: 10,
         paddingHorizontal: 20,
         borderRadius: 25,
