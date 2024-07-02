@@ -73,6 +73,14 @@ public class MessageController {
         return ResponseEntity.ok(userSubs);
     }
 
+    @GetMapping("/group/profilePictures/{groupChatId}")
+    public ResponseEntity<Map<String, String>> getGroupChatProfilePictures(@PathVariable Long groupChatId) {
+        logger.info("Fetching profile pictures in group chat with ID: {}", groupChatId);
+        Map<String, String> profilePictures = messageService.getGroupChatProfilePictures(groupChatId);
+        logger.info("Profile pictures in group chat with ID {}: {}", groupChatId, profilePictures);
+        return ResponseEntity.ok(profilePictures);
+    }
+
     @PostMapping("/private/create")
     public ResponseEntity<PrivateChatDto> createPrivateChat(@RequestHeader("Authorization") String token, @RequestParam String user2Email) {
         String jwtToken = token.replace("Bearer ", "");

@@ -35,6 +35,7 @@ const GroupChatConversationScreen: React.FC = () => {
     const { user } = useAuth0();
     const [userProfilePicture, setUserProfilePicture] = useState<string>('');
     const [userSubs, setUserSubs] = useState<Map<string, string>>(new Map());
+    const [userProfilePictures, setUserProfilePictures] = useState<Map<string, string>>(new Map());
 
     const socketRef = useRef<any>(null);
 
@@ -61,7 +62,21 @@ const GroupChatConversationScreen: React.FC = () => {
             }
         };
 
+        const fetchUserProfilePictures = async () => {
+            try {
+                const response = await apiClient.get(`/chat/group/profilePictures/${groupChatId}`);
+                const picturesMap = new Map<string, string>(
+                    Object.entries(response.data).map(([key, value]) => [key, String(value)])
+                );
+                setUserProfilePictures(picturesMap);
+                console.log('User pictures:', picturesMap);
+            } catch (error) {
+                console.error('Error fetching user subs:', error);
+            }
+        };
+
         fetchUserSubs();
+        fetchUserProfilePictures()
         fetchMessages();
 
         const initializeSocket = async () => {
@@ -121,7 +136,7 @@ const GroupChatConversationScreen: React.FC = () => {
                                 left={() =>
                                     <Avatar.Image
                                         size={40}
-                                        source={{ uri: item.sender === user?.email ? userProfilePicture : 'https://cdn-icons-png.flaticon.com/128/848/848043.png' }}
+                                        source={{ uri: userProfilePictures?.get(item.sender) || 'https://cdn-icons-png.flaticon.com/128/848/848043.png' }}
                                         style={{ backgroundColor: '#fff' }}
                                     />}
                             />

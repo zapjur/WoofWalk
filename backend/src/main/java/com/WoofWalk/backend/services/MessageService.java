@@ -25,6 +25,7 @@ public class MessageService {
     private final PrivateChatRepository privateChatRepository;
     private final GroupChatRepository groupChatRepository;
     private final GroupMessageRepository groupMessageRepository;
+    private final S3Service s3Service;
 
     public Message savePrivateMessage(Message message, Long privateChatId) {
         PrivateChat privateChat = privateChatRepository.findById(privateChatId)
@@ -79,5 +80,16 @@ public class MessageService {
                 .orElseThrow(() -> new RuntimeException("Group chat not found"));
         return groupChat.getMembers().stream()
                 .collect(Collectors.toMap(User::getSub, User::getEmail));
+    }
+
+    public Map<String, String> getGroupChatProfilePictures(Long groupChatId) {
+        GroupChat groupChat = groupChatRepository.findById(groupChatId)
+                .orElseThrow(() -> new RuntimeException("Group chat not found"));
+        return groupChat.getMembers().stream()
+                .filter(user -> user.getProfilePictureId() != null && !user.getProfilePictureId().isEmpty())
+                .collect(Collectors.toMap(
+                        User::getSub,
+                        user -> s3Service.getFileUrl(user.getProfilePictureId())
+                ));
     }
 }
