@@ -2,33 +2,27 @@ package com.WoofWalk.backend.services;
 
 
 
+
+import com.WoofWalk.backend.dto.UserInfoDto;
 import com.WoofWalk.backend.entities.Event;
 import com.WoofWalk.backend.entities.User;
 import com.WoofWalk.backend.repositories.EventRepository;
 import com.WoofWalk.backend.repositories.UserRepository;
-import com.amazonaws.services.s3.model.S3Object;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
 public class EventService {
 
+    private final UserService userService;
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
-    private final S3Service s3Service;
     private final static Logger logger = LoggerFactory.getLogger(EventService.class);
 
     public void createEvent(String name, Long placeId){
@@ -79,12 +73,19 @@ public class EventService {
         return events.contains(event);
     }
 
-    public Set<String> getAllUsers(long placeId) {
+    public List<UserInfoDto> getAllUsers(long placeId) {
         Event event = eventRepository.findByPlaceID(placeId)
                 .orElseThrow(() -> new EntityNotFoundException("No such event"));
-
-        return event.getUsers().stream()
-                .map(User::getEmail)
-                .collect(Collectors.toSet());
+        Set<User> users = event.getUsers();
+        List<UserInfoDto> dto = new ArrayList<>();
+        for(User user:users){
+            String imageUri = userService.getProfilePicture(user.getEmail());
+            String userEmail = user.getEmail();
+            UserInfoDto userInfoDto = new UserInfoDto();
+            userInfoDto.setEmail(userEmail);
+            userInfoDto.setImageUri(imageUri);
+            dto.add(userInfoDto);
+        }
+        return dto;
     }
 }

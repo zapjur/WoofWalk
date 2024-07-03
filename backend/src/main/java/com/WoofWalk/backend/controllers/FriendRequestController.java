@@ -1,7 +1,7 @@
 package com.WoofWalk.backend.controllers;
 
 import com.WoofWalk.backend.dto.FriendRequestDto;
-import com.WoofWalk.backend.dto.UserDto;
+import com.WoofWalk.backend.dto.UserInfoDto;
 import com.WoofWalk.backend.entities.FriendRequest;
 import com.WoofWalk.backend.services.FriendRequestService;
 import lombok.RequiredArgsConstructor;
@@ -25,13 +25,13 @@ public class FriendRequestController {
     }
 
     @GetMapping("/receivedFriendRequests")
-    public List<FriendRequest> getReceivedFriendRequests(
+    public List<FriendRequestDto> getReceivedFriendRequests(
             @RequestParam("receiverEmail") String receiverEmail){
         return friendRequestService.getReceivedFriendRequests(receiverEmail);
     }
 
     @GetMapping("/sentFriendRequests")
-    public List<FriendRequest> getSentFriendRequests(
+    public List<FriendRequestDto> getSentFriendRequests(
             @RequestParam("senderEmail") String senderEmail
     ){
         return friendRequestService.getSentFriendRequests(senderEmail);
@@ -49,7 +49,7 @@ public class FriendRequestController {
     }
 
     @GetMapping("/getAllFriends")
-    public Set<UserDto> getAllFriends(@RequestParam("email") String email){
+    public Set<UserInfoDto> getAllFriends(@RequestParam("email") String email){
         return friendRequestService.getAllFriends(email);
     }
 }

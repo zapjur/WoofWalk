@@ -1,18 +1,18 @@
 package com.WoofWalk.backend.dto;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
+@NoArgsConstructor
 public class FriendRequestDto {
+    private long id;
     private String senderEmail;
     private String receiverEmail;
+    private String imageUri;
     private String status;
 
-    public FriendRequestDto(String senderEmail, String receiverEmail, String status){
-        this.senderEmail = senderEmail;
-        this.receiverEmail = receiverEmail;
-        this.status = status;
-    }
+
 }

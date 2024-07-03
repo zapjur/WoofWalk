@@ -83,7 +83,7 @@ public class UserController {
             }
         }
     }
-    @GetMapping("/profilePicture/friends/downloadm")
+    @GetMapping("/profilePicture/friends/download")
     public ResponseEntity<ByteArrayResource> getFriendsImage(@RequestParam("email") String email) throws IOException {
         try(S3Object s3Object = s3Service.downloadProfilePicture(email);){
 
@@ -110,6 +110,13 @@ public class UserController {
 
     @GetMapping("/getProfilePicture")
     public ResponseEntity<String> getProfilePicture(@RequestParam("email") String email){
-        return ResponseEntity.ok(userService.getProfilePicture(email));
+        String imgUri =  userService.getProfilePicture(email);
+        if(imgUri == null){
+            return  ResponseEntity.noContent().build();
+        }
+        else{
+            return ResponseEntity.ok(imgUri);
+        }
+
     }
 }
