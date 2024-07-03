@@ -18,6 +18,7 @@ import {LocationProvider} from "./src/contexts/LocationContext";
 import EventScreen from "./src/screens/EventScreen";
 import ChatListScreen from "./src/screens/ChatListScreen";
 import ChatConversationScreen from "./src/screens/ChatConversationScreen";
+import GroupChatConversationScreen from "./src/screens/GroupChatConversationScreen";
 
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -38,6 +39,7 @@ const App: React.FC = () => {
                         <Stack.Screen name="NearbyScreen" component={NearbyScreen} options={{ headerShown: false }}/>
                         <Stack.Screen name="ChatList" component={ChatListScreen} options={{ headerShown: false }}/>
                         <Stack.Screen name="ChatConversation" component={ChatConversationScreen} options={{ headerShown: false }}/>
+                        <Stack.Screen name="GroupChatConversation" component={GroupChatConversationScreen} options={{ headerShown: false }}/>
                     </Stack.Navigator>
                 </NavigationContainer>
             </LocationProvider>

@@ -9,5 +9,4 @@ import java.util.List;
 
 public interface MessageRepository extends JpaRepository<Message, Long> {
     List<Message> findByPrivateChat(PrivateChat privateChat);
-    List<Message> findByGroupChat(GroupChat groupChat);
 }

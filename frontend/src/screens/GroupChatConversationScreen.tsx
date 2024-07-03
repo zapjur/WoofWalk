@@ -11,12 +11,12 @@ import BottomBar from "../components/BottomBar";
 import theme from "../constants/theme";
 import { useAuth0 } from "react-native-auth0";
 
-type ChatConversationScreenNavigationProp = StackNavigationProp<RootStackParamList, 'ChatConversation'>;
-type ChatConversationScreenRouteProp = RouteProp<RootStackParamList, 'ChatConversation'>;
+type GroupChatConversationScreenNavigationProp = StackNavigationProp<RootStackParamList, 'GroupChatConversation'>;
+type GroupChatConversationScreenRouteProp = RouteProp<RootStackParamList, 'GroupChatConversation'>;
 
 interface Message {
     content: string;
-    type: 'private';
+    type: 'group';
     sender: string;
 }
 
@@ -25,35 +25,25 @@ const baseURL = Platform.select({
     android: 'http://10.0.2.2:3000',
 });
 
-const ChatConversationScreen: React.FC = () => {
-    const route = useRoute<ChatConversationScreenRouteProp>();
-    const { chatId, recipient } = route.params;
+const GroupChatConversationScreen: React.FC = () => {
+    const route = useRoute<GroupChatConversationScreenRouteProp>();
+    const { groupChatId, members } = route.params;
     const [message, setMessage] = useState<string>('');
     const [messages, setMessages] = useState<Message[]>([]);
     const [socket, setSocket] = useState<any>(null);
-    const [recipientSub, setRecipentSub] = useState<string>('');
-    const [userProfilePicture, setUserProfilePicture] = useState<string>('');
-    const [recipientProfilePicture, setRecipientProfilePicture] = useState<string>('');
-    const navigation = useNavigation<ChatConversationScreenNavigationProp>();
+    const navigation = useNavigation<GroupChatConversationScreenNavigationProp>();
     const { user } = useAuth0();
+    const [userProfilePicture, setUserProfilePicture] = useState<string>('');
+    const [userSubs, setUserSubs] = useState<Map<string, string>>(new Map());
+    const [userProfilePictures, setUserProfilePictures] = useState<Map<string, string>>(new Map());
 
+    const socketRef = useRef<any>(null);
     const flatListRef = useRef<FlatList>(null);
 
     useEffect(() => {
-        const getRecipientSub = async () => {
-            apiClient.get('/user/getUserSub', { params: { email: recipient } })
-                .then((response) => {
-                    setRecipentSub(response.data);
-                    console.log('Recipient sub:', response.data);
-                })
-                .catch((error) => {
-                    console.error('Error fetching recipient sub:', error);
-                });
-        };
-
         const fetchMessages = async () => {
             try {
-                const response = await apiClient.get(`/chat/private/${chatId}`);
+                const response = await apiClient.get(`/chat/group/${groupChatId}`);
                 setMessages(response.data);
                 setTimeout(() => {
                     if (flatListRef.current) {
@@ -65,39 +55,35 @@ const ChatConversationScreen: React.FC = () => {
             }
         }
 
-        const fetchUserProfilePicture = async () => {
+        const fetchUserSubs = async () => {
             try {
-                if (!user?.email) return;
-                const response = await apiClient.get('/user/getProfilePicture', { params: { email: user.email } });
-                console.log('User profile picture:', response.data);
-                if (!response.data) {
-                    setUserProfilePicture('https://cdn-icons-png.flaticon.com/128/848/848043.png');
-                    return;
-                }
-                setUserProfilePicture(response.data);
+                const response = await apiClient.get(`/chat/group/userSubs/${groupChatId}`);
+                const subsMap = new Map<string, string>(
+                    Object.entries(response.data).map(([key, value]) => [key, String(value)])
+                );
+                setUserSubs(subsMap);
+                console.log('User subs:', subsMap);
             } catch (error) {
-                console.error('Error fetching user profile picture:', error);
+                console.error('Error fetching user subs:', error);
             }
-        }
+        };
 
-        const fetchRecipientProfilePicture = async () => {
+        const fetchUserProfilePictures = async () => {
             try {
-                const response = await apiClient.get('/user/getProfilePicture', { params: { email: recipient } });
-                console.log('Recipent profile picture:', response.data);
-                if (!response.data) {
-                    setRecipientProfilePicture('https://cdn-icons-png.flaticon.com/128/848/848043.png');
-                    return;
-                }
-                setRecipientProfilePicture(response.data);
+                const response = await apiClient.get(`/chat/group/profilePictures/${groupChatId}`);
+                const picturesMap = new Map<string, string>(
+                    Object.entries(response.data).map(([key, value]) => [key, String(value)])
+                );
+                setUserProfilePictures(picturesMap);
+                console.log('User pictures:', picturesMap);
             } catch (error) {
-                console.error('Error fetching recipient profile picture:', error);
+                console.error('Error fetching user subs:', error);
             }
-        }
+        };
 
-        getRecipientSub();
+        fetchUserSubs();
+        fetchUserProfilePictures();
         fetchMessages();
-        fetchUserProfilePicture();
-        fetchRecipientProfilePicture();
 
         const initializeSocket = async () => {
             const token = await SecureStore.getItemAsync('authToken');
@@ -110,13 +96,15 @@ const ChatConversationScreen: React.FC = () => {
 
                 socketInstance.on('connect', () => {
                     console.log('connected to server');
+                    socketInstance.emit('join_group', groupChatId);
                 });
 
-                socketInstance.on('private_message', (msg: Message) => {
-                    console.log('Private message received:', msg);
-                    setMessages((prevMessages) => [...prevMessages, { ...msg, type: 'private' }]);
+                socketInstance.on('group_message', (msg: Message) => {
+                    console.log('Group message received:', msg);
+                    setMessages((prevMessages) => [...prevMessages, { ...msg, type: 'group' }]);
                 });
 
+                socketRef.current = socketInstance;
                 setSocket(socketInstance);
             } else {
                 console.error('No token found');
@@ -126,11 +114,11 @@ const ChatConversationScreen: React.FC = () => {
         initializeSocket();
 
         return () => {
-            if (socket) {
-                socket.disconnect();
+            if (socketRef.current) {
+                socketRef.current.disconnect();
             }
         };
-    }, [chatId, recipient]);
+    }, [groupChatId]);
 
     useEffect(() => {
         if (flatListRef.current) {
@@ -138,11 +126,9 @@ const ChatConversationScreen: React.FC = () => {
         }
     }, [messages]);
 
-    const sendPrivateMessage = () => {
-        if (socket) {
-            const newMessage: Message = { content: message, type: 'private', sender: user?.email || '' };
-            setMessages((prevMessages) => [...prevMessages, newMessage]);
-            socket.emit('private_message', { content: message, to: recipientSub, chatId });
+    const sendGroupMessage = () => {
+        if (socketRef.current) {
+            socketRef.current.emit('group_message', { content: message, groupId: groupChatId });
             setMessage('');
         } else {
             console.error('Socket is not connected');
@@ -158,12 +144,12 @@ const ChatConversationScreen: React.FC = () => {
                     renderItem={({ item }) => (
                         <Card style={styles.messageCard}>
                             <Card.Title
-                                title={item.sender == recipientSub ? recipient : user?.email}
+                                title={userSubs?.get(item.sender) || item.sender}
                                 titleStyle={{ fontWeight: 'bold', fontSize: 12 }}
                                 left={() =>
                                     <Avatar.Image
                                         size={40}
-                                        source={{ uri: item.sender == recipientSub ? recipientProfilePicture : userProfilePicture }}
+                                        source={{ uri: userProfilePictures?.get(item.sender) || 'https://cdn-icons-png.flaticon.com/128/848/848043.png' }}
                                         style={{ backgroundColor: '#fff' }}
                                     />}
                             />
@@ -189,7 +175,7 @@ const ChatConversationScreen: React.FC = () => {
                     <IconButton
                         icon="send"
                         size={24}
-                        onPress={sendPrivateMessage}
+                        onPress={sendGroupMessage}
                     />
                 </View>
                 <BottomBar navigation={navigation} />
@@ -227,4 +213,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default ChatConversationScreen;
+export default GroupChatConversationScreen;

@@ -93,6 +93,11 @@ const initializeServer = async () => {
         const userSub = (socket as any).decoded.sub;
         userSockets.set(userSub, socket.id);
 
+        socket.on('join_group', (groupId: string) => {
+            socket.join(groupId);
+            console.log(`User ${userSub} joined group ${groupId}`);
+        });
+
         socket.on('private_message', async ({ content, to, chatId }: { content: string; to: string, chatId: string }) => {
             console.log('Private message received:', content, 'to:', to);
 
@@ -117,6 +122,28 @@ const initializeServer = async () => {
                 console.log('Message saved to Spring Boot server');
             } catch (error) {
                 console.error('Error fetching recipient sub or sending message:', error);
+            }
+        });
+
+        socket.on('group_message', async ({ content, groupId }: { content: string; groupId: string }) => {
+            console.log('Group message received:', content, 'groupId:', groupId);
+
+            try {
+                io.to(groupId).emit('group_message', { content, sender: userSub });
+                console.log('Group message sent to group:', groupId);
+
+                const token = socket.handshake.auth.token;
+                const timestamp = Date.now();
+                const messageData = { content, groupId, sender: userSub, timestamp };
+                console.log('Group message data to be sent:', messageData);
+                await axios.post(`http://localhost:8080/chat/group/${groupId}`, messageData, {
+                    headers: {
+                        Authorization: token
+                    }
+                });
+                console.log('Group message saved to Spring Boot server');
+            } catch (error) {
+                console.error('Error sending group message:', error);
             }
         });
 
