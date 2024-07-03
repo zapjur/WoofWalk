@@ -63,7 +63,8 @@ const UserScreen: React.FC<UserScreenProps> = ({ navigation }) => {
             apiClient.get("/user/getPhoneNumber", {
                 params: { email: user.email }
             }).then(response => {
-                setPhoneNumber(response.data.length !== 0 ? response.data : "Provide your phone number");
+                let formattedNumber = formatPhoneNumber(response.data);
+                setPhoneNumber(response.data.length !== 0 && formattedNumber ? formattedNumber : "Provide your phone number");
             });
         }
         setRefreshUserData(false);
@@ -225,6 +226,14 @@ const UserScreen: React.FC<UserScreenProps> = ({ navigation }) => {
         }
     };
 
+    function formatPhoneNumber(phoneNumberString: string) {
+        let cleaned = ('' + phoneNumberString).replace(/\D/g, '');
+        let match = cleaned.match(/^(\d{3})(\d{3})(\d{3})$/);
+        if (match) {
+            return match[1] + '-' + match[2] + '-' + match[3];
+        }
+        return null;
+    }
     const saveImage = async (imageUri: string) => {
         const userEmail = user?.email;
         if (user && userEmail) {
@@ -268,6 +277,9 @@ const UserScreen: React.FC<UserScreenProps> = ({ navigation }) => {
             .map(word => word.charAt(0).toUpperCase() + word.slice(1))
             .join(' ');
     };
+
+
+
 
 
     return (

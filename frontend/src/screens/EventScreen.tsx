@@ -157,7 +157,7 @@ const EventScreen: React.FC<EventScreenProps> = ({ route }) => {
                     <Text style={styles.descriptionText}>{place.description}</Text>
                     <View style={styles.separator} />
                     <Text style={styles.nameText}>Users interested in {place.name} ({interestedUsers.length})</Text>
-                    <ScrollView style={styles.shadowPanel}>
+                    <ScrollView >
                         <View style={styles.container}>
                             {interestedUsers.length > 0 ? (
                                 interestedUsers.map((user, index) => (
@@ -221,7 +221,7 @@ const styles = StyleSheet.create({
     shadowPanel: {
         backgroundColor: 'white',
         borderRadius: 10,
-        width: "100%",
+        width: "98%",
         padding: 10,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },

@@ -37,6 +37,7 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
     const [refresh, setRefresh] = useState(false);
     const {user} = useAuth0();
     const [selectedTab, setSelectedTab] = useState('Friends');
+    const [friendInfo, setFriendInfo] = useState('Friends');
 
     useEffect(() => {
         if(user){
@@ -110,40 +111,24 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
 
     return(
         <View style={styles.container}>
-            <View style={styles.bar}>
-                <View style={styles.topBar}>
-                    <Text style={styles.topName}>{selectedTab}</Text>
-                </View>
-            </View>
-            <View style={{ borderBottomColor: 'gray', borderBottomWidth: 1, marginVertical: 10 }} />
+            <View style={styles.bar}></View>
             <View style={styles.buttonContainer}>
-                <TouchableOpacity style={styles.button} onPress={() => {
-                    setSelectedTab('Friends')
-
-                }}>
+                <TouchableOpacity style={[styles.button, selectedTab === 'Friends' && styles.activeButton]} onPress={() => setSelectedTab('Friends')}>
                     <View style={styles.innerContainer}>
-                        <Text style={styles.textNextTo}>Friends</Text>
-                        <MaterialCommunityIcon name={"account-group"} size={33} color={"white"}></MaterialCommunityIcon>
+                        <Text style={[styles.textNextTo, selectedTab === 'Friends' && styles.activeText]}>Friends</Text>
+                        <MaterialCommunityIcon name={"account-group"} size={33} color={selectedTab === 'Friends' ? "white" : "#4c956c"} />
                     </View>
                 </TouchableOpacity>
-
-                <TouchableOpacity style={styles.button} onPress={() =>{
-                    setSelectedTab('Requests');
-
-                    }}>
+                <TouchableOpacity style={[styles.button, selectedTab === 'Requests' && styles.activeButton]} onPress={() => setSelectedTab('Requests')}>
                     <View style={styles.innerContainer}>
-                        <Text style={styles.textNextTo} >Requests</Text>
-                        <MaterialCommunityIcon name={"human-greeting-variant"} size={33} color={"white"}></MaterialCommunityIcon>
+                        <Text style={[styles.textNextTo, selectedTab === 'Requests' && styles.activeText]}>Requests</Text>
+                        <MaterialCommunityIcon name={"human-greeting-variant"} size={33} color={selectedTab === 'Requests' ? "white" : "#4c956c"} />
                     </View>
                 </TouchableOpacity>
-
-                <TouchableOpacity style={styles.button} onPress={() => {
-                    setSelectedTab('Sent')
-
-                }}>
+                <TouchableOpacity style={[styles.button, selectedTab === 'Sent' && styles.activeButton]} onPress={() => setSelectedTab('Sent')}>
                     <View style={styles.innerContainer}>
-                        <Text style={styles.textNextTo}>Sent</Text>
-                        <MaterialCommunityIcon name={"email-fast"} size={33} color={"white"}></MaterialCommunityIcon>
+                        <Text style={[styles.textNextTo, selectedTab === 'Sent' && styles.activeText]}>Sent</Text>
+                        <MaterialCommunityIcon name={"email-fast"} size={33} color={selectedTab === 'Sent' ? "white" : "#4c956c"} />
                     </View>
                 </TouchableOpacity>
             </View>
@@ -173,9 +158,10 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
                                             />
                                         )}
                                         <Text style={styles.textSend}>{friend.friendEmail}</Text>
+
                                     </View>
                                 </View>
-                        ))
+                            ))
                     )}
                 </ScrollView>
             }
@@ -208,20 +194,20 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
                                                 <View style={styles.buttonPanel}>
                                                     <TouchableOpacity style={styles.addButton} onPress={() => acceptFriendRequest(invitation.id)}>
                                                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                                            <MaterialCommunityIcon name={"account-multiple-check"} size={21}></MaterialCommunityIcon>
+                                                            <MaterialCommunityIcon name={"account-multiple-check"} size={21} />
                                                             <Text style={styles.buttonText}>Accept</Text>
                                                         </View>
                                                     </TouchableOpacity>
                                                     <TouchableOpacity style={styles.rejectButton} onPress={() => declineFriendRequest(invitation.id)}>
                                                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                                            <MaterialCommunityIcon name={"account-multiple-remove"} size={21}></MaterialCommunityIcon>
+                                                            <MaterialCommunityIcon name={"account-multiple-remove"} size={21} />
                                                             <Text style={styles.buttonText}>Reject</Text>
                                                         </View>
                                                     </TouchableOpacity>
                                                 </View>
                                             </View>
                                         </View>
-                                ))
+                                    ))
                             )}
                         </View>
                     </View>
@@ -231,21 +217,21 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
                 <View style={{flex: 1}}>
                     {sentFriendRequests.length === 0 ? (
                         <View style={styles.shadowPanel}>
-                            <Text style={styles.sadText} >You don't have any sent invitations</Text>
+                            <Text style={styles.sadText}>You don't have any sent invitations</Text>
                         </View>
                     ) : (
                         sentFriendRequests.map((invitation, index) => (
                             <View style={styles.shadowPanel} key={index}>
                                 <View style={{ flexDirection: 'row', alignItems: 'center', height: 82 }}>
-                                    {invitation.imageUri !== null ?  (
+                                    {invitation.imageUri !== null ? (
                                         <Image
                                             style={styles.imageStyle}
-                                            source={{uri: invitation.imageUri}}
+                                            source={{ uri: invitation.imageUri }}
                                         />
-                                    ): (
+                                    ) : (
                                         <Image
                                             style={styles.imageStyle}
-                                            source={{uri: "https://cdn-icons-png.flaticon.com/128/848/848043.png"}}
+                                            source={{ uri: "https://cdn-icons-png.flaticon.com/128/848/848043.png"}}
                                         />
                                     )}
                                     <Text style={styles.textSend}>{invitation.receiverEmail}</Text>
@@ -265,11 +251,9 @@ const FriendsScreen: React.FC<FriendsScreenProp> = ({navigation}) => {
                 <BottomBar navigation={navigation}/>
             </View>
         </View>
-
-
-
     );
 }
+
 const styles = StyleSheet.create({
     container: {
         marginTop: '10%',
@@ -285,7 +269,6 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 4,
         elevation: 5,
-
     },
     topName: {
         fontSize: 33,
@@ -307,30 +290,34 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 4,
         elevation: 5,
-
     },
     button: {
-        flex:1,
+        flex: 1,
         alignItems: 'center',
-        backgroundColor: '#74b291',
+        backgroundColor: 'white',
         margin: 5,
         borderRadius: 20,
-
+        borderWidth: 1,
+        borderColor: '#4c956c',
+    },
+    activeButton: {
+        backgroundColor: '#4c956c',
     },
     buttonPanel: {
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-
     },
     innerContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-
     },
     textNextTo: {
         marginRight: 10,
-        color: "white",
+        color: '#4c956c',
+    },
+    activeText: {
+        color: 'white',
     },
     textInvitation: {
         fontSize: 19,
@@ -349,7 +336,6 @@ const styles = StyleSheet.create({
         marginRight: 14,
     },
     rejectButton: {
-
         backgroundColor: 'red',
         borderRadius: 20,
         padding: 5,
@@ -402,6 +388,11 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 4,
         elevation: 10,
+
+    },
+    friendInfo: {
+        alignContent: 'flex-end',
     }
-})
+});
+
 export default FriendsScreen;
